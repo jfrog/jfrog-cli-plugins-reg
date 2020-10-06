@@ -1,0 +1,18 @@
+# IDEs
+.idea
+.vscode
+*.iml
+
+# Test files
+tmp
+out
+
+# JFrog executable
+plugins-template-dev
+
+# Vim
+*~
+*.swp
+
+# IOS
+*.DS_Store
