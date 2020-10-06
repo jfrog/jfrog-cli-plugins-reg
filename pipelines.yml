@@ -31,7 +31,7 @@ pipelines:
                 versions:
                   - "1.14.4"
           environmentVariables:
-            JFROG_CLI_OFFER_CONFIG: "false"
+            CI: "true"
             JFROG_CLI_PLUGINS_REGISTRY_URL: "https://releases.jfrog.io/artifactory"
             JFROG_CLI_PLUGINS_REGISTRY_REPO: "jfrog-cli-plugins"
             JFROG_CLI_PLUGIN_PLUGIN_NAME: "hello-frog"

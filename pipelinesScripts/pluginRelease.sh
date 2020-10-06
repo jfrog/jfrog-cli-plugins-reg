@@ -44,7 +44,7 @@ verifyUniqueVersion () {
   versionFolderUrl="$JFROG_CLI_PLUGINS_REGISTRY_URL/$JFROG_CLI_PLUGINS_REGISTRY_REPO/$JFROG_CLI_PLUGIN_PLUGIN_NAME/$JFROG_CLI_PLUGIN_VERSION/"
 
   echo "Checking existence of $versionFolderUrl"
-  res=$(curl -o /dev/null -s -w "%{http_code}\n" "$versionFolderUrl")
+  res=$(curl -o /dev/null -s --head --fail "$versionFolderUrl")
   exitCode=$?
   if [ $exitCode -ne 0 ]; then
     echo "Error: Failed verifying uniqueness of the plugin's version"
