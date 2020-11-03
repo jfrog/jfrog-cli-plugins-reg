@@ -18,7 +18,6 @@ resources:
         include: master
       files:
         include: ^plugins\/.+
-
 pipelines:
   - name: validate_plugin_criteria
     configuration:
