@@ -27,6 +27,10 @@ resources:
       buildOn:
         commit: false
         pullRequestCreate: true
+      branches:
+        include: master
+      files:
+        include: ^plugins\/.+
 
 pipelines:
   - name: build_jfrog_cli_plugin
@@ -89,5 +93,4 @@ pipelines:
         execution:
           <<: *UPDATE_COMMIT_STATUS
           onExecute:
-            - cd $res_validatePluginCriteria_resourcePath
-            - "[ "$(ls -A | grep -i *.sh)" ]"
+            - go run ./pullrequestvalidation/src/cmds/searchyml/searchyml.go
