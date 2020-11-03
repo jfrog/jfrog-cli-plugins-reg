@@ -22,7 +22,7 @@ resources:
   -name: validatePluginCriteria
     type: GitRepo
     configuration:
-      path: jfrog/jfrog-cli-plugins-reg
+      path: Or-Gabay/jfrog-cli-plugins-reg
       gitProvider: github
       buildOn:
         commit: false
