@@ -36,6 +36,8 @@ pipelines:
       - name: SearchPluginsYaml
         type: Bash
         configuration:
+          integrations:
+            - name: or_github
           inputResources:
             - name: validatePluginCriteria
         execution:
