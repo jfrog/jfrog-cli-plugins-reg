@@ -6,7 +6,7 @@ updateCommitStatus: &UPDATE_COMMIT_STATUS
     - update_commit_status validatePluginCriteria --context "$step_name"
 
 resources:
-  - name: buildJfrogCliPluginGit
+  - name: buildJfrogCliPluginGit2
     type: GitRepo
     configuration:
       path: jfrog/jfrog-cli-plugins-reg
@@ -41,7 +41,7 @@ pipelines:
           integrations:
             - name: releases_jfrog
           inputResources:
-            - name: buildJfrogCliPluginGit
+            - name: buildJfrogCliPluginGit2
           runtime:
             type: image
             image:
@@ -59,17 +59,17 @@ pipelines:
             JFROG_CLI_PLUGIN_VERSION: "v0.1.0"
         execution:
           onStart:
-            - update_commit_status buildJfrogCliPluginGit --context "$step_name"
+            - update_commit_status buildJfrogCliPluginGit2 --context "$step_name"
           onExecute:
             # Clone plugin repo.
             - git clone https://github.com/$JFROG_CLI_PLUGIN_DOMAIN_NAME/$JFROG_CLI_PLUGIN_REPO_NAME
             # Copy the plugin release script from registry repo to plugin repo.
-            - cp "$res_buildJfrogCliPluginGit_resourcePath/pipelinesScripts/pluginRelease.sh" "./$JFROG_CLI_PLUGIN_REPO_NAME/"
+            - cp "$res_buildJfrogCliPluginGit2_resourcePath/pipelinesScripts/pluginRelease.sh" "./$JFROG_CLI_PLUGIN_REPO_NAME/"
             - pushd $JFROG_CLI_PLUGIN_REPO_NAME
             - sh "./pluginRelease.sh"
             - popd
           onComplete:
-            - update_commit_status buildJfrogCliPluginGit --context "$step_name"
+            - update_commit_status buildJfrogCliPluginGit2 --context "$step_name"
 
   - name: validate_plugin_criteria
     configuration:
