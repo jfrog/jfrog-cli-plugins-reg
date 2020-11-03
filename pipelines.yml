@@ -19,7 +19,7 @@ resources:
         include: master
       files:
         include: ^plugins\/.+
-  -name: validatePluginCriteria
+  - name: validatePluginCriteria
     type: GitRepo
     configuration:
       path: Or-Gabay/jfrog-cli-plugins-reg
