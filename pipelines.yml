@@ -81,7 +81,7 @@ pipelines:
           CI: "true"
     steps:
       # Repositories creators tests - should be running in serial
-      - name: Search plugin's yaml
+      - name: SearchPluginsYaml
         type: Bash
         configuration:
           inputResources:
