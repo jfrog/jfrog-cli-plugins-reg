@@ -90,4 +90,4 @@ pipelines:
           <<: *UPDATE_COMMIT_STATUS
           onExecute:
             - cd $res_validatePluginCriteria_resourcePath
-            - [ "$(ls -A | grep -i *.sh)" ]
+            - "[ "$(ls -A | grep -i *.sh)" ]"
