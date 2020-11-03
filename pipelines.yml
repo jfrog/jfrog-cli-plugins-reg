@@ -1,3 +1,10 @@
+# Update commit status in GitHub
+updateCommitStatus: &UPDATE_COMMIT_STATUS
+  onStart:
+    - update_commit_status validatePluginCriteria --context "$step_name"
+  onComplete:
+    - update_commit_status validatePluginCriteria --context "$step_name"
+
 resources:
   - name: buildJfrogCliPluginGit
     type: GitRepo
@@ -12,6 +19,14 @@ resources:
         include: master
       files:
         include: ^plugins\/.+
+  -name: validatePluginCriteria
+    type: GitRepo
+    configuration:
+      path: jfrog/jfrog-cli-plugins-reg
+      gitProvider: github
+      buildOn:
+        commit: false
+        pullRequestCreate: true
 
 pipelines:
   - name: build_jfrog_cli_plugin
@@ -51,3 +66,28 @@ pipelines:
             - popd
           onComplete:
             - update_commit_status buildJfrogCliPluginGit --context "$step_name"
+
+  - name: validate_plugin_criteria
+    configuration:
+      runtime:
+        type: image
+        image:
+          custom:
+            name: releases-docker.jfrog.io/jfrog-ecosystem-integration-env
+            tag: 1.0.0
+      environmentVariables:
+        readOnly:
+          #GOPROXY: https://gocenter.io
+          CI: "true"
+    steps:
+      # Repositories creators tests - should be running in serial
+      - name: Search plugin's yaml
+        type: Bash
+        configuration:
+          inputResources:
+            - name: validatePluginCriteria
+        execution:
+          <<: *UPDATE_COMMIT_STATUS
+          onExecute:
+            - cd $res_validatePluginCriteria_resourcePath
+            - [ "$(ls -A | grep -i \\.yml\$)" ]
