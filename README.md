@@ -1,17 +1,15 @@
 # JFrog CLI plugins registry
-This repository contains information about all shared JFrog CLI plugins, and how to install them.
+## General
+JFrog CLI plugins support enhancing the functionality of [JFrog CLI](https://www.jfrog.com/confluence/display/CLI/JFrog+CLI) to meet the specific user and organization needs. The source code of a plugin is maintained as an open source Go project on GitHub. All public plugins are registered in JFrog CLI's Plugins Registry. The registry is hosted in this GitHub repository. The registry includes information about all the public JFrog CLI plugins, along with installation instructions.
 
-## Installation
-To install a plugin, run `jfrog plugin install plugin-name` from your machine. jfrog-cli version TODO or above is required. 
+## Installing a plugin 
+To install a plugin which is included in this registry, run the following JFrog CLI command from your machine -  `jfrog plugin install plugin-name`. JFrog CLI version 1.41.0 or above is required. 
 
-## Adding plugin to registry
-To add a plugin, create a PR to the `plugins` directory in this repo, with a `yml` file with the name of your plugin.
+## The list of available plugins
+* [build-deps-info](https://github.com/jfrog/jfrog-cli-plugins/tree/main/build-deps-info)
+* [keyring](https://github.com/jfrog/jfrog-cli-plugins/tree/main/keyring)
+* [release-bundle-generator](https://github.com/jfrog/jfrog-cli-plugins/tree/main/release-bundle-generator)
+* [rt-ls](https://github.com/jfrog/jfrog-cli-plugins/tree/main/rt-fs)
 
-The yml file should have the following structure:
-```
-pluginName: hello-frog
-repository: https://github.com/jfrog/jfrog-cli-plugin-template
-version: v0.1.0
-```
-
-NOTE: plugin deployment to registry is currently manual.
+## Developing and publishing plugins
+We encourage you, as developers, to create plugins and share them publicly with the rest of your community. Read the JFrog CLI Plugins Developer Guide for information about developing and publishing JFrog CLI Plugins.
