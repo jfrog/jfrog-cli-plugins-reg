@@ -38,10 +38,15 @@ func containYamls() error {
 	if err != nil {
 		return err
 	}
+	forbiddenFiles := ""
 	for _, committedFilePath := range files {
 		if !strings.HasSuffix(committedFilePath, ".yml") {
-			return errors.New("Failed, only .yml files are permitted to be in the pull request.")
+			forbiddenFiles += committedFilePath + "\n"
 		}
+	}
+	if forbiddenFiles != "" {
+		return errors.New("Failed, only .yml files are permitted to be in the pull request. Please remove: " + forbiddenFiles)
+
 	}
 	return nil
 }
