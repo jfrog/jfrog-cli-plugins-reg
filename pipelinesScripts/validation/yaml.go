@@ -53,15 +53,15 @@ func containYamls() error {
 
 // PluginsYAMLFile describes a plugin for jfrog in order to register on 'jfrog-cli-plugins-reg'.
 type PluginsYAMLFile struct {
-	PluginName      string
-	Version         string
-	Repository      string
-	MaintainerName  string
-	MaintainerEmail string
+	pluginName      string
+	version         string
+	repository      string
+	maintainerName  string
+	maintainerEmail string
 	// Optionals
-	RelativePath string
-	Branch       string
-	Tag          string
+	relativePath string
+	branch       string
+	tag          string
 }
 
 func yamlContent() error {
@@ -78,6 +78,7 @@ func yamlContent() error {
 		if err := yaml.Unmarshal(content, &pluginsYAML); err != nil {
 			return errors.New("Fail to unmarshal yaml, error:" + err.Error())
 		}
+		fmt.Println("Analyzing:" + yamlPath)
 		if err := validateContent(pluginsYAML); err != nil {
 			return err
 		}
@@ -87,19 +88,19 @@ func yamlContent() error {
 
 func validateContent(pluginsYAML PluginsYAMLFile) error {
 	missingfields := ""
-	if pluginsYAML.PluginName == "" {
+	if pluginsYAML.pluginName == "" {
 		missingfields += "name\n"
 	}
-	if pluginsYAML.Version == "" {
+	if pluginsYAML.version == "" {
 		missingfields += "version\n"
 	}
-	if pluginsYAML.Repository == "" {
+	if pluginsYAML.repository == "" {
 		missingfields += "repository\n"
 	}
-	if pluginsYAML.MaintainerName == "" {
+	if pluginsYAML.maintainerName == "" {
 		missingfields += "maintainer name\n"
 	}
-	if pluginsYAML.MaintainerEmail == "" {
+	if pluginsYAML.maintainerEmail == "" {
 		missingfields += "maintainer email\n"
 	}
 	if missingfields != "" {
