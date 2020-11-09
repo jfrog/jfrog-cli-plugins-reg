@@ -32,7 +32,7 @@ pipelines:
           #GOPROXY: https://gocenter.io
           CI: "true"
     steps:
-      - name: FilesExtension
+      - name: Extension
         type: Bash
         configuration:
           integrations:
@@ -44,8 +44,8 @@ pipelines:
           onExecute:
             - cd $res_jfrog_cli_plugins_reg_resourcePath/pipelinesScripts/validation
             - go get gopkg.in/yaml.v2
-            - go run yaml.go ContainYamls
-      - name: FilesStructure
+            - go run yaml.go Extension
+      - name: Structure
         type: Bash
         configuration:
           integrations:
@@ -59,4 +59,4 @@ pipelines:
           onExecute:
             - cd $res_jfrog_cli_plugins_reg_resourcePath/pipelinesScripts/validation
             - go get gopkg.in/yaml.v2
-            - go run yaml.go YamlContent
+            - go run yaml.go Structure

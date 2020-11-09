@@ -19,21 +19,20 @@ func main() {
 	}
 	var err error
 	switch strings.ToLower(arg) {
-	case "containyamls":
-		err = containYamls()
-	case "yamlcontent":
-		err = yamlContent()
+	case "Extension":
+		err = extensionCheck()
+	case "Structure":
+		err = structureCheck()
 	default:
 		err = errors.New("unknown command: " + arg)
 	}
-
 	if err != nil {
 		fmt.Println(err.Error())
 		os.Exit(1)
 	}
 }
 
-func containYamls() error {
+func extensionCheck() error {
 	files, err := getModifiedFiles()
 	if err != nil {
 		return err
@@ -64,7 +63,7 @@ type PluginsYAMLFile struct {
 	Tag          string `yaml:"tag"`
 }
 
-func yamlContent() error {
+func structureCheck() error {
 	files, err := getModifiedFiles()
 	if err != nil {
 		return err
@@ -111,6 +110,7 @@ func validateContent(pluginsYAML PluginsYAMLFile) error {
 	return nil
 }
 
+// Return the paths to the modified files for all affected files since master's commit.
 func getModifiedFiles() ([]string, error) {
 	pathToResource, commitSha := os.Getenv("res_jfrog_cli_plugins_reg_resourcePath"), os.Getenv("res_jfrog_cli_plugins_reg_commitSha")
 	if pathToResource == "" || commitSha == "" {
