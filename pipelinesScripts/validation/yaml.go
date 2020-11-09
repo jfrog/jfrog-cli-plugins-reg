@@ -34,7 +34,7 @@ func main() {
 }
 
 func containYamls() error {
-	files, err := getmodifiedFiles()
+	files, err := getModifiedFiles()
 	if err != nil {
 		return err
 	}
@@ -65,7 +65,7 @@ type PluginsYAMLFile struct {
 }
 
 func yamlContent() error {
-	files, err := getmodifiedFiles()
+	files, err := getModifiedFiles()
 	if err != nil {
 		return err
 	}
@@ -111,7 +111,7 @@ func validateContent(pluginsYAML PluginsYAMLFile) error {
 	return nil
 }
 
-func getmodifiedFiles() ([]string, error) {
+func getModifiedFiles() ([]string, error) {
 	pathToResource, commitSha := os.Getenv("res_jfrog_cli_plugins_reg_resourcePath"), os.Getenv("res_jfrog_cli_plugins_reg_commitSha")
 	if pathToResource == "" || commitSha == "" {
 		return nil, errors.New("Failed to parse env vars: res_jfrog_cli_plugins_reg_resourcePath & res_jfrog_cli_plugins_reg_commitSha")
