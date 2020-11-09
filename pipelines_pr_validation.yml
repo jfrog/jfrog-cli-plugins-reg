@@ -19,7 +19,7 @@ resources:
       files:
         include: ^plugins\/.+
 pipelines:
-  - name: validate_plugin_criteria
+  - name: plugin_pr_validation
     configuration:
       runtime:
         type: image
