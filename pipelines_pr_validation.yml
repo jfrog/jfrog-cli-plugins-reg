@@ -1,12 +1,12 @@
 # Update commit status in GitHub
 updateCommitStatus: &UPDATE_COMMIT_STATUS
   onStart:
-    - update_commit_status validatePluginCriteria --context "$step_name"
+    - update_commit_status jfrog-cli-plugins-reg --context "$step_name"
   onComplete:
-    - update_commit_status validatePluginCriteria --context "$step_name"
+    - update_commit_status jfrog-cli-plugins-reg --context "$step_name"
 
 resources:
-  - name: validatePluginCriteria
+  - name: jfrog-cli-plugins-reg
     type: GitRepo
     configuration:
       path: Or-Gabay/jfrog-cli-plugins-reg
@@ -38,12 +38,12 @@ pipelines:
           integrations:
             - name: or_github
           inputResources:
-            - name: validatePluginCriteria
+            - name: jfrog-cli-plugins-reg
         execution:
           <<: *UPDATE_COMMIT_STATUS
           onExecute:
-            - echo $res_validatePluginCriteria_resourcePath
-            - cd $res_validatePluginCriteria_resourcePath
+            - echo $res_jfrog-cli-plugins-reg_resourcePath
+            - cd $res_jfrog-cli-plugins-reg_resourcePath
             - go get gopkg.in/yaml.v2
             - OUTPUT=$(go run "./pipelinesScripts/validation/yaml.go" ContainYamls)
             - add_run_variables yaml_files_path=$OUTPUT
@@ -53,11 +53,12 @@ pipelines:
           integrations:
             - name: or_github
           inputResources:
-            - name: validatePluginCriteria
+            - name: jfrog-cli-plugins-reg
           inputSteps:
             - name: SearchPluginsYaml
         execution:
+          <<: *UPDATE_COMMIT_STATUS
           onExecute:
-            - cd $res_validatePluginCriteria_resourcePath/pipelinesScripts/validation
+            - cd $res_jfrog-cli-plugins-reg_resourcePath/pipelinesScripts/validation
             - go get gopkg.in/yaml.v2
             - go run yaml.go YamlContent
