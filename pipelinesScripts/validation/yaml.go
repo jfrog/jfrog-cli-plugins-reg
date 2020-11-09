@@ -34,22 +34,14 @@ func main() {
 }
 
 func containYamls() error {
-	pathToResource, commitSha := os.Getenv("res_validatePluginCriteria_resourcePath"), os.Getenv("res_validatePluginCriteria_commitSha")
-	if pathToResource == "" || commitSha == "" {
-		return errors.New("Failed to parse env vars: res_validatePluginCriteria_resourcePath & res_validatePluginCriteria_commitSha")
-	}
-	os.Chdir(pathToResource)
-	cmd := exec.Command("git", "diff-tree", "--no-commit-id", "--name-only", commitSha)
-	output, err := cmd.Output()
+	files, err := getmodifiedFiles()
 	if err != nil {
-		return errors.New("Failed to run git cmd, error:" + err.Error())
+		return err
 	}
-	outputStr := strings.Trim(string(output), "\n")
-	for _, commitFile := range strings.Split(outputStr, "\n") {
-		if !strings.HasSuffix(commitFile, ".yml") {
+	for _, committedFilePath := range files {
+		if !strings.HasSuffix(committedFilePath, ".yml") {
 			return errors.New("Failed, only .yml files are permitted to be in the pull request.")
 		}
-		fmt.Print(pathToResource + "/" + commitFile + ";")
 	}
 	return nil
 }
@@ -68,12 +60,11 @@ type PluginsYAMLFile struct {
 }
 
 func yamlContent() error {
-	yamlsStr := os.Getenv("yaml_files_path")
-	if yamlsStr == "" {
-		return errors.New("No YAML is found in the plugins directory.")
+	files, err := getmodifiedFiles()
+	if err != nil {
+		return err
 	}
-	yamlsPath := strings.Split(yamlsStr, ";")
-	for _, yamlPath := range yamlsPath {
+	for _, yamlPath := range files {
 		content, err := ioutil.ReadFile(yamlPath)
 		if err != nil {
 			return errors.New("Fail to ReadFile yaml, error:" + err.Error())
@@ -110,4 +101,22 @@ func validateContent(pluginsYAML PluginsYAMLFile) error {
 		return errors.New("YAML is missing the following: " + missingfields)
 	}
 	return nil
+}
+
+func getmodifiedFiles() ([]string, error) {
+	pathToResource, commitSha := os.Getenv("res_jfrog_cli_plugins_reg_resourcePath"), os.Getenv("res_jfrog_cli_plugins_reg_commitSha")
+	if pathToResource == "" || commitSha == "" {
+		return nil, errors.New("Failed to parse env vars: res_jfrog_cli_plugins_reg_resourcePath & res_jfrog_cli_plugins_reg_commitSha")
+	}
+	os.Chdir(pathToResource)
+	cmd := exec.Command("git", "diff-tree", "--no-commit-id", "--name-only", commitSha)
+	output, err := cmd.Output()
+	if err != nil {
+		return nil, errors.New("Failed to run git cmd, error:" + err.Error())
+	}
+	var fullPathCommittedFiles []string
+	for _, committedFile := range strings.Split(string(output), "\n") {
+		fullPathCommittedFiles = append(fullPathCommittedFiles, pathToResource+"/"+committedFile)
+	}
+	return fullPathCommittedFiles, nil
 }
