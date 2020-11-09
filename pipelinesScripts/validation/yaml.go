@@ -45,7 +45,6 @@ func extensionCheck() error {
 	}
 	if forbiddenFiles != "" {
 		return errors.New("Failed, only .yml files are permitted to be in the pull request. Please remove: " + forbiddenFiles)
-
 	}
 	return nil
 }
