@@ -114,14 +114,16 @@ func getmodifiedFiles() ([]string, error) {
 		return nil, errors.New("Failed to parse env vars: res_jfrog_cli_plugins_reg_resourcePath & res_jfrog_cli_plugins_reg_commitSha")
 	}
 	os.Chdir(pathToResource)
-	cmd := exec.Command("git", "diff-tree", "--no-commit-id", "--name-only", commitSha)
+	cmd := exec.Command("git", "diff-tree", "--no-commit-id", "--name-only", "-r", commitSha)
 	output, err := cmd.Output()
 	if err != nil {
 		return nil, errors.New("Failed to run git cmd, error:" + err.Error())
 	}
 	var fullPathCommittedFiles []string
 	for _, committedFile := range strings.Split(string(output), "\n") {
-		fullPathCommittedFiles = append(fullPathCommittedFiles, pathToResource+"/"+committedFile)
+		if committedFile != "" {
+			fullPathCommittedFiles = append(fullPathCommittedFiles, pathToResource+"/"+committedFile)
+		}
 	}
 	return fullPathCommittedFiles, nil
 }
