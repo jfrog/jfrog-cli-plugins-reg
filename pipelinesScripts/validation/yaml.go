@@ -53,15 +53,15 @@ func containYamls() error {
 
 // PluginsYAMLFile describes a plugin for jfrog in order to register on 'jfrog-cli-plugins-reg'.
 type PluginsYAMLFile struct {
-	pluginName      string `yaml:"pluginName"`
-	version         string `yaml:"version"`
-	repository      string `yaml:"repository"`
-	maintainerName  string `yaml:"maintainerName"`
-	maintainerEmail string `yaml:"maintainerEmail"`
+	PluginName      string `yaml:"pluginName"`
+	Version         string `yaml:"version"`
+	Repository      string `yaml:"repository"`
+	MaintainerName  string `yaml:"maintainerName"`
+	MaintainerEmail string `yaml:"maintainerEmail"`
 	// Optionals
-	relativePath string `yaml:"relativePath"`
-	branch       string `yaml:"branch"`
-	tag          string `yaml:"tag"`
+	RelativePath string `yaml:"relativePath"`
+	Branch       string `yaml:"branch"`
+	Tag          string `yaml:"tag"`
 }
 
 func yamlContent() error {
@@ -75,6 +75,8 @@ func yamlContent() error {
 			return errors.New("Fail to ReadFile yaml, error:" + err.Error())
 		}
 		var pluginsYAML PluginsYAMLFile
+		x := string(content)
+		fmt.Println(x)
 		if err := yaml.Unmarshal(content, &pluginsYAML); err != nil {
 			return errors.New("Fail to unmarshal yaml, error:" + err.Error())
 		}
@@ -88,19 +90,19 @@ func yamlContent() error {
 
 func validateContent(pluginsYAML PluginsYAMLFile) error {
 	missingfields := ""
-	if pluginsYAML.pluginName == "" {
+	if pluginsYAML.PluginName == "" {
 		missingfields += "name\n"
 	}
-	if pluginsYAML.version == "" {
+	if pluginsYAML.Version == "" {
 		missingfields += "version\n"
 	}
-	if pluginsYAML.repository == "" {
+	if pluginsYAML.Repository == "" {
 		missingfields += "repository\n"
 	}
-	if pluginsYAML.maintainerName == "" {
+	if pluginsYAML.MaintainerName == "" {
 		missingfields += "maintainer name\n"
 	}
-	if pluginsYAML.maintainerEmail == "" {
+	if pluginsYAML.MaintainerEmail == "" {
 		missingfields += "maintainer email\n"
 	}
 	if missingfields != "" {
