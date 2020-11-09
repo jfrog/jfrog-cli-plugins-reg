@@ -10,7 +10,7 @@ resources:
     type: GitRepo
     configuration:
       path: Or-Gabay/jfrog-cli-plugins-reg
-      gitProvider: github
+      gitProvider: or_cli_github
       buildOn:
         commit: false
         pullRequestCreate: true
@@ -32,7 +32,6 @@ pipelines:
           #GOPROXY: https://gocenter.io
           CI: "true"
     steps:
-      # Repositories creators tests - should be running in serial
       - name: SearchPluginsYaml
         type: Bash
         configuration:
@@ -43,4 +42,23 @@ pipelines:
         execution:
           <<: *UPDATE_COMMIT_STATUS
           onExecute:
-            - go run ./pullrequestvalidation/src/cmds/searchyml/searchyml.go
+            - echo $res_validatePluginCriteria_resourcePath
+            - cd $res_validatePluginCriteria_resourcePath
+            - go get gopkg.in/yaml.v2
+            - OUTPUT=$(go run "./pipelinesScripts/validation/yaml.go" ContainYamls)
+            - add_run_variables yaml_files_path=$OUTPUT
+      - name: ValidatePluginsYaml
+        type: Bash
+        configuration:
+          integrations:
+            - name: or_github
+          inputResources:
+            - name: validatePluginCriteria
+          inputSteps:
+            - name: SearchPluginsYaml
+        execution:
+          <<: *UPDATE_COMMIT_STATUS
+          onExecute:
+            - cd $res_validatePluginCriteria_resourcePath/pipelinesScripts/validation
+            - go get gopkg.in/yaml.v2
+            - go run yaml.go YamlContent
