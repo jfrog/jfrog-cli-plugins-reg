@@ -103,7 +103,7 @@ func validateContent(pluginsYAML PluginsYAMLFile) error {
 		missingfields += "maintainer email\n"
 	}
 	if missingfields != "" {
-		return errors.New("YAML is missing the following: " + missingfields)
+		return errors.New("YAML is missing the following:\n" + missingfields)
 	}
 	return nil
 }
