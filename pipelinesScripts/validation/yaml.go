@@ -53,15 +53,15 @@ func containYamls() error {
 
 // PluginsYAMLFile describes a plugin for jfrog in order to register on 'jfrog-cli-plugins-reg'.
 type PluginsYAMLFile struct {
-	pluginName      string
-	version         string
-	repository      string
-	maintainerName  string
-	maintainerEmail string
+	pluginName      string `yaml:"pluginName"`
+	version         string `yaml:"version"`
+	repository      string `yaml:"repository"`
+	maintainerName  string `yaml:"maintainerName"`
+	maintainerEmail string `yaml:"maintainerEmail"`
 	// Optionals
-	relativePath string
-	branch       string
-	tag          string
+	relativePath string `yaml:"relativePath"`
+	branch       string `yaml:"branch"`
+	tag          string `yaml:"tag"`
 }
 
 func yamlContent() error {
