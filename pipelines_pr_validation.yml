@@ -46,6 +46,7 @@ pipelines:
             - cd $res_jfrog_cli_plugins_reg_resourcePath
             - go get gopkg.in/yaml.v2
             - OUTPUT=$(go run "./pipelinesScripts/validation/yaml.go" ContainYamls)
+            - echo $OUTPUT
             - add_run_variables yaml_files_path=$OUTPUT
       - name: ValidatePluginsYaml
         type: Bash
