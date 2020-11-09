@@ -57,7 +57,6 @@ pipelines:
           inputSteps:
             - name: SearchPluginsYaml
         execution:
-          <<: *UPDATE_COMMIT_STATUS
           onExecute:
             - cd $res_validatePluginCriteria_resourcePath/pipelinesScripts/validation
             - go get gopkg.in/yaml.v2
