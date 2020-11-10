@@ -57,11 +57,10 @@ pipelines:
         execution:
           <<: *UPDATE_COMMIT_STATUS
           onExecute:
+            - add_run_files $res_jfrog_cli_plugins_reg_resourcePath/pipelinesScripts/validation RepoUrlFile
             - cd $res_jfrog_cli_plugins_reg_resourcePath/pipelinesScripts/validation
             - go get gopkg.in/yaml.v2
             - go run yaml.go Structure
-            - echo $pluginRepoUrl
-            - add_run_variables pluginRepoUrl=$pluginRepoUrl
       - name: Tests
         type: Bash
         configuration:
@@ -74,6 +73,7 @@ pipelines:
         execution:
           <<: *UPDATE_COMMIT_STATUS
           onExecute:
+            - restore_run_files $res_jfrog_cli_plugins_reg_resourcePath/pipelinesScripts/validation RepoUrlFile
             - cd $res_jfrog_cli_plugins_reg_resourcePath/pipelinesScripts/validation
             - echo $pluginRepoUrl
             - go get gopkg.in/yaml.v2

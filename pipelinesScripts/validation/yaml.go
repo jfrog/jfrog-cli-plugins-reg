@@ -76,8 +76,6 @@ func structureCheck() error {
 			return errors.New("Fail to ReadFile yaml, error:" + err.Error())
 		}
 		var pluginsYAML PluginsYAMLFile
-		x := string(content)
-		fmt.Println(x)
 		if err := yaml.Unmarshal(content, &pluginsYAML); err != nil {
 			return errors.New("Fail to unmarshal yaml, error:" + err.Error())
 		}
@@ -85,15 +83,19 @@ func structureCheck() error {
 		if err := validateContent(pluginsYAML); err != nil {
 			return err
 		}
-		if err := os.Setenv("pluginRepoUrl", "repo"); err != nil {
+		if err := ioutil.WriteFile("RepoUrlFile", []byte("ABC€"), os.ModeAppend); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 func structureTests() error {
-	res := os.Getenv("pluginRepoUrl")
-	fmt.Println("result" + res)
+	content, err := ioutil.ReadFile("RepoUrlFile")
+	if err != nil {
+		return errors.New("Fail to ReadFile yaml, error:" + err.Error())
+	}
+	x := string(content)
+	fmt.Println(x)
 	return nil
 }
 
