@@ -103,7 +103,8 @@ func structureTests() error {
 		}
 		fmt.Println("Analyzing:" + yamlPath)
 		projectPath, err := cloneProject(pluginsYAML.Repository)
-		fmt.Println(projectPath)
+		runProjectTests(projectPath)
+		defer os.RemoveAll(filepath.Join(projectPath, ".."))
 	}
 	return nil
 }
@@ -113,19 +114,41 @@ func cloneProject(projectRepository string) (string, error) {
 	if err != nil {
 		return "", errors.New("Fail to get current directory, error:" + err.Error())
 	}
+	defer os.Chdir(currentDir)
 	tempDir, err := ioutil.TempDir(currentDir, "pluginRepo")
 	if err != nil {
 		return "", errors.New("Fail to create temp dir, error:" + err.Error())
 	}
-	os.Chdir(filepath.Join(currentDir, tempDir))
-	cmd := exec.Command("git", "clone", projectRepository)
-	output, err := cmd.Output()
+	err = os.Chdir(tempDir)
 	if err != nil {
+		return "", errors.New("Fail to get change directory to" + tempDir + ", error:" + err.Error())
+	}
+	projectRepository = strings.TrimSuffix(projectRepository, ".git")
+	cmd := exec.Command("git", "clone", projectRepository+".git")
+	if _, err := cmd.Output(); err != nil {
 		return "", errors.New("Failed to run git clone for " + projectRepository + ", error:" + err.Error())
 	}
-	return string(output), nil
-
+	repositoryName := projectRepository[strings.LastIndex(projectRepository, "/")+1:]
+	return filepath.Join(tempDir, repositoryName), nil
 }
+
+func runProjectTests(projectPath string) error {
+	currentDir, err := os.Getwd()
+	if err != nil {
+		return errors.New("Fail to get current directory, error:" + err.Error())
+	}
+	defer os.Chdir(currentDir)
+	err = os.Chdir(projectPath)
+	if err != nil {
+		return errors.New("Fail to get change directory to" + projectPath + ", error:" + err.Error())
+	}
+	cmd := exec.Command("go", "test", "./...")
+	if _, err := cmd.Output(); err != nil {
+		return errors.New("Failed plugin tests for " + projectPath + ", error:" + err.Error())
+	}
+	return nil
+}
+
 func validateContent(pluginsYAML PluginsYAMLFile) error {
 	missingfields := ""
 	if pluginsYAML.PluginName == "" {
