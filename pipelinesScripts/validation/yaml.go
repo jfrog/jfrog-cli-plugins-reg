@@ -86,6 +86,11 @@ func structureCheck() error {
 		if _, err := os.Stat("RepoUrlFile"); os.IsNotExist(err) {
 			fmt.Println("RepoUrlFile does not exist")
 		}
+		mydir, err := os.Getwd()
+		if err != nil {
+			fmt.Println(err)
+		}
+		fmt.Println(mydir)
 		if err := ioutil.WriteFile("RepoUrlFile", []byte("ABC€"), os.ModeAppend); err != nil {
 			return err
 		}
