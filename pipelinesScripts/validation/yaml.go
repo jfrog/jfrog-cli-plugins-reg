@@ -19,11 +19,11 @@ func main() {
 	}
 	var err error
 	switch strings.ToLower(arg) {
-	case "Extension":
+	case "extension":
 		err = extensionCheck()
-	case "Structure":
+	case "structure":
 		err = structureCheck()
-	case "Tests":
+	case "tests":
 		err = structureTests()
 	default:
 		err = errors.New("unknown command: " + arg)
