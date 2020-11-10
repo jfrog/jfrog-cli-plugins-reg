@@ -23,8 +23,11 @@ It is your responsibility to make sure that your contact information in your Git
 8. **Running Additional Executable Software.** The plugins should not execute or cause any other third party code to operate and run within the plugin without making it clear to the user.
 
 9. **Code of Conduct.** You and your plugin should not do anything that is illegal, offensive or in any way disrespectful to others. We expect that you assist us in following these easy guidelines:
-    * Be respectful for others
-    * Be collaborative and assist others
-    * Don’t provide false representation and information regarding yourself or your plugins
-    * Don’t introduce malware and malicious code to users via the plugin
-    * Refrain from harassment of any kind
+    * a. Be respectful for others
+    * b. Be collaborative and assist others
+    * c. Don’t provide false representation and information regarding yourself or your plugins
+    * d. Don’t introduce malware and malicious code to users via the plugin
+    * e. Refrain from harassment of any kind
+    * f. You or your plugin should not do anything illegal.
+
+10. **Liability and Support.** You acknowledge that JFrog will not take any liability in connection with the plugin and will not provide support to the plugin - end users will need to approach you in order to resolve issues with the plugin. Having said that, JFrog will assist if such issues are caused by the package built by JFrog
