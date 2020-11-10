@@ -1,0 +1,10 @@
+# mandatory:
+pluginName: hello-frog
+version: v0.2.0
+repository: https://github.com/jfrog/gocmd.git
+maintainerName: Eyal Ben Moshe
+maintainerEmail: eyalb@jfrog.com
+# optional:
+relativePath: release-bundle-generator
+branch: my-release-branch
+tag: my-release-tag2
