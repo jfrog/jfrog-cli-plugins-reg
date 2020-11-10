@@ -17,6 +17,7 @@ func main() {
 		fmt.Println("No args was specify")
 		os.Exit(1)
 	}
+
 	var err error
 	switch strings.ToLower(arg) {
 	case "extension":
