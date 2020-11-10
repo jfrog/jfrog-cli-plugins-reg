@@ -53,7 +53,7 @@ pipelines:
           inputResources:
             - name: jfrog_cli_plugins_reg
           inputSteps:
-            - name: FilesExtension
+            - name: Extension
         execution:
           <<: *UPDATE_COMMIT_STATUS
           onExecute:
