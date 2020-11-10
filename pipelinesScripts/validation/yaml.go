@@ -85,7 +85,9 @@ func structureCheck() error {
 		if err := validateContent(pluginsYAML); err != nil {
 			return err
 		}
-		os.Setenv("pluginRepoUrl", pluginsYAML.Repository)
+		if err := os.Setenv("pluginRepoUrl", "repo"); err != nil {
+			return err
+		}
 	}
 	return nil
 }
