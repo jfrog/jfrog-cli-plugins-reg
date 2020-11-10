@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 
 	"gopkg.in/yaml.v2"
@@ -83,30 +84,48 @@ func structureCheck() error {
 		if err := validateContent(pluginsYAML); err != nil {
 			return err
 		}
-		if _, err := os.Stat("RepoUrlFile"); os.IsNotExist(err) {
-			fmt.Println("RepoUrlFile does not exist")
-		}
-		mydir, err := os.Getwd()
-		if err != nil {
-			fmt.Println(err)
-		}
-		fmt.Println(mydir)
-		if err := ioutil.WriteFile("RepoUrlFile", []byte("ABC€"), os.ModeAppend); err != nil {
-			return err
-		}
 	}
 	return nil
 }
 func structureTests() error {
-	content, err := ioutil.ReadFile("RepoUrlFile")
+	files, err := getModifiedFiles()
 	if err != nil {
-		return errors.New("Fail to ReadFile yaml, error:" + err.Error())
+		return err
 	}
-	x := string(content)
-	fmt.Println(x)
+	for _, yamlPath := range files {
+		content, err := ioutil.ReadFile(yamlPath)
+		if err != nil {
+			return errors.New("Fail to ReadFile yaml, error:" + err.Error())
+		}
+		var pluginsYAML PluginsYAMLFile
+		if err := yaml.Unmarshal(content, &pluginsYAML); err != nil {
+			return errors.New("Fail to unmarshal yaml, error:" + err.Error())
+		}
+		fmt.Println("Analyzing:" + yamlPath)
+		projectPath, err := cloneProject(pluginsYAML.Repository)
+		fmt.Println(projectPath)
+	}
 	return nil
 }
 
+func cloneProject(projectRepository string) (string, error) {
+	currentDir, err := os.Getwd()
+	if err != nil {
+		return "", errors.New("Fail to get current directory, error:" + err.Error())
+	}
+	tempDir, err := ioutil.TempDir(currentDir, "pluginRepo")
+	if err != nil {
+		return "", errors.New("Fail to create temp dir, error:" + err.Error())
+	}
+	os.Chdir(filepath.Join(currentDir, tempDir))
+	cmd := exec.Command("git", "clone", projectRepository)
+	output, err := cmd.Output()
+	if err != nil {
+		return "", errors.New("Failed to run git clone for " + projectRepository + ", error:" + err.Error())
+	}
+	return string(output), nil
+
+}
 func validateContent(pluginsYAML PluginsYAMLFile) error {
 	missingfields := ""
 	if pluginsYAML.PluginName == "" {
