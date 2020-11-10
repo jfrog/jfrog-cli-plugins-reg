@@ -23,6 +23,8 @@ func main() {
 		err = extensionCheck()
 	case "Structure":
 		err = structureCheck()
+	case "Tests":
+		err = structureTests()
 	default:
 		err = errors.New("unknown command: " + arg)
 	}
@@ -82,7 +84,13 @@ func structureCheck() error {
 		if err := validateContent(pluginsYAML); err != nil {
 			return err
 		}
+		os.Setenv("pluginRepoUrl", pluginsYAML.Repository)
 	}
+	return nil
+}
+func structureTests() error {
+	res := os.Getenv("pluginRepoUrl")
+	fmt.Println("result" + res)
 	return nil
 }
 

@@ -60,3 +60,20 @@ pipelines:
             - cd $res_jfrog_cli_plugins_reg_resourcePath/pipelinesScripts/validation
             - go get gopkg.in/yaml.v2
             - go run yaml.go Structure
+            - add_run_variables pluginRepoUrl=$pluginRepoUrl
+      - name: Tests
+        type: Bash
+        configuration:
+          integrations:
+            - name: or_github
+          inputResources:
+            - name: jfrog_cli_plugins_reg
+          inputSteps:
+            - name: Structure
+        execution:
+          <<: *UPDATE_COMMIT_STATUS
+          onExecute:
+            - cd $res_jfrog_cli_plugins_reg_resourcePath/pipelinesScripts/validation
+            - echo $pluginRepoUrl
+            - go get gopkg.in/yaml.v2
+            - go run yaml.go Structure
