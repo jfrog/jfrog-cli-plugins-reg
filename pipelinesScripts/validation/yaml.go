@@ -83,6 +83,9 @@ func structureCheck() error {
 		if err := validateContent(pluginsYAML); err != nil {
 			return err
 		}
+		if _, err := os.Stat("RepoUrlFile"); os.IsNotExist(err) {
+			fmt.Println("RepoUrlFile does not exist")
+		}
 		if err := ioutil.WriteFile("RepoUrlFile", []byte("ABC€"), os.ModeAppend); err != nil {
 			return err
 		}
