@@ -1,12 +1,9 @@
 package utils
 
 import (
-	"errors"
 	"fmt"
 	"os"
 	"os/exec"
-	"path/filepath"
-	"strings"
 )
 
 type ValidationType string

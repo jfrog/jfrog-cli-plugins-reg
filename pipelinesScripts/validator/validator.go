@@ -3,12 +3,13 @@ package main
 import (
 	"errors"
 	"fmt"
-	"github.com/jfrog/jfrog-cli-plugins-reg/utils"
 	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
 	"strings"
+
+	"github.com/jfrog/jfrog-cli-plugins-reg/utils"
 )
 
 // This program validate a new jfrog cli plugin register
@@ -133,22 +134,22 @@ func runProjectTests(projectPath string) error {
 func validateContent(descriptor *utils.PluginDescriptor) error {
 	missingfields := ""
 	if descriptor.PluginName == "" {
-		missingfields += "name\n"
+		missingfields += "* 'name' is missing\n"
 	}
 	if descriptor.Version == "" {
-		missingfields += "version\n"
+		missingfields += "* 'version' is missing\n"
 	}
 	if descriptor.Repository == "" {
-		missingfields += "repository\n"
+		missingfields += "* 'repository' is missing\n"
 	}
 	if len(descriptor.Maintainers) == 0 {
-		missingfields += "maintainers\n"
-	}
-	if missingfields != "" {
-		return errors.New("Plugin descriptor yml is missing the following:\n" + missingfields)
+		missingfields += "* 'maintainers' is missing\n"
 	}
 	if descriptor.Tag != "" && descriptor.Branch != "" {
-		return errors.New("Plugin descriptor yml cannot include both 'tag' and 'branch'.")
+		missingfields += "* Plugin descriptor yml cannot include both 'tag' and 'branch'.\n"
+	}
+	if missingfields != "" {
+		return errors.New("Errors detected in the yml descriptor file:\n" + missingfields)
 	}
 	return nil
 }
