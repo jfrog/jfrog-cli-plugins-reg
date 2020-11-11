@@ -9,7 +9,7 @@ import (
 	"os/exec"
 	"strings"
 
-	"github.com/jfrog/jfrog-cli-plugins-reg/utils"
+	"github.com/jfrog/jfrog-cli-plugins-validator/utils"
 )
 
 // This program validate a new jfrog cli plugin register
