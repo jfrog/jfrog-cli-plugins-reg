@@ -7,8 +7,8 @@
 tmp
 out
 
-# JFrog executable
-plugins-template-dev
+# executable
+jfrog-cli-plugins-reg
 
 # Vim
 *~
