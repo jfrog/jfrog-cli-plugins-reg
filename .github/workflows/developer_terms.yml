@@ -1,0 +1,30 @@
+name: "CLA Assistant"
+on:
+  issue_comment:
+    types: [created]
+  pull_request_target:
+    types: [opened,synchronize]
+jobs:
+  CLAssistant:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "CLA Assistant"
+        if: (github.event.comment.body == 'recheckterms' || github.event.comment.body == 'I have read the JFrog CLI Plugins Developer Terms document and I hereby accept the terms') || github.event_name == 'pull_request_target'
+        # Alpha Release
+        uses: cla-assistant/github-action@v2.0.1-alpha
+        env:
+          # Generated and maintained by github
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # JFrog organization secret
+          PERSONAL_ACCESS_TOKEN : ${{ secrets.CLA_SIGN_TOKEN }}
+        with:
+          path-to-signatures: 'signed_developer_terms.json'
+          path-to-cla-document: 'https://github.com/jfrog/jfrog-cli-plugins-reg/blob/master/DEVELOPERS_TERMS.md'
+          remote-organization-name: 'jfrog'
+          remote-repository-name: 'jfrog-signed-clas'
+          # branch should not be protected
+          branch: 'master'
+          allowlist: bot*
+          signed-commit-message: '$contributorName has accepted the Developer Terms in #$pullRequestNo'
+          custom-notsigned-prcomment: 'Thank you for your submission, we really appreciate it. We ask that you accept our [JFrog CLI Plugins Developer Terms](https://github.com/jfrog/jfrog-cli-plugins-reg/blob/master/DEVELOPERS_TERMS.md) before we can accept your contribution. You can accept the Terms by just posting a Pull Request Comment same as the below format.'
+          custom-allsigned-prcomment: 'All Contributors have accepted the Developer Terms.'
