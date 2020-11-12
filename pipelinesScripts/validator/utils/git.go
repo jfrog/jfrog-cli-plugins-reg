@@ -2,6 +2,7 @@ package utils
 
 import (
 	"errors"
+	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -27,10 +28,10 @@ func getGitCloneFlags(branch, tag string) []string {
 	return flags
 }
 
-// Clone the plugin's repository to a local temp directory and return the full path pointing to the plugin's code relative path.
-// 'tempDir' - Temporary folder to which the project will be cloned.
+// Clone the plugin's repository to a local temp directory and return the full path of the plugin's source code.
+// 'tempDir' - Temporary dir to which the project will be cloned.
 // 'gitRepository' - The GitHub repository to clone.
-// 'relativePath' - Relative path in the repository to be chained in the returned path.
+// 'relativePath' - Relative path inside the repository.
 // 'branch' - If specified, override the default branch with the input branch.
 // 'tag' - If specified, checkout to the input tag.
 // returns: (project-path, error)
@@ -43,7 +44,11 @@ func CloneRepository(tempDir, gitRepository, relativePath, branch, tag string) (
 	if err != nil {
 		return "", errors.New("Couldn't get change directory to" + tempDir + ": " + err.Error())
 	}
-	defer os.Chdir(currentDir)
+	defer func() {
+		if deferErr := os.Chdir(currentDir); deferErr != nil {
+			log.Print("Failed to change to to " + currentDir + ". Error:" + deferErr.Error())
+		}
+	}()
 	gitRepository = strings.TrimSuffix(gitRepository, ".git")
 	flags := append(getGitCloneFlags(branch, tag), gitRepository+".git")
 	if err := RunCommand("git", flags...); err != nil {
@@ -63,9 +68,12 @@ func GetModifiedFiles() ([]string, error) {
 	if err := RunCommand("git", "remote", "add", uniqueUpstream, jfrogCliPluginRegUrl); err != nil {
 		return nil, errors.New("Failed to add git remote for " + uniqueUpstream + " upstream and" + jfrogCliPluginRegUrl + " branch. Error: " + err.Error())
 	}
-	defer RunCommand("git", "remote", "remove", uniqueUpstream)
-
-	// Fetch from upsream
+	defer func() {
+		if deferErr := RunCommand("git", "remote", "remove", uniqueUpstream); deferErr != nil {
+			log.Print("Failed to remove remote upstream " + uniqueUpstream + ". Error:" + deferErr.Error())
+		}
+	}()
+	// Fetch from upstream
 	if err := RunCommand("git", "fetch", uniqueUpstream, jfrogCliPluginRegBranch); err != nil {
 		return nil, errors.New("Failed to fetch from " + uniqueUpstream + ", branch " + jfrogCliPluginRegBranch + ". Error: " + err.Error())
 	}

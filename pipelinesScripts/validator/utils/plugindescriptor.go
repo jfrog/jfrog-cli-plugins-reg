@@ -29,11 +29,11 @@ func ReadDescriptor(filePath string) (*PluginDescriptor, error) {
 	}
 	content, err := ioutil.ReadFile(filepath.Join(rootPath, filePath))
 	if err != nil {
-		return nil, errors.New("Fail to read '" + filePath + "'. Error: " + err.Error())
+		return nil, errors.New("Failed to read '" + filePath + "'. Error: " + err.Error())
 	}
 	var descriptor PluginDescriptor
 	if err := yaml.UnmarshalStrict(content, &descriptor); err != nil {
-		return nil, errors.New("Fail to unmarshal '" + filePath + "'. Error: " + err.Error())
+		return nil, errors.New("Failed to unmarshal '" + filePath + "'. Error: " + err.Error())
 	}
 	return &descriptor, nil
 }

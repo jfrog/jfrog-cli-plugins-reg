@@ -12,7 +12,7 @@ import (
 	"github.com/jfrog/jfrog-cli-plugins-reg/utils"
 )
 
-// This program validate a new jfrog cli plugin register
+// This program runs a series of validations on a new JFrog CLI plugin, following a pull request to register it in the public registry.
 func main() {
 	if len(os.Args) != 2 {
 		fmt.Println("ERROR: Wrong number of arguments.")
@@ -40,7 +40,7 @@ func main() {
 // In order to add a plugin to the registry,
 // the maintainer should create a pull request to the registry.
 // The pull request should include the plugin(s) YAML.
-// If other files extentions exists, return an error.
+// If the pull request includes other files, return an error.
 func validateStructure() error {
 	prFiles, err := utils.GetModifiedFiles()
 	if err != nil {
@@ -53,7 +53,7 @@ func validateStructure() error {
 		}
 	}
 	if forbiddenFiles != "" {
-		return errors.New("Only .yml files are permitted to be in the pull request. Please remove: " + forbiddenFiles)
+		return errors.New("Only .yml files are permitted to be included in the pull request. Please remove: " + forbiddenFiles)
 	}
 	return nil
 }
@@ -94,9 +94,13 @@ func runTests() error {
 		}
 		tempDir, err := ioutil.TempDir("", "pluginRepo")
 		if err != nil {
-			return errors.New("Fail to create temp dir: " + err.Error())
+			return errors.New("Failed to create temp dir: " + err.Error())
 		}
-		defer os.RemoveAll(tempDir)
+		defer func() {
+			if deferErr := os.RemoveAll(tempDir); deferErr != nil {
+				log.Print("Failed to remove temp dir. Error:" + deferErr.Error())
+			}
+		}()
 		projectPath, err := utils.CloneRepository(tempDir, descriptor.Repository, descriptor.RelativePath, descriptor.Branch, descriptor.Tag)
 		if err != nil {
 			return err
@@ -109,25 +113,30 @@ func runTests() error {
 }
 
 func runProjectTests(projectPath string) error {
+	var currentDir string
 	currentDir, err := os.Getwd()
 	if err != nil {
-		return errors.New("Fail to get current directory: " + err.Error())
+		return errors.New("Failed to get current directory: " + err.Error())
 	}
-	defer os.Chdir(currentDir)
+	defer func() {
+		if deferErr := os.Chdir(currentDir); deferErr != nil {
+			log.Print("Failed to change to to " + currentDir + ". Error:" + deferErr.Error())
+		}
+	}()
 	err = os.Chdir(projectPath)
 	if err != nil {
-		return errors.New("Fail to get change directory to" + projectPath + ": " + err.Error())
+		return errors.New("Failed to get change directory to" + projectPath + ": " + err.Error())
 	}
 	cmd := exec.Command("go", "vet", "-v", "./...")
 	cmd.Stdout, cmd.Stderr = os.Stdout, os.Stderr
 	if err := cmd.Run(); err != nil {
-		return errors.New("Failed plugin lint for " + projectPath + ": " + err.Error())
+		return errors.New("Lint failed for " + projectPath + ": " + err.Error())
 	}
 
 	cmd = exec.Command("go", "test", "-v", "./...")
 	cmd.Stdout, cmd.Stderr = os.Stdout, os.Stderr
 	if err := cmd.Run(); err != nil {
-		return errors.New("Failed plugin tests for " + projectPath + ": " + err.Error())
+		return errors.New("Tests failed for " + projectPath + ": " + err.Error())
 	}
 	return nil
 }
