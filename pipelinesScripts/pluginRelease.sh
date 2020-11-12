@@ -6,7 +6,7 @@ verifyPluginVersionMatching () {
   echo "Verifying provided plugin version matches built version..."
   res=$(eval "./$JFROG_CLI_PLUGIN_PLUGIN_NAME -v")
   exitCode=$?
-  if [ $exitCode -ne 0 ]; then
+  if [[ $exitCode -ne 0 ]]; then
     echo "Error: Failed verifying version matches"
     exit $exitCode
   fi
@@ -15,7 +15,7 @@ verifyPluginVersionMatching () {
   echo "Output: $res"
   builtVersion="${res##* }"
   # Compare versions
-  if [ "$builtVersion" != "$JFROG_CLI_PLUGIN_VERSION" ]; then
+  if [[ "$builtVersion" != "$JFROG_CLI_PLUGIN_VERSION" ]]; then
     echo "Versions dont match. Provided: $JFROG_CLI_PLUGIN_VERSION, Actual: $builtVersion"
     exit 1
   fi
@@ -33,7 +33,7 @@ build () {
   CGO_ENABLED=0 go build -o "$exeName" -ldflags '-w -extldflags "-static"' main.go
 
   # Run verification after building plugin for the correct platform of this image.
-  if [ "$pkg" = "linux-386" ]; then
+  if [[ "$pkg" = "linux-386" ]]; then
     verifyPluginVersionMatching
   fi
 }
@@ -44,15 +44,15 @@ verifyUniqueVersion () {
   versionFolderUrl="$JFROG_CLI_PLUGINS_REGISTRY_URL/$JFROG_CLI_PLUGINS_REGISTRY_REPO/$JFROG_CLI_PLUGIN_PLUGIN_NAME/$JFROG_CLI_PLUGIN_VERSION/"
 
   echo "Checking existence of $versionFolderUrl"
-  res=$(curl -o /dev/null -s --head --fail "$versionFolderUrl")
+  res=$(curl -s --head "$versionFolderUrl" | head -n 1)
   exitCode=$?
-  if [ $exitCode -ne 0 ]; then
+  if [[ $exitCode -ne 0 ]]; then
     echo "Error: Failed verifying uniqueness of the plugin's version"
     exit $exitCode
   fi
 
-  echo "Artifactory response: $res"
-  if [ $res -eq 200 ]; then
+  echo "Response: $res"
+  if [[ $res =~ "200" ]]; then
     echo "Error: Version already exists in registry"
     exit 1
   fi
@@ -60,10 +60,10 @@ verifyUniqueVersion () {
 
 #function downloadJfrogCli()
 downloadJfrogCli () {
-  echo "Downloading the latest version of JFrog CLI..."
+  # Downloading the latest version of JFrog CLI...
   curl -sSfL https://getcli.jfrog.io | sh
   # Verify CLI was downloaded
-  if [ ! -f ./jfrog ]; then
+  if [[ ! -f ./jfrog ]]; then
       echo "Error: JFrog CLI downloaded failed."
       exit 1
   fi
@@ -84,7 +84,7 @@ buildAndUpload () {
 
   ./jfrog rt u "./$exeName" "$destPath" --url="$JFROG_CLI_PLUGINS_REGISTRY_URL" --access-token=$int_releases_jfrog_token
   exitCode=$?
-  if [ $exitCode -ne 0 ]; then
+  if [[ $exitCode -ne 0 ]]; then
     echo "Error: Failed uploading plugin"
     exit $exitCode
   fi
@@ -97,7 +97,7 @@ copyToLatestDir () {
 
   ./jfrog rt cp "$pluginPath/$JFROG_CLI_PLUGIN_VERSION/(*)" "$pluginPath/latest/{1}" --flat --url="$JFROG_CLI_PLUGINS_REGISTRY_URL" --access-token=$int_releases_jfrog_token
   exitCode=$?
-  if [ $exitCode -ne 0 ]; then
+  if [[ $exitCode -ne 0 ]]; then
     echo "Error: Failed uploading plugin"
     exit $exitCode
   fi
