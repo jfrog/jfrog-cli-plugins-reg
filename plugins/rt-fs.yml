@@ -2,6 +2,7 @@
 pluginName: rt-fs
 version: v1.0.0
 repository: https://github.com/jfrog/jfrog-cli-plugins
-maintainers: ['yahavi']
+maintainers:
+  - yahavi
 # optional:
 relativePath: rt-fs
