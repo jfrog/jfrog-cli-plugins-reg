@@ -5,17 +5,23 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strconv"
 	"strings"
+	"time"
 )
 
 const (
-	jfrogCliPluginRegUrl    = "https://github.com/jfrog/jfrog-cli-plugins-reg"
+	jfrogCliPluginRegUrl    = "https://github.com/jfrog/jfrog-cli-plugins-reg.git"
 	jfrogCliPluginRegBranch = "master"
 )
 
-func getGitCloneFlags(branch string) (flags string) {
+func getGitCloneFlags(branch, tag string) (flags string) {
 	if branch != "" {
 		flags = flags + "--branch=" + branch
+		return
+	}
+	if tag != "" {
+		flags = flags + "--branch=" + tag
 	}
 	return
 }
@@ -38,57 +44,35 @@ func CloneRepository(tempDir, gitRepository, relativePath, branch, tag string) (
 	}
 	defer os.Chdir(currentDir)
 	gitRepository = strings.TrimSuffix(gitRepository, ".git")
-	flags := getGitCloneFlags(branch)
+	flags := getGitCloneFlags(branch, tag)
 	if err := RunCommand("git", "clone", flags, gitRepository+".git"); err != nil {
 		return "", errors.New("Failed to run git clone for " + gitRepository + ", error:" + err.Error())
 	}
 	repositoryName := gitRepository[strings.LastIndex(gitRepository, "/")+1:]
-	if tag != "" {
-		err = os.Chdir(repositoryName)
-		if err != nil {
-			return "", errors.New("Fail to get change directory to" + repositoryName + ", error:" + err.Error())
-		}
-		if err := RunCommand("git", "checkout", "tags/"+tag); err != nil {
-			return "", errors.New("Failed to checkout tag" + tag + ", error:" + err.Error())
-		}
-	}
+
 	return filepath.Join(tempDir, repositoryName, relativePath), nil
 }
 
 func GetModifiedFiles() ([]string, error) {
-	currentDir, err := os.Getwd()
-	if err != nil {
-		return nil, errors.New("Couldn't get current directory: " + err.Error())
-	}
-	defer os.Chdir(currentDir)
+	// Create unique upstream and branch names
+	timestamp := strconv.Itoa(int(time.Now().Unix()))
+	uniqueUpstream := "remote-origin-" + timestamp
 
-	os.Chdir(filepath.Join("..", "..", "plugins"))
-
-	// Add upstream remote
-	if err := RunCommand("git", "remote", "add", "upstream", jfrogCliPluginRegUrl); err != nil {
+	// Add remote.
+	if err := RunCommand("git", "remote", "add", uniqueUpstream, jfrogCliPluginRegUrl); err != nil {
 		return nil, errors.New("Failed to add git remote for " + jfrogCliPluginRegUrl + ": " + err.Error())
 	}
+	defer RunCommand("git", "remote", "remove", uniqueUpstream)
 
 	// Fetch from upsream
-	if err := RunCommand("git", "fetch", "upstream"); err != nil {
-		return nil, errors.New("Failed to fetch from " + jfrogCliPluginRegUrl + ": " + err.Error())
+	if err := RunCommand("git", "fetch", uniqueUpstream, "master"); err != nil {
+		return nil, errors.New("Failed to fetch from " + uniqueUpstream + ": " + err.Error())
 	}
-
-	// Checkout to a new JFrog branch
-	if err := RunCommand("git", "checkout", "-b", "jfrog-master", "upstream/"+jfrogCliPluginRegBranch); err != nil {
-		return nil, errors.New("Checkout failed to 'upstream/" + jfrogCliPluginRegBranch + "': " + err.Error())
-	}
-
-	// Merge changes from JFrog branch to the current
-	if err := RunCommand("git", "merge", "jfrog-master"); err != nil {
-		return nil, errors.New("Failed to merge changes from '" + jfrogCliPluginRegUrl + "/" + jfrogCliPluginRegBranch + "': " + err.Error())
-	}
-
-	return runGitDiff()
+	return runGitDiff(uniqueUpstream + "/master")
 }
 
-func runGitDiff() ([]string, error) {
-	cmd := exec.Command("git", "diff", "--no-commit-id", "--name-only", "-r", "jfrog-master", "HEAD")
+func runGitDiff(compareTo string) ([]string, error) {
+	cmd := exec.Command("git", "diff", "--no-commit-id", "--name-only", "-r", compareTo+"...HEAD")
 	output, err := cmd.Output()
 	if err != nil {
 		return nil, errors.New("Failed to run git diff command: " + err.Error())

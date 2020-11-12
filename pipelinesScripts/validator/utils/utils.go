@@ -9,9 +9,10 @@ import (
 type ValidationType string
 
 const (
-	Extension ValidationType = "extension"
-	Structure                = "structure"
-	Tests                    = "tests"
+	Extension             ValidationType = "extension"
+	Structure                            = "structure"
+	Tests                                = "tests"
+	PluginDescriptoPrefix                = "plugins/"
 )
 
 func PrintUsageAndExit() {
