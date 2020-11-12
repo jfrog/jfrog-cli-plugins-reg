@@ -1,4 +1,4 @@
-module github.com/jfrog/jfrog-cli-plugins-validator
+module github.com/jfrog/jfrog-cli-plugins-reg
 
 go 1.14
 

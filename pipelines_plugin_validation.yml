@@ -41,8 +41,8 @@ pipelines:
         execution:
           <<: *UPDATE_COMMIT_STATUS
           onExecute:
-            - cd $res_jfrog_cli_plugins_reg_git_resourcePath
-            - ./pipelinesScripts/validator/pluginValidate.sh extension
+            - cd $res_jfrog_cli_plugins_reg_git_resourcePath/pipelinesScripts/pluginsvalidation
+            - go run validator.go extension
 
       # Validate plugin descriptor yml
       - name: Descriptor
@@ -52,8 +52,8 @@ pipelines:
         execution:
           <<: *UPDATE_COMMIT_STATUS
           onExecute:
-            - cd $res_jfrog_cli_plugins_reg_git_resourcePath
-            - ./pipelinesScripts/validator/pluginValidate.sh structure
+            - cd $res_jfrog_cli_plugins_reg_git_resourcePath/pipelinesScripts/pluginsvalidation
+            - go run validator.go structure
 
       # Run `go vet ./...` and `go test ./...`
       - name: Tests
@@ -63,5 +63,5 @@ pipelines:
         execution:
           <<: *UPDATE_COMMIT_STATUS
           onExecute:
-            - cd $res_jfrog_cli_plugins_reg_git_resourcePath
-            - ./pipelinesScripts/validator/pluginValidate.sh tests
+            - cd $res_jfrog_cli_plugins_reg_git_resourcePath/pipelinesScripts/pluginsvalidation
+            - go run yaml.go tests

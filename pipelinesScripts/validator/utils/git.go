@@ -6,7 +6,6 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
-	"time"
 )
 
 const (
@@ -63,41 +62,33 @@ func GetModifiedFiles() ([]string, error) {
 	}
 	defer os.Chdir(currentDir)
 
-	// Change current directory to the plugins dir
-	os.Chdir("plugins")
-
-	// Create unique upstream and branch names
-	timestamp := string(time.Now().Unix())
-	uniqueUpstream := "upstream-" + timestamp
-	uniqueBranch := "jfrog-" + timestamp
+	os.Chdir(filepath.Join("..", "..", "plugins"))
 
 	// Add upstream remote
-	if err := RunCommand("git", "remote", "add", uniqueUpstream, jfrogCliPluginRegUrl); err != nil {
+	if err := RunCommand("git", "remote", "add", "upstream", jfrogCliPluginRegUrl); err != nil {
 		return nil, errors.New("Failed to add git remote for " + jfrogCliPluginRegUrl + ": " + err.Error())
 	}
-	defer RunCommand("git", "remote", "rm", uniqueUpstream)
 
 	// Fetch from upsream
-	if err := RunCommand("git", "fetch", uniqueUpstream); err != nil {
+	if err := RunCommand("git", "fetch", "upstream"); err != nil {
 		return nil, errors.New("Failed to fetch from " + jfrogCliPluginRegUrl + ": " + err.Error())
 	}
 
 	// Checkout to a new JFrog branch
-	if err := RunCommand("git", "checkout", "-b", uniqueBranch, uniqueUpstream+"/"+jfrogCliPluginRegBranch); err != nil {
-		return nil, errors.New("Checkout failed to '" + uniqueUpstream + "/" + jfrogCliPluginRegBranch + ": " + err.Error())
+	if err := RunCommand("git", "checkout", "-b", "jfrog-master", "upstream/"+jfrogCliPluginRegBranch); err != nil {
+		return nil, errors.New("Checkout failed to 'upstream/" + jfrogCliPluginRegBranch + "': " + err.Error())
 	}
-	defer RunCommand("git", "branch", "-d", uniqueBranch)
 
 	// Merge changes from JFrog branch to the current
-	if err := RunCommand("git", "merge", uniqueBranch); err != nil {
+	if err := RunCommand("git", "merge", "jfrog-master"); err != nil {
 		return nil, errors.New("Failed to merge changes from '" + jfrogCliPluginRegUrl + "/" + jfrogCliPluginRegBranch + "': " + err.Error())
 	}
 
-	return runGitDiff(uniqueBranch)
+	return runGitDiff()
 }
 
-func runGitDiff(uniqueBranch string) ([]string, error) {
-	cmd := exec.Command("git", "diff", "--no-commit-id", "--name-only", "-r", uniqueBranch, "HEAD")
+func runGitDiff() ([]string, error) {
+	cmd := exec.Command("git", "diff", "--no-commit-id", "--name-only", "-r", "jfrog-master", "HEAD")
 	output, err := cmd.Output()
 	if err != nil {
 		return nil, errors.New("Failed to run git diff command: " + err.Error())
