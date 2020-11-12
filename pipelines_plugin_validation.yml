@@ -50,6 +50,7 @@ pipelines:
         configuration:
           <<: *COMMON_CONFIGURATION
           inputSteps:
+          - name: PR_includes_only_plugin_descriptor
         execution:
           <<: *UPDATE_COMMIT_STATUS
           onExecute:
@@ -61,6 +62,8 @@ pipelines:
         type: Bash
         configuration:
           <<: *COMMON_CONFIGURATION
+          inputSteps:
+          - name: Plugin_descriptor_structure_is_valid
         execution:
           <<: *UPDATE_COMMIT_STATUS
           onExecute:

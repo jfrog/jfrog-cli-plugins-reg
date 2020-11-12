@@ -60,13 +60,13 @@ func GetModifiedFiles() ([]string, error) {
 
 	// Add remote.
 	if err := RunCommand("git", "remote", "add", uniqueUpstream, jfrogCliPluginRegUrl); err != nil {
-		return nil, errors.New("Failed to add git remote for " + jfrogCliPluginRegUrl + ": " + err.Error())
+		return nil, errors.New("Failed to add git remote for " + uniqueUpstream + " upstream and" + jfrogCliPluginRegUrl + " branch. Error: " + err.Error())
 	}
 	defer RunCommand("git", "remote", "remove", uniqueUpstream)
 
 	// Fetch from upsream
-	if err := RunCommand("git", "fetch", uniqueUpstream, "master"); err != nil {
-		return nil, errors.New("Failed to fetch from " + uniqueUpstream + ": " + err.Error())
+	if err := RunCommand("git", "fetch", uniqueUpstream, jfrogCliPluginRegBranch); err != nil {
+		return nil, errors.New("Failed to fetch from " + uniqueUpstream + ", branch " + jfrogCliPluginRegBranch + ". Error: " + err.Error())
 	}
 	return runGitDiff(uniqueUpstream + "/master")
 }
