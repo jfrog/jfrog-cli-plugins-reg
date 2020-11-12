@@ -1,0 +1,71 @@
+# Update commit status in GitHub
+updateCommitStatus: &UPDATE_COMMIT_STATUS
+  onStart:
+    - update_commit_status jfrog_cli_plugins_reg_git --context "$step_name"
+  onComplete:
+    - update_commit_status jfrog_cli_plugins_reg_git --context "$step_name"
+
+commonConfiguration: &COMMON_CONFIGURATION
+  inputResources:
+    - name: jfrog_cli_plugins_reg_git
+
+resources:
+  - name: jfrog_cli_plugins_reg_git
+    type: GitRepo
+    configuration:
+      path: jfrog/jfrog-cli-plugins-reg
+      gitProvider: github
+      buildOn:
+        commit: false
+        pullRequestCreate: true
+      branches:
+        include: master
+      files:
+        include: ^plugins\/.+
+
+pipelines:
+  - name: plugin_validation
+    configuration:
+      runtime:
+        type: image
+        image:
+          custom:
+            name: releases-docker.jfrog.io/jfrog-ecosystem-integration-env
+            tag: 1.0.0
+    steps:
+      # Validate PR contains only the plugin descriptor
+      - name: PR_includes_only_plugin_descriptor
+        type: Bash
+        configuration:
+          <<: *COMMON_CONFIGURATION
+        execution:
+          <<: *UPDATE_COMMIT_STATUS
+          onExecute:
+            - cd $res_jfrog_cli_plugins_reg_git_resourcePath/pipelinesScripts/validator
+            - go run validator.go extension
+
+      # Validate plugin descriptor yml
+      - name: Plugin_descriptor_structure_is_valid
+        type: Bash
+        configuration:
+          <<: *COMMON_CONFIGURATION
+          inputSteps:
+          - name: PR_includes_only_plugin_descriptor
+        execution:
+          <<: *UPDATE_COMMIT_STATUS
+          onExecute:
+            - cd $res_jfrog_cli_plugins_reg_git_resourcePath/pipelinesScripts/validator
+            - go run validator.go structure
+
+      # Run `go vet ./...` and `go test ./...`
+      - name: Plugin_tests_passed
+        type: Bash
+        configuration:
+          <<: *COMMON_CONFIGURATION
+          inputSteps:
+          - name: Plugin_descriptor_structure_is_valid
+        execution:
+          <<: *UPDATE_COMMIT_STATUS
+          onExecute:
+            - cd $res_jfrog_cli_plugins_reg_git_resourcePath/pipelinesScripts/validator
+            - go run validator.go tests
