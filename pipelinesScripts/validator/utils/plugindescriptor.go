@@ -3,6 +3,7 @@ package utils
 import (
 	"errors"
 	"io/ioutil"
+	"path/filepath"
 
 	"gopkg.in/yaml.v2"
 )
@@ -22,7 +23,11 @@ type PluginDescriptor struct {
 }
 
 func ReadDescriptor(filePath string) (*PluginDescriptor, error) {
-	content, err := ioutil.ReadFile(filePath)
+	rootPath, err := getRootPath()
+	if err != nil {
+		return nil, err
+	}
+	content, err := ioutil.ReadFile(filepath.Join(rootPath, filePath))
 	if err != nil {
 		return nil, errors.New("Fail to read '" + filePath + "'. Error: " + err.Error())
 	}

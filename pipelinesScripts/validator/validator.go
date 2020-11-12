@@ -48,7 +48,7 @@ func validateStructure() error {
 	}
 	forbiddenFiles := ""
 	for _, committedFilePath := range prFiles {
-		if !strings.HasSuffix(committedFilePath, ".yml") || strings.HasPrefix(committedFilePath, utils.PluginDescriptoPrefix) {
+		if !strings.HasSuffix(committedFilePath, ".yml") || !strings.HasPrefix(committedFilePath, utils.PluginDescriptoPrefix) {
 			forbiddenFiles += committedFilePath + "\n"
 		}
 	}

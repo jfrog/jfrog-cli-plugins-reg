@@ -68,4 +68,4 @@ pipelines:
           <<: *UPDATE_COMMIT_STATUS
           onExecute:
             - cd $res_jfrog_cli_plugins_reg_git_resourcePath/pipelinesScripts/validator
-            - go run yaml.go tests
+            - go run validator.go tests

@@ -15,15 +15,16 @@ const (
 	jfrogCliPluginRegBranch = "master"
 )
 
-func getGitCloneFlags(branch, tag string) (flags string) {
+func getGitCloneFlags(branch, tag string) []string {
+	flags := []string{"clone"}
 	if branch != "" {
-		flags = flags + "--branch=" + branch
-		return
+		flags = append(flags, "--branch="+branch)
+		return flags
 	}
 	if tag != "" {
-		flags = flags + "--branch=" + tag
+		flags = append(flags, "--branch="+tag)
 	}
-	return
+	return flags
 }
 
 // Clone the plugin's repository to a local temp directory and return the full path pointing to the plugin's code relative path.
@@ -44,8 +45,8 @@ func CloneRepository(tempDir, gitRepository, relativePath, branch, tag string) (
 	}
 	defer os.Chdir(currentDir)
 	gitRepository = strings.TrimSuffix(gitRepository, ".git")
-	flags := getGitCloneFlags(branch, tag)
-	if err := RunCommand("git", "clone", flags, gitRepository+".git"); err != nil {
+	flags := append(getGitCloneFlags(branch, tag), gitRepository+".git")
+	if err := RunCommand("git", flags...); err != nil {
 		return "", errors.New("Failed to run git clone for " + gitRepository + ", error:" + err.Error())
 	}
 	repositoryName := gitRepository[strings.LastIndex(gitRepository, "/")+1:]
