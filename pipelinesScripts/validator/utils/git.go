@@ -5,7 +5,6 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"strconv"
 	"strings"
 	"time"
 )
@@ -68,7 +67,7 @@ func GetModifiedFiles() ([]string, error) {
 	os.Chdir("plugins")
 
 	// Create unique upstream and branch names
-	timestamp := strconv.Itoa(int(time.Now().Unix()))
+	timestamp := string(time.Now().Unix())
 	uniqueUpstream := "upstream-" + timestamp
 	uniqueBranch := "jfrog-" + timestamp
 
@@ -88,7 +87,6 @@ func GetModifiedFiles() ([]string, error) {
 		return nil, errors.New("Checkout failed to '" + uniqueUpstream + "/" + jfrogCliPluginRegBranch + ": " + err.Error())
 	}
 	defer RunCommand("git", "branch", "-d", uniqueBranch)
-	defer RunCommand("git", "checkout", "-")
 
 	// Merge changes from JFrog branch to the current
 	if err := RunCommand("git", "merge", uniqueBranch); err != nil {
