@@ -7,7 +7,7 @@ updateCommitStatus: &UPDATE_COMMIT_STATUS
 
 commonConfiguration: &COMMON_CONFIGURATION
   inputResources:
-    - name: jfrogCliGit
+    - name: jfrog_cli_plugins_reg_git
 
 resources:
   - name: jfrog_cli_plugins_reg_git
@@ -34,34 +34,35 @@ pipelines:
             tag: 1.0.0
     steps:
       # Validate PR contains only the plugin descriptor
-      - name: Structure
+      - name: PR_includes_only_plugin_descriptor
         type: Bash
         configuration:
           <<: *COMMON_CONFIGURATION
         execution:
           <<: *UPDATE_COMMIT_STATUS
           onExecute:
-            - cd $res_jfrog_cli_plugins_reg_git_resourcePath/pipelinesScripts/pluginsvalidation
+            - cd $res_jfrog_cli_plugins_reg_git_resourcePath/pipelinesScripts/validator
             - go run validator.go extension
 
       # Validate plugin descriptor yml
-      - name: Descriptor
+      - name: Plugin_descriptor_structure_is_valid
         type: Bash
         configuration:
           <<: *COMMON_CONFIGURATION
+          inputSteps:
         execution:
           <<: *UPDATE_COMMIT_STATUS
           onExecute:
-            - cd $res_jfrog_cli_plugins_reg_git_resourcePath/pipelinesScripts/pluginsvalidation
+            - cd $res_jfrog_cli_plugins_reg_git_resourcePath/pipelinesScripts/validator
             - go run validator.go structure
 
       # Run `go vet ./...` and `go test ./...`
-      - name: Tests
+      - name: Plugin_tests_passed
         type: Bash
         configuration:
           <<: *COMMON_CONFIGURATION
         execution:
           <<: *UPDATE_COMMIT_STATUS
           onExecute:
-            - cd $res_jfrog_cli_plugins_reg_git_resourcePath/pipelinesScripts/pluginsvalidation
+            - cd $res_jfrog_cli_plugins_reg_git_resourcePath/pipelinesScripts/validator
             - go run yaml.go tests
