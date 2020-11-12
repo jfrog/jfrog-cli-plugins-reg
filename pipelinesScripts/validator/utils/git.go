@@ -46,7 +46,7 @@ func CloneRepository(tempDir, gitRepository, relativePath, branch, tag string) (
 	}
 	defer func() {
 		if deferErr := os.Chdir(currentDir); deferErr != nil {
-			log.Print("Failed to change to to " + currentDir + ". Error:" + deferErr.Error())
+			log.Print("Failed to change dir to " + currentDir + ". Error:" + deferErr.Error())
 		}
 	}()
 	gitRepository = strings.TrimSuffix(gitRepository, ".git")
