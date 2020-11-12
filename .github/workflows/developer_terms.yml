@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: "CLA Assistant"
-        if: (github.event.comment.body == 'recheckterms' || github.event.comment.body == 'I have read the JFrog CLI Plugins Developer Terms document and I hereby accept the terms') || github.event_name == 'pull_request_target'
+        if: (github.event.comment.body == 'recheckterms' || github.event.comment.body == 'I have read the Developer Terms and I hereby accept the terms') || github.event_name == 'pull_request_target'
         # Alpha Release
         uses: Or-Gabay/github-action@51ebecba0c10ee46582978973b50c0fbc8d7ba0d
         env:
@@ -27,5 +27,5 @@ jobs:
           allowlist: bot*
           signed-commit-message: '$contributorName has accepted the Developer Terms in #$pullRequestNo'
           custom-notsigned-prcomment: 'Thank you for your submission, we really appreciate it. We ask that you accept our [JFrog CLI Plugins Developer Terms](https://github.com/jfrog/jfrog-cli-plugins-reg/blob/master/DEVELOPERS_TERMS.md) before we can accept your contribution. You can accept the Terms by just posting a Pull Request Comment same as the below format.'
-          custom-pr-sign-comment: 'I have read the Developer Terms Document and I hereby accept the Terms'
+          custom-pr-sign-comment: 'I have read the Developer Terms and I hereby accept the terms'
           custom-allsigned-prcomment: 'All Contributors have accepted the Developer Terms.'
