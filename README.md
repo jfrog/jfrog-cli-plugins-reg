@@ -10,7 +10,7 @@ To install a plugin which is included in this registry, run the following JFrog 
 * [keyring](https://github.com/jfrog/jfrog-cli-plugins/tree/main/keyring)
 * [release-bundle-generator](https://github.com/jfrog/jfrog-cli-plugins/tree/main/release-bundle-generator)
 * [rt-cleanup](https://github.com/jfrog/jfrog-cli-plugins/tree/main/rt-cleanup)
-* [rt-ls](https://github.com/jfrog/jfrog-cli-plugins/tree/main/rt-fs)
+* [rt-fs](https://github.com/jfrog/jfrog-cli-plugins/tree/main/rt-fs)
 
 ## Developing and publishing plugins
 We encourage you, as developers, to create plugins and share them publicly with the rest of your community. Read the [JFrog CLI Plugins Developer Guide](https://github.com/jfrog/jfrog-cli/blob/master/guides/jfrog-cli-plugins-developer-guide.md) for information about developing and publishing JFrog CLI Plugins.
