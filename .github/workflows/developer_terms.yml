@@ -26,6 +26,6 @@ jobs:
           branch: 'master'
           allowlist: bot*
           signed-commit-message: '$contributorName has accepted the Developer Terms in #$pullRequestNo'
-          custom-notsigned-prcomment: 'Thank you for your submission, we really appreciate it. We ask that you accept our [JFrog CLI Plugins Developer Terms](https://github.com/jfrog/jfrog-cli-plugins-reg/blob/master/DEVELOPERS_TERMS.md) before we can accept your contribution. You can accept the Terms by just posting a Pull Request Comment same as the below format.'
+          custom-notsigned-prcomment: 'Thank you for your submission, we really appreciate it. We ask that you accept our [JFrog CLI Plugins Developer Terms](https://github.com/jfrog/jfrog-cli-plugins-reg/blob/master/DEVELOPERS_TERMS.md) before we can accept your contribution. You can accept the Terms by just posting a Pull Request Comment same as the below format. Important: we recommend not to copy and paste this message, to avoid including unseen characters, which fail the message validation.'
           custom-pr-sign-comment: 'I have read the Developer Terms and I hereby accept the terms'
           custom-allsigned-prcomment: 'All Contributors have accepted the Developer Terms.'
