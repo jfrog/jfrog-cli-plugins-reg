@@ -4,5 +4,4 @@ version: v1.0.0
 repository: https://github.com/jfrog/jfrog-cli-plugins
 maintainers:
   - Or-Gabay
-# optional:
 relativePath: build-deps-info
