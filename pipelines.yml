@@ -10,6 +10,19 @@ commonConfiguration: &COMMON_CONFIGURATION
     - name: jfrog_cli_plugins_reg_git
 
 resources:
+  - name: buildJfrogCliPluginGit
+    type: GitRepo
+    configuration:
+      path: jfrog/jfrog-cli-plugins-reg
+      gitProvider: github
+      buildOn:
+      # Manually trigger only
+        commit: false
+      branches:
+        # Only build on the master
+        include: master
+      files:
+        include: ^plugins\/.+
   - name: jfrog_cli_plugins_reg_git
     type: GitRepo
     configuration:
@@ -24,6 +37,46 @@ resources:
         include: ^plugins\/.+
 
 pipelines:
+  - name: build_jfrog_cli_plugin
+    steps:
+      - name: BuildAndPush
+        type: Bash
+        configuration:
+          integrations:
+            - name: releases_jfrog
+          inputResources:
+            - name: buildJfrogCliPluginGit
+          runtime:
+            type: image
+            image:
+              auto:
+                language: go
+                versions:
+                  - "1.14.4"
+          environmentVariables:
+            CI: "true"
+            JFROG_CLI_PLUGINS_REGISTRY_URL: "https://releases.jfrog.io/artifactory"
+            # Repo name in artifactory
+            JFROG_CLI_PLUGINS_REGISTRY_REPO: "jfrog-cli-plugins"
+            JFROG_CLI_PLUGIN_PLUGIN_NAME: "plugin-name"
+            JFROG_CLI_PLUGIN_DOMAIN_NAME: "jfrog"
+            JFROG_CLI_PLUGIN_REPO_NAME: "jfrog-cli-plugins"
+            JFROG_CLI_PLUGIN_RELATIVE_PATH: "blank-if-in-root"
+            JFROG_CLI_PLUGIN_VERSION: "v1.0.0"
+        execution:
+          onStart:
+            - update_commit_status buildJfrogCliPluginGit --context "$step_name"
+          onExecute:
+            # Clone plugin repo.
+            - git clone https://github.com/$JFROG_CLI_PLUGIN_DOMAIN_NAME/$JFROG_CLI_PLUGIN_REPO_NAME
+            # Copy the plugin release script from registry repo to plugin repo.
+            - cp "$res_buildJfrogCliPluginGit_resourcePath/pipelinesScripts/pluginRelease.sh" "./$JFROG_CLI_PLUGIN_REPO_NAME/$JFROG_CLI_PLUGIN_RELATIVE_PATH"
+            - pushd $JFROG_CLI_PLUGIN_REPO_NAME/$JFROG_CLI_PLUGIN_RELATIVE_PATH
+            - bash "./pluginRelease.sh"
+            - popd
+          onComplete:
+            - update_commit_status buildJfrogCliPluginGit --context "$step_name"
+
   - name: plugin_validation
     configuration:
       runtime:
@@ -43,7 +96,6 @@ pipelines:
           onExecute:
             - cd $res_jfrog_cli_plugins_reg_git_resourcePath/pipelinesScripts/validator
             - go run validator.go extension
-
       # Validate plugin descriptor yml
       - name: Plugin_descriptor_structure_is_valid
         type: Bash
@@ -56,7 +108,6 @@ pipelines:
           onExecute:
             - cd $res_jfrog_cli_plugins_reg_git_resourcePath/pipelinesScripts/validator
             - go run validator.go structure
-
       # Run `go vet ./...` and `go test ./...`
       - name: Plugin_tests_passed
         type: Bash
