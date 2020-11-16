@@ -16,8 +16,8 @@ resources:
       path: jfrog/jfrog-cli-plugins-reg
       gitProvider: github
       buildOn:
-        # Build on commit and tags
-        tagCreate: true
+      # Manually trigger only
+        commit: false
       branches:
         # Only build on the master
         include: master
