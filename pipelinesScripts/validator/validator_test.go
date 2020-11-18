@@ -1,7 +1,6 @@
 package main
 
 import (
-	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -25,15 +24,7 @@ func TestMain(m *testing.M) {
 }
 
 func setUp() (string, error) {
-	tempDir, err := ioutil.TempDir("", "out")
-	if err != nil {
-		return "", err
-	}
-	path, err := utils.CloneRepository(tempDir, utils.JfrogCliPluginRegUrl, "", utils.JfrogCliPluginRegBranch, "")
-	if err != nil {
-		return "", err
-	}
-	return tempDir, os.Chdir(path)
+	return utils.CreatePLaygroundForJfrogCliTest()
 }
 
 func tearDown(tempDir string) error {
