@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: "CLA Assistant"
-        if: (github.event.comment.body == 'recheckterms' || github.event.comment.body == 'I have read the Developer Terms and I hereby accept the terms') || github.event_name == 'pull_request_target'
+        if: (github.event.comment.body == 'recheck' || github.event.comment.body == 'I have read the Developer Terms and I hereby accept the terms') || github.event_name == 'pull_request_target'
         # Alpha Release
         uses: Or-Gabay/github-action@ba269b79be229bfc9bd717e700faae33fea41e4e
         env:
