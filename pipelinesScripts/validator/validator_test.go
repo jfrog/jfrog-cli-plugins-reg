@@ -1,43 +1,32 @@
 package main
 
 import (
-	"log"
 	"os"
 	"path/filepath"
 	"testing"
 
 	"github.com/jfrog/jfrog-cli-plugins-reg/utils"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 const testPluginRepo = "https://github.com/jfrog/jfrog-cli-plugins"
 
-func TestMain(m *testing.M) {
-	tempDir, err := setUp()
-	if err != nil {
-		log.Fatal(err)
-	}
-	m.Run()
-	if err := tearDown(tempDir); err != nil {
-		log.Fatal(err)
-	}
-}
-
-func setUp() (string, error) {
-	return utils.CreatePLaygroundForJfrogCliTest()
-}
-
-func tearDown(tempDir string) error {
-	return os.RemoveAll(tempDir)
-}
-
 func TestValidateExtension(t *testing.T) {
+	tempDir, err := utils.CreatePLaygroundForJfrogCliTest()
+	require.NoError(t, err)
+	defer os.RemoveAll(tempDir)
+
 	descriptorName := "test_extention_plugin"
 	assert.NoError(t, execValidator(&utils.PluginDescriptor{}, descriptorName+".yml", validateExtension))
 	assert.Error(t, execValidator(&utils.PluginDescriptor{}, descriptorName, validateExtension))
 }
 
 func TestValidateDescriptorStructure(t *testing.T) {
+	tempDir, err := utils.CreatePLaygroundForJfrogCliTest()
+	require.NoError(t, err)
+	defer os.RemoveAll(tempDir)
+
 	pluginDescriptor := &utils.PluginDescriptor{
 		PluginName:  "My Plugin",
 		Version:     "v1.0.0",
@@ -66,6 +55,10 @@ func TestValidateDescriptorStructure(t *testing.T) {
 }
 
 func TestValidateDescriptorTests(t *testing.T) {
+	tempDir, err := utils.CreatePLaygroundForJfrogCliTest()
+	require.NoError(t, err)
+	defer os.RemoveAll(tempDir)
+
 	pluginDescriptor := &utils.PluginDescriptor{
 		PluginName:   "My Plugin",
 		Version:      "v1.0.0",
