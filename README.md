@@ -6,6 +6,7 @@
 After a plugin is included in this Registry, it becomes available for installation using JFrog CLI. JFrog CLI version 1.41.1 or above is required. To install a plugin included in this registry, run the following JFrog CLI command -  `jfrog plugin install plugin-name`. 
 
 ## The list of available plugins
+* [build-deps-info](https://github.com/jfrog/jfrog-cli-plugins/tree/main/build-deps-info)
 * [build-report](https://github.com/jfrog/jfrog-cli-plugins/tree/main/build-report)
 * [keyring](https://github.com/jfrog/jfrog-cli-plugins/tree/main/keyring)
 * [release-bundle-generator](https://github.com/jfrog/jfrog-cli-plugins/tree/main/release-bundle-generator)
