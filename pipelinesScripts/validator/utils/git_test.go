@@ -14,9 +14,11 @@ func TestGetModifiedFiles(t *testing.T) {
 	// Init playground
 	tempDirPath, playgroundPath, err := CreatePLaygroundForJfrogCliTest()
 	require.NoError(t, err)
-	// cd to the cloned project
 	oldCW, err := os.Getwd()
 	require.NoError(t, err)
+	defer CleanupTestPlayground(t, tempDirPath, oldCW)
+
+	// cd to the cloned project
 	require.NoError(t, os.Chdir(playgroundPath))
 
 	// Create new file.
@@ -27,10 +29,6 @@ func TestGetModifiedFiles(t *testing.T) {
 	require.NoError(t, err)
 	assert.Len(t, files, 1)
 	assert.Equal(t, files[0], "file.txt")
-
-	// Cleanup
-	assert.NoError(t, os.RemoveAll(tempDirPath))
-	assert.NoError(t, os.Chdir(oldCW))
 }
 
 func TestGetModifiedFilesCleanupBranches(t *testing.T) {
@@ -40,6 +38,9 @@ func TestGetModifiedFilesCleanupBranches(t *testing.T) {
 	// cd to the cloned project
 	oldCW, err := os.Getwd()
 	require.NoError(t, err)
+	defer CleanupTestPlayground(t, tempDirPath, oldCW)
+
+	// cd to the cloned project
 	require.NoError(t, os.Chdir(playgroundPath))
 
 	cmd := exec.Command("git", "branch")
@@ -54,8 +55,4 @@ func TestGetModifiedFilesCleanupBranches(t *testing.T) {
 	branchesAfter, err := cmd.Output()
 	assert.NoError(t, err)
 	assert.Equal(t, branchesBefore, branchesAfter)
-
-	// Cleanup
-	assert.NoError(t, os.RemoveAll(tempDirPath))
-	assert.NoError(t, os.Chdir(oldCW))
 }

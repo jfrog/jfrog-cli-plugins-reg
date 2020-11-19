@@ -4,7 +4,9 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"testing"
 
+	"github.com/stretchr/testify/assert"
 	"gopkg.in/yaml.v2"
 )
 
@@ -27,10 +29,7 @@ func CommitAllFiles() error {
 	if err := RunCommand("git", "add", "."); err != nil {
 		return err
 	}
-	if err := RunCommand("git", "commit", "-m", "plugin_tests"); err != nil {
-		return err
-	}
-	return nil
+	return RunCommand("git", "commit", "-m", "plugin_tests")
 }
 
 func CreatePLaygroundForJfrogCliTest() (string, string, error) {
@@ -43,4 +42,9 @@ func CreatePLaygroundForJfrogCliTest() (string, string, error) {
 		return "", "", err
 	}
 	return tempDirPath, playgroundPath, nil
+}
+
+func CleanupTestPlayground(t *testing.T, tempDirPath string, oldCW string) {
+	assert.NoError(t, os.Chdir(oldCW))
+	assert.NoError(t, os.RemoveAll(tempDirPath))
 }

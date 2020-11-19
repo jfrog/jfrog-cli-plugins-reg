@@ -16,27 +16,26 @@ func TestValidateExtension(t *testing.T) {
 	// Init playground
 	tempDirPath, playgroundPath, err := utils.CreatePLaygroundForJfrogCliTest()
 	require.NoError(t, err)
-	// cd to the cloned project
 	oldCW, err := os.Getwd()
 	require.NoError(t, err)
-	assert.NoError(t, os.Chdir(playgroundPath))
+	defer utils.CleanupTestPlayground(t, tempDirPath, oldCW)
 
+	// cd to the cloned project
+	assert.NoError(t, os.Chdir(playgroundPath))
 	descriptorName := "test_extention_plugin"
 	assert.NoError(t, execValidator(&utils.PluginDescriptor{}, descriptorName+".yml", validateExtension))
 	assert.Error(t, execValidator(&utils.PluginDescriptor{}, descriptorName, validateExtension))
-
-	// Cleanup
-	assert.NoError(t, os.RemoveAll(tempDirPath))
-	assert.NoError(t, os.Chdir(oldCW))
 }
 
 func TestValidateDescriptorStructure(t *testing.T) {
 	// Init playground
 	tempDirPath, playgroundPath, err := utils.CreatePLaygroundForJfrogCliTest()
 	require.NoError(t, err)
-	// cd to the cloned project
 	oldCW, err := os.Getwd()
 	require.NoError(t, err)
+	defer utils.CleanupTestPlayground(t, tempDirPath, oldCW)
+
+	// cd to the cloned project
 	assert.NoError(t, os.Chdir(playgroundPath))
 
 	pluginDescriptor := &utils.PluginDescriptor{
@@ -68,21 +67,18 @@ func TestValidateDescriptorStructure(t *testing.T) {
 	pluginDescriptorCopy.Branch = "my-branch"
 	pluginDescriptorCopy.Tag = "my-tag"
 	assert.EqualError(t, execValidator(&pluginDescriptorCopy, descriptorName, validateDescriptor), "Errors detected in the yml descriptor file:\n* Plugin descriptor yml cannot include both 'tag' and 'branch'.\n")
-
-	// Cleanup
-	assert.NoError(t, os.RemoveAll(tempDirPath))
-	assert.NoError(t, os.Chdir(oldCW))
 }
 
 func TestValidateDescriptorTests(t *testing.T) {
 	// Init playground
 	tempDirPath, playgroundPath, err := utils.CreatePLaygroundForJfrogCliTest()
 	require.NoError(t, err)
-	// cd to the cloned project
 	oldCW, err := os.Getwd()
 	require.NoError(t, err)
-	assert.NoError(t, os.Chdir(playgroundPath))
+	defer utils.CleanupTestPlayground(t, tempDirPath, oldCW)
 
+	// cd to the cloned project
+	assert.NoError(t, os.Chdir(playgroundPath))
 	pluginDescriptor := &utils.PluginDescriptor{
 		PluginName:   "My Plugin",
 		Version:      "v1.0.0",
@@ -92,10 +88,6 @@ func TestValidateDescriptorTests(t *testing.T) {
 	}
 	descriptorName := "test_extention_plugin.yml"
 	assert.NoError(t, execValidator(pluginDescriptor, descriptorName, runTests))
-
-	// Cleanup
-	assert.NoError(t, os.RemoveAll(tempDirPath))
-	assert.NoError(t, os.Chdir(oldCW))
 }
 
 func execValidator(pluginDescriptor *utils.PluginDescriptor, descriptorName string, validatorFunc func() error) error {
