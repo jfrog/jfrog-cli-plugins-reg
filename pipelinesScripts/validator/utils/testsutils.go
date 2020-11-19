@@ -33,14 +33,14 @@ func CommitAllFiles() error {
 	return nil
 }
 
-func CreatePLaygroundForJfrogCliTest() (string, error) {
-	tempDir, err := ioutil.TempDir("", "out")
+func CreatePLaygroundForJfrogCliTest() (string, string, error) {
+	tempDirPath, err := ioutil.TempDir("", "out")
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
-	path, err := CloneRepository(tempDir, JfrogCliPluginRegUrl, "", JfrogCliPluginRegBranch, "")
+	playgroundPath, err := CloneRepository(tempDirPath, JfrogCliPluginRegUrl, "", JfrogCliPluginRegBranch, "")
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
-	return tempDir, os.Chdir(path)
+	return tempDirPath, playgroundPath, nil
 }

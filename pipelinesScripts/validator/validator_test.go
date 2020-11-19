@@ -13,19 +13,31 @@ import (
 const testPluginRepo = "https://github.com/jfrog/jfrog-cli-plugins"
 
 func TestValidateExtension(t *testing.T) {
-	tempDir, err := utils.CreatePLaygroundForJfrogCliTest()
+	// Init playground
+	tempDirPath, playgroundPath, err := utils.CreatePLaygroundForJfrogCliTest()
 	require.NoError(t, err)
-	defer os.RemoveAll(tempDir)
+	// cd to the cloned project
+	oldCW, err := os.Getwd()
+	require.NoError(t, err)
+	assert.NoError(t, os.Chdir(playgroundPath))
 
 	descriptorName := "test_extention_plugin"
 	assert.NoError(t, execValidator(&utils.PluginDescriptor{}, descriptorName+".yml", validateExtension))
 	assert.Error(t, execValidator(&utils.PluginDescriptor{}, descriptorName, validateExtension))
+
+	// Cleanup
+	assert.NoError(t, os.RemoveAll(tempDirPath))
+	assert.NoError(t, os.Chdir(oldCW))
 }
 
 func TestValidateDescriptorStructure(t *testing.T) {
-	tempDir, err := utils.CreatePLaygroundForJfrogCliTest()
+	// Init playground
+	tempDirPath, playgroundPath, err := utils.CreatePLaygroundForJfrogCliTest()
 	require.NoError(t, err)
-	defer os.RemoveAll(tempDir)
+	// cd to the cloned project
+	oldCW, err := os.Getwd()
+	require.NoError(t, err)
+	assert.NoError(t, os.Chdir(playgroundPath))
 
 	pluginDescriptor := &utils.PluginDescriptor{
 		PluginName:  "My Plugin",
@@ -39,25 +51,37 @@ func TestValidateDescriptorStructure(t *testing.T) {
 	// Validate mandatory fields
 	pluginDescriptorCopy := *pluginDescriptor
 	pluginDescriptorCopy.PluginName = ""
-	assert.Error(t, execValidator(&pluginDescriptorCopy, descriptorName, validateDescriptor))
-
+	assert.EqualError(t, execValidator(&pluginDescriptorCopy, descriptorName, validateDescriptor), "Errors detected in the yml descriptor file:\n* 'name' is missing\n")
 	pluginDescriptorCopy = *pluginDescriptor
 	pluginDescriptorCopy.Version = ""
-	assert.Error(t, execValidator(&pluginDescriptorCopy, descriptorName, validateDescriptor))
+	assert.EqualError(t, execValidator(&pluginDescriptorCopy, descriptorName, validateDescriptor), "Errors detected in the yml descriptor file:\n* 'version' is missing\n")
 
 	pluginDescriptorCopy = *pluginDescriptor
 	pluginDescriptorCopy.Repository = ""
-	assert.Error(t, execValidator(&pluginDescriptorCopy, descriptorName, validateDescriptor))
+	assert.EqualError(t, execValidator(&pluginDescriptorCopy, descriptorName, validateDescriptor), "Errors detected in the yml descriptor file:\n* 'repository' is missing\n")
 
 	pluginDescriptorCopy = *pluginDescriptor
 	pluginDescriptorCopy.Maintainers = nil
-	assert.Error(t, execValidator(&pluginDescriptorCopy, descriptorName, validateDescriptor))
+	assert.EqualError(t, execValidator(&pluginDescriptorCopy, descriptorName, validateDescriptor), "Errors detected in the yml descriptor file:\n* 'maintainers' is missing\n")
+
+	pluginDescriptorCopy = *pluginDescriptor
+	pluginDescriptorCopy.Branch = "my-branch"
+	pluginDescriptorCopy.Tag = "my-tag"
+	assert.EqualError(t, execValidator(&pluginDescriptorCopy, descriptorName, validateDescriptor), "Errors detected in the yml descriptor file:\n* Plugin descriptor yml cannot include both 'tag' and 'branch'.\n")
+
+	// Cleanup
+	assert.NoError(t, os.RemoveAll(tempDirPath))
+	assert.NoError(t, os.Chdir(oldCW))
 }
 
 func TestValidateDescriptorTests(t *testing.T) {
-	tempDir, err := utils.CreatePLaygroundForJfrogCliTest()
+	// Init playground
+	tempDirPath, playgroundPath, err := utils.CreatePLaygroundForJfrogCliTest()
 	require.NoError(t, err)
-	defer os.RemoveAll(tempDir)
+	// cd to the cloned project
+	oldCW, err := os.Getwd()
+	require.NoError(t, err)
+	assert.NoError(t, os.Chdir(playgroundPath))
 
 	pluginDescriptor := &utils.PluginDescriptor{
 		PluginName:   "My Plugin",
@@ -68,6 +92,10 @@ func TestValidateDescriptorTests(t *testing.T) {
 	}
 	descriptorName := "test_extention_plugin.yml"
 	assert.NoError(t, execValidator(pluginDescriptor, descriptorName, runTests))
+
+	// Cleanup
+	assert.NoError(t, os.RemoveAll(tempDirPath))
+	assert.NoError(t, os.Chdir(oldCW))
 }
 
 func execValidator(pluginDescriptor *utils.PluginDescriptor, descriptorName string, validatorFunc func() error) error {
@@ -81,7 +109,7 @@ func execValidator(pluginDescriptor *utils.PluginDescriptor, descriptorName stri
 	if err != nil {
 		return err
 	}
-	// Mimice jfrog pipelines entry point.
+	// Mimic jfrog pipelines entry point.
 	defer os.Chdir(currentDir)
 	os.Chdir(filepath.Join("pipelinesScripts", "validator"))
 	return validatorFunc()
