@@ -11,7 +11,7 @@ jobs:
       - name: "CLA Assistant"
         if: (github.event.comment.body == 'recheck' || github.event.comment.body == 'I have read the Developer Terms and I hereby accept the terms') || github.event_name == 'pull_request_target'
         # Alpha Release
-        uses: cla-assistant/github-action@v2.0.2-alpha
+        uses: cla-assistant/github-action@13b2e0cfaba96607d535c9a30dddb2d36c260b45
         env:
           # Generated and maintained by github
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
