@@ -23,7 +23,7 @@ func main() {
 	var err error
 	switch strings.ToLower(command) {
 	case string(utils.Extension):
-		err = validateStructure()
+		err = validateExtension()
 	case string(utils.Structure):
 		err = validateDescriptor()
 	case string(utils.Tests):
@@ -41,7 +41,7 @@ func main() {
 // the maintainer should create a pull request to the registry.
 // The pull request should include the plugin(s) YAML.
 // If the pull request includes other files, return an error.
-func validateStructure() error {
+func validateExtension() error {
 	prFiles, err := utils.GetModifiedFiles()
 	if err != nil {
 		return err

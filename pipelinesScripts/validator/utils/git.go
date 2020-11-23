@@ -12,8 +12,8 @@ import (
 )
 
 const (
-	jfrogCliPluginRegUrl    = "https://github.com/jfrog/jfrog-cli-plugins-reg.git"
-	jfrogCliPluginRegBranch = "master"
+	JfrogCliPluginRegUrl    = "https://github.com/jfrog/jfrog-cli-plugins-reg.git"
+	JfrogCliPluginRegBranch = "master"
 )
 
 func getGitCloneFlags(branch, tag string) []string {
@@ -65,8 +65,8 @@ func GetModifiedFiles() ([]string, error) {
 	uniqueUpstream := "remote-origin-" + timestamp
 
 	// Add remote.
-	if err := RunCommand("git", "remote", "add", uniqueUpstream, jfrogCliPluginRegUrl); err != nil {
-		return nil, errors.New("Failed to add git remote for " + uniqueUpstream + " upstream and" + jfrogCliPluginRegUrl + " branch. Error: " + err.Error())
+	if err := RunCommand("git", "remote", "add", uniqueUpstream, JfrogCliPluginRegUrl); err != nil {
+		return nil, errors.New("Failed to add git remote for " + uniqueUpstream + " upstream and" + JfrogCliPluginRegUrl + " branch. Error: " + err.Error())
 	}
 	defer func() {
 		if deferErr := RunCommand("git", "remote", "remove", uniqueUpstream); deferErr != nil {
@@ -74,8 +74,8 @@ func GetModifiedFiles() ([]string, error) {
 		}
 	}()
 	// Fetch from upstream
-	if err := RunCommand("git", "fetch", uniqueUpstream, jfrogCliPluginRegBranch); err != nil {
-		return nil, errors.New("Failed to fetch from " + uniqueUpstream + ", branch " + jfrogCliPluginRegBranch + ". Error: " + err.Error())
+	if err := RunCommand("git", "fetch", uniqueUpstream, JfrogCliPluginRegBranch); err != nil {
+		return nil, errors.New("Failed to fetch from " + uniqueUpstream + ", branch " + JfrogCliPluginRegBranch + ". Error: " + err.Error())
 	}
 	return runGitDiff(uniqueUpstream + "/master")
 }
