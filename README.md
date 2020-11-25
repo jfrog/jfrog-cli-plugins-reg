@@ -8,6 +8,7 @@ After a plugin is included in this Registry, it becomes available for installati
 ## The list of available plugins
 * [build-deps-info](https://github.com/jfrog/jfrog-cli-plugins/tree/main/build-deps-info)
 * [build-report](https://github.com/jfrog/jfrog-cli-plugins/tree/main/build-report)
+* [file-spec-gen](https://github.com/jfrog/jfrog-cli-plugins/tree/main/file-spec-gen)
 * [keyring](https://github.com/jfrog/jfrog-cli-plugins/tree/main/keyring)
 * [release-bundle-generator](https://github.com/jfrog/jfrog-cli-plugins/tree/main/release-bundle-generator)
 * [rt-cleanup](https://github.com/jfrog/jfrog-cli-plugins/tree/main/rt-cleanup)
