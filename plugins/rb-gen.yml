@@ -1,8 +1,8 @@
 # mandatory:
-pluginName: release-bundle-generator
-version: v1.0.0
+pluginName: rb-gen
+version: v1.1.0
 repository: https://github.com/jfrog/jfrog-cli-plugins
 maintainers:
   - DarthFennec
 # optional:
-relativePath: release-bundle-generator
+relativePath: rb-gen
