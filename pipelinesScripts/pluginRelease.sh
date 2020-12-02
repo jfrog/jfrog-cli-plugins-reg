@@ -41,7 +41,7 @@ build () {
 #function verifyUniqueVersion()
 verifyUniqueVersion () {
   echo "Verifying version uniqueness..."
-  versionFolderUrl="$JFROG_CLI_PLUGINS_REGISTRY_URL/$JFROG_CLI_PLUGINS_REGISTRY_REPO/$JFROG_CLI_PLUGIN_PLUGIN_NAME/$JFROG_CLI_PLUGIN_VERSION/"
+  versionFolderUrl="$JFROG_CLI_PLUGINS_REGISTRY_URL/$JFROG_CLI_PLUGINS_RT_REGISTRY_REPO/$JFROG_CLI_PLUGIN_PLUGIN_NAME/$JFROG_CLI_PLUGIN_VERSION/"
 
   echo "Checking existence of $versionFolderUrl"
   res=$(curl -s --head "$versionFolderUrl" | head -n 1)
@@ -54,6 +54,10 @@ verifyUniqueVersion () {
   echo "Response: $res"
   if [[ $res =~ "200" ]]; then
     echo "Error: Version already exists in registry"
+    exit 1
+  fi
+  if ! [[ $res =~ "401" ]]; then
+    echo "Verification failed."
     exit 1
   fi
 }
@@ -79,7 +83,7 @@ buildAndUpload () {
 
   build $pkg $goos $goarch $exeName
 
-  destPath="$JFROG_CLI_PLUGINS_REGISTRY_REPO/$JFROG_CLI_PLUGIN_PLUGIN_NAME/$JFROG_CLI_PLUGIN_VERSION/$pkg/$exeName"
+  destPath="$JFROG_CLI_PLUGINS_RT_REGISTRY_REPO/$JFROG_CLI_PLUGIN_PLUGIN_NAME/$JFROG_CLI_PLUGIN_VERSION/$pkg/$exeName"
   echo "Uploading $exeName to $JFROG_CLI_PLUGINS_REGISTRY_URL/$destPath ..."
 
   ./jfrog rt u "./$exeName" "$destPath" --url="$JFROG_CLI_PLUGINS_REGISTRY_URL" --access-token=$int_releases_jfrog_token
@@ -92,7 +96,7 @@ buildAndUpload () {
 
 #function copyToLatestDir()
 copyToLatestDir () {
-  pluginPath="$JFROG_CLI_PLUGINS_REGISTRY_REPO/$JFROG_CLI_PLUGIN_PLUGIN_NAME"
+  pluginPath="$JFROG_CLI_PLUGINS_RT_REGISTRY_REPO/$JFROG_CLI_PLUGIN_PLUGIN_NAME"
   echo "Copy version to latest dir: $pluginPath"
 
   ./jfrog rt cp "$pluginPath/$JFROG_CLI_PLUGIN_VERSION/(*)" "$pluginPath/latest/{1}" --flat --url="$JFROG_CLI_PLUGINS_REGISTRY_URL" --access-token=$int_releases_jfrog_token
