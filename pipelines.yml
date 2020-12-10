@@ -16,7 +16,7 @@ resources:
       path: jfrog/jfrog-cli-plugins-reg
       gitProvider: github
       buildOn:
-      # Manually trigger only
+        # Manually trigger only
         commit: false
       branches:
         # Only build on the master
@@ -69,18 +69,18 @@ pipelines:
             - pluginRepoFullUrl=$(yq r $ymlPath "repository") && echo $pluginRepoFullUrl
             - pluginRepoName=$(basename $pluginRepoFullUrl .git) && echo $pluginRepoName
             - pluginRelativePath=$(yq r $ymlPath "relativePath") && echo $pluginRelativePath
-            # Export vars needed in the release script.
-            - export CI="true"
-            - export JFROG_CLI_PLUGINS_REGISTRY_URL="https://releases.jfrog.io/artifactory"
-            - export JFROG_CLI_PLUGINS_RT_REGISTRY_REPO="jfrog-cli-plugins"
-            - export JFROG_CLI_PLUGIN_VERSION
-            - export JFROG_CLI_PLUGIN_PLUGIN_NAME
             # Clone plugin repo.
             - git clone $pluginRepoFullUrl
             # Copy the plugin release script from registry repo to plugin repo.
             - cp "$res_buildJfrogCliPluginGit_resourcePath/pipelinesScripts/pluginRelease.sh" "./$pluginRepoName/$pluginRelativePath"
             - pushd "./$pluginRepoName/$pluginRelativePath"
-            - bash "./pluginRelease.sh"
+            # Run plugin release script with the required env variables.
+            - env -i PATH=$PATH HOME=$HOME PWD=$PWD CI="true" \
+              JFROG_CLI_PLUGINS_REGISTRY_URL="https://releases.jfrog.io/artifactory" \
+              JFROG_CLI_PLUGINS_RT_REGISTRY_REPO="jfrog-cli-plugins" \
+              JFROG_CLI_PLUGIN_PLUGIN_NAME=$JFROG_CLI_PLUGIN_PLUGIN_NAME \
+              JFROG_CLI_PLUGIN_VERSION=$JFROG_CLI_PLUGIN_VERSION \
+              bash "./pluginRelease.sh"
             - popd
           onComplete:
             - update_commit_status buildJfrogCliPluginGit --context "$step_name"
@@ -103,28 +103,28 @@ pipelines:
           <<: *UPDATE_COMMIT_STATUS
           onExecute:
             - cd $res_jfrog_cli_plugins_reg_git_resourcePath/pipelinesScripts/validator
-            - go run validator.go extension
+            - env -i PATH=$PATH HOME=$HOME PWD=$PWD JAVA_HOME=$JAVA_HOME GRADLE_HOME=$GRADLE_HOME MAVEN_HOME=$MAVEN_HOME go run validator.go extension
       # Validate plugin descriptor yml
       - name: Plugin_descriptor_structure_is_valid
         type: Bash
         configuration:
           <<: *COMMON_CONFIGURATION
           inputSteps:
-          - name: PR_includes_only_plugin_descriptor
+            - name: PR_includes_only_plugin_descriptor
         execution:
           <<: *UPDATE_COMMIT_STATUS
           onExecute:
             - cd $res_jfrog_cli_plugins_reg_git_resourcePath/pipelinesScripts/validator
-            - go run validator.go structure
+            - env -i PATH=$PATH HOME=$HOME PWD=$PWD JAVA_HOME=$JAVA_HOME GRADLE_HOME=$GRADLE_HOME MAVEN_HOME=$MAVEN_HOME go run validator.go structure
       # Run `go vet ./...` and `go test ./...`
       - name: Plugin_tests_passed
         type: Bash
         configuration:
           <<: *COMMON_CONFIGURATION
           inputSteps:
-          - name: Plugin_descriptor_structure_is_valid
+            - name: Plugin_descriptor_structure_is_valid
         execution:
           <<: *UPDATE_COMMIT_STATUS
           onExecute:
             - cd $res_jfrog_cli_plugins_reg_git_resourcePath/pipelinesScripts/validator
-            - go run validator.go tests
+            - env -i PATH=$PATH HOME=$HOME PWD=$PWD JAVA_HOME=$JAVA_HOME GRADLE_HOME=$GRADLE_HOME MAVEN_HOME=$MAVEN_HOME go run validator.go tests
