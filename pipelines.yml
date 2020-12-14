@@ -73,7 +73,7 @@ pipelines:
             - git clone $pluginRepoFullUrl
             # Copy the plugin release script from registry repo to plugin repo.
             - cp "$res_buildJfrogCliPluginGit_resourcePath/pipelinesScripts/pluginRelease.sh" "./$pluginRepoName/$pluginRelativePath"
-            - pushd "./$pluginRepoName/$pluginRelativePath"
+            - cd "./$pluginRepoName/$pluginRelativePath"
             # Run plugin release script with the required env variables.
             - env -i PATH=$PATH HOME=$HOME PWD=$PWD CI="true" \
               JFROG_CLI_PLUGINS_REGISTRY_URL="https://releases.jfrog.io/artifactory" \
@@ -81,7 +81,6 @@ pipelines:
               JFROG_CLI_PLUGIN_PLUGIN_NAME=$JFROG_CLI_PLUGIN_PLUGIN_NAME \
               JFROG_CLI_PLUGIN_VERSION=$JFROG_CLI_PLUGIN_VERSION \
               bash "./pluginRelease.sh"
-            - popd
           onComplete:
             - update_commit_status buildJfrogCliPluginGit --context "$step_name"
 
