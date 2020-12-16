@@ -80,7 +80,7 @@ pipelines:
               JFROG_CLI_PLUGINS_RT_REGISTRY_REPO="jfrog-cli-plugins" \
               JFROG_CLI_PLUGIN_PLUGIN_NAME=$JFROG_CLI_PLUGIN_PLUGIN_NAME \
               JFROG_CLI_PLUGIN_VERSION=$JFROG_CLI_PLUGIN_VERSION \
-              bash "./pluginRelease.sh"
+             bash "./pluginRelease.sh"
           onComplete:
             - update_commit_status buildJfrogCliPluginGit --context "$step_name"
 
