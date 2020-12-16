@@ -77,7 +77,8 @@ pipelines:
             # Run plugin release script with the required env variables.
             - >
               env -i PATH=$PATH HOME=$HOME PWD=$PWD CI="true"
-              JFROG_CLI_PLUGINS_REGISTRY_URL="https://releases.jfrog.io/artifactory"
+              JFROG_CLI_PLUGINS_RT_REGISTRY_URL="https://releases.jfrog.io/artifactory"
+              JFROG_CLI_PLUGINS_RT_REGISTRY_TOKEN=$int_releases_jfrog_token
               JFROG_CLI_PLUGINS_RT_REGISTRY_REPO="jfrog-cli-plugins"
               JFROG_CLI_PLUGIN_PLUGIN_NAME=$JFROG_CLI_PLUGIN_PLUGIN_NAME
               JFROG_CLI_PLUGIN_VERSION=$JFROG_CLI_PLUGIN_VERSION
