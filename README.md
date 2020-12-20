@@ -12,6 +12,8 @@ After a plugin is included in this Registry, it becomes available for installati
 
 * [file-spec-gen](https://github.com/jfrog/jfrog-cli-plugins/tree/main/file-spec-gen) - This plugin provides an easy way for generating file-specs json.
 
+* [jfrog-yocto](https://github.com/rdar-lab/jfrog-cli-yocto-plugin) - This plugin allows integrating Yocto builds with the JFrog Platform.
+
 * [keyring](https://github.com/jfrog/jfrog-cli-plugins/tree/main/keyring) - This plugin allows using the OS keyring for managing the Artifactory connection details.
 
 * [rb-gen](https://github.com/jfrog/jfrog-cli-plugins/tree/main/rb-gen) - This plugin is designed to simplify interaction with release bundles, by generating them from other formats. Currently, it can generate release bundles from Helm charts.
