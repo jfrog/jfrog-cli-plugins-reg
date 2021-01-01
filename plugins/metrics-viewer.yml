@@ -1,0 +1,9 @@
+# The metrics-viewer plugin
+pluginName: metrics-viewer
+version: v0.1.0
+repository: https://github.com/eldada/metrics-viewer
+maintainers:
+  - yinonavraham
+  - noamshemesh
+  - eldada
+tag: v0.1.0
