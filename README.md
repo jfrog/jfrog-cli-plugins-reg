@@ -16,6 +16,8 @@ After a plugin is included in this Registry, it becomes available for installati
 
 * [keyring](https://github.com/jfrog/jfrog-cli-plugins/tree/main/keyring) - This plugin allows using the OS keyring for managing the Artifactory connection details.
 
+* [metrics-viewer](https://github.com/eldada/metrics-viewer/tree/master) - A plugin or standalone binary to show open-metrics formatted data in a terminal based graph.
+
 * [rb-gen](https://github.com/jfrog/jfrog-cli-plugins/tree/main/rb-gen) - This plugin is designed to simplify interaction with release bundles, by generating them from other formats. Currently, it can generate release bundles from Helm charts.
 
 * [rt-cleanup](https://github.com/jfrog/jfrog-cli-plugins/tree/main/rt-cleanup) - This plugin is a simple Artifactory cleanup plugin. It can be used to delete all artifacts that have not been downloaded for the past n time units (both can bu configured) from a given repository.
