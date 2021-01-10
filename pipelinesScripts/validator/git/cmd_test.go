@@ -32,6 +32,26 @@ func TestGetModifiedFiles(t *testing.T) {
 	assert.Len(t, files, 1)
 	assert.Equal(t, files[0], "file.txt")
 }
+func TestStageModifiedFiles(t *testing.T) {
+	// Init playground
+	tempDirPath, playgroundPath, err := CreatePlaygroundForJfrogCliTest()
+	require.NoError(t, err)
+	oldCW, err := os.Getwd()
+	require.NoError(t, err)
+	defer func() {
+		require.NoError(t, CleanupTestPlayground(tempDirPath, oldCW))
+	}()
+
+	// CD to the cloned project
+	require.NoError(t, os.Chdir(playgroundPath))
+
+	// Create new file.
+	assert.NoError(t, ioutil.WriteFile("file", []byte("test"), 0644))
+	assert.NoError(t, ioutil.WriteFile("file2", []byte("test"), 0644))
+	count, err := StageModifiedFiles(playgroundPath, "file", "file2")
+	assert.NoError(t, err)
+	assert.Equal(t, 2, count)
+}
 
 func TestGetModifiedFilesCleanupBranches(t *testing.T) {
 	// Init playground

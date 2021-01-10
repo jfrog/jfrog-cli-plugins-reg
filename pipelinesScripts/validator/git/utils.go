@@ -5,6 +5,7 @@ import (
 	"os"
 )
 
+// Clones the 'jfrog-cli-plugin-reg' repo to a temp dir in for tests purposes.
 func CreatePlaygroundForJfrogCliTest() (string, string, error) {
 	tempDirPath, err := ioutil.TempDir("", "out")
 	if err != nil {
