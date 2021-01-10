@@ -62,15 +62,15 @@ func GetPluginsDescriptor() ([]*PluginDescriptor, error) {
 	if err != nil {
 		return nil, err
 	}
-	var resutls []*PluginDescriptor
+	var results []*PluginDescriptor
 	for _, file := range fileInfos {
 		fDescriptor, err := ReadDescriptor(filepath.Join(PluginDescriptorDir, file.Name()))
 		if err != nil {
 			return nil, err
 		}
-		resutls = append(resutls, fDescriptor)
+		results = append(results, fDescriptor)
 	}
-	return resutls, nil
+	return results, nil
 }
 
 // Returns the plugins repository owner and name. e.g.: https://github.com/JFrog/jfrog-cli-plugins => (jfrog, jfrog-cli-plugins)
