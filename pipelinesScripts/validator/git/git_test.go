@@ -1,4 +1,4 @@
-package utils
+package git
 
 import (
 	"io/ioutil"
@@ -16,14 +16,16 @@ func TestGetModifiedFiles(t *testing.T) {
 	require.NoError(t, err)
 	oldCW, err := os.Getwd()
 	require.NoError(t, err)
-	defer CleanupTestPlayground(t, tempDirPath, oldCW)
+	defer func() {
+		require.NoError(t, CleanupTestPlayground(tempDirPath, oldCW))
+	}()
 
-	// cd to the cloned project
+	// CD to the cloned project
 	require.NoError(t, os.Chdir(playgroundPath))
 
 	// Create new file.
 	assert.NoError(t, ioutil.WriteFile("file.txt", []byte("test"), 0644))
-	assert.NoError(t, CommitAllFiles())
+	assert.NoError(t, CommitAllFiles(playgroundPath))
 
 	files, err := GetModifiedFiles()
 	require.NoError(t, err)
@@ -35,12 +37,15 @@ func TestGetModifiedFilesCleanupBranches(t *testing.T) {
 	// Init playground
 	tempDirPath, playgroundPath, err := CreatePlaygroundForJfrogCliTest()
 	require.NoError(t, err)
-	// cd to the cloned project
+
+	// CD to the cloned project
 	oldCW, err := os.Getwd()
 	require.NoError(t, err)
-	defer CleanupTestPlayground(t, tempDirPath, oldCW)
+	defer func() {
+		require.NoError(t, CleanupTestPlayground(tempDirPath, oldCW))
+	}()
 
-	// cd to the cloned project
+	// CD to the cloned project
 	require.NoError(t, os.Chdir(playgroundPath))
 
 	cmd := exec.Command("git", "branch")

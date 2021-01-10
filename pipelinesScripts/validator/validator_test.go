@@ -1,24 +1,29 @@
 package main
 
 import (
+	"io/ioutil"
 	"os"
 	"path/filepath"
 	"testing"
 
+	"github.com/jfrog/jfrog-cli-plugins-reg/git"
 	"github.com/jfrog/jfrog-cli-plugins-reg/utils"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"gopkg.in/yaml.v2"
 )
 
 const testPluginRepo = "https://github.com/jfrog/jfrog-cli-plugins"
 
 func TestValidateExtension(t *testing.T) {
 	// Init playground
-	tempDirPath, playgroundPath, err := utils.CreatePlaygroundForJfrogCliTest()
+	tempDirPath, playgroundPath, err := git.CreatePlaygroundForJfrogCliTest()
 	require.NoError(t, err)
 	oldCW, err := os.Getwd()
 	require.NoError(t, err)
-	defer utils.CleanupTestPlayground(t, tempDirPath, oldCW)
+	defer func() {
+		require.NoError(t, git.CleanupTestPlayground(tempDirPath, oldCW))
+	}()
 
 	// cd to the cloned project
 	assert.NoError(t, os.Chdir(playgroundPath))
@@ -29,11 +34,13 @@ func TestValidateExtension(t *testing.T) {
 
 func TestValidateDescriptorStructure(t *testing.T) {
 	// Init playground
-	tempDirPath, playgroundPath, err := utils.CreatePlaygroundForJfrogCliTest()
+	tempDirPath, playgroundPath, err := git.CreatePlaygroundForJfrogCliTest()
 	require.NoError(t, err)
 	oldCW, err := os.Getwd()
 	require.NoError(t, err)
-	defer utils.CleanupTestPlayground(t, tempDirPath, oldCW)
+	defer func() {
+		require.NoError(t, git.CleanupTestPlayground(tempDirPath, oldCW))
+	}()
 
 	// cd to the cloned project
 	assert.NoError(t, os.Chdir(playgroundPath))
@@ -71,11 +78,13 @@ func TestValidateDescriptorStructure(t *testing.T) {
 
 func TestValidateDescriptorTests(t *testing.T) {
 	// Init playground
-	tempDirPath, playgroundPath, err := utils.CreatePlaygroundForJfrogCliTest()
+	tempDirPath, playgroundPath, err := git.CreatePlaygroundForJfrogCliTest()
 	require.NoError(t, err)
 	oldCW, err := os.Getwd()
 	require.NoError(t, err)
-	defer utils.CleanupTestPlayground(t, tempDirPath, oldCW)
+	defer func() {
+		require.NoError(t, git.CleanupTestPlayground(tempDirPath, oldCW))
+	}()
 
 	// cd to the cloned project
 	assert.NoError(t, os.Chdir(playgroundPath))
@@ -91,18 +100,28 @@ func TestValidateDescriptorTests(t *testing.T) {
 }
 
 func execValidator(pluginDescriptor *utils.PluginDescriptor, descriptorName string, validatorFunc func() error) error {
-	if err := utils.CreatePluginYaml(pluginDescriptor, descriptorName); err != nil {
-		return err
-	}
-	if err := utils.CommitAllFiles(); err != nil {
-		return err
-	}
 	currentDir, err := os.Getwd()
 	if err != nil {
+		return err
+	}
+	if err := CreatePluginYaml(pluginDescriptor, descriptorName, currentDir); err != nil {
+		return err
+	}
+	if err := git.CommitAllFiles(currentDir); err != nil {
 		return err
 	}
 	// Mimic jfrog pipelines entry point.
 	defer os.Chdir(currentDir)
 	os.Chdir(filepath.Join("pipelinesScripts", "validator"))
 	return validatorFunc()
+}
+
+// Creates a new plugin descriptor in the plugins folder.
+func CreatePluginYaml(data *utils.PluginDescriptor, descriptorName, currentDir string) error {
+	dataBytes, err := yaml.Marshal(data)
+	if err != nil {
+		return err
+	}
+	pluginPath := filepath.Join(currentDir, "plugins", descriptorName)
+	return ioutil.WriteFile(pluginPath, dataBytes, 0644)
 }
