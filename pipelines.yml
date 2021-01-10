@@ -35,6 +35,26 @@ resources:
         include: master
       files:
         include: ^plugins\/.+
+  - name: jfrog_cli_core_trigger
+    type: GitRepo
+    configuration:
+      path: frog/jfrog-cli-core
+      gitProvider: github
+      buildOn:
+        commit: false
+        releaseCreate: true
+      branches:
+        include: master
+  - name: frog_cli_core_workspace
+    type: GitRepo
+    configuration:
+      path: jfrog/jfrog-cli-plugins-reg
+      gitProvider: github
+      buildOn:
+        # This should never trigger the step '' since it uses a token as one of its env vars.
+        commit: false
+      branches:
+        include: master
 
 pipelines:
   - name: build_jfrog_cli_plugin
@@ -85,6 +105,28 @@ pipelines:
               bash "./pluginRelease.sh"
           onComplete:
             - update_commit_status buildJfrogCliPluginGit --context "$step_name"
+
+  - name: upgrade_plugin_on_core_release
+    configuration:
+      runtime:
+        type: image
+        image:
+          custom:
+            name: releases-docker.jfrog.io/jfrog-ecosystem-integration-env
+            tag: 1.0.0
+    steps:
+      - name: upgrade_plugin_on_core_release
+        type: Bash
+        configuration:
+          inputResources:
+            - name: jfrog_cli_core_trigger
+            - name: frog_cli_core_workspace
+          integrations:
+            - name: upgrade_plugin_on_core_release
+        execution:
+          onExecute:
+            - cd $res_jfrog_cli_plugins_reg_git_resourcePath/pipelinesScripts/validator
+            - go run validator.go upgradejfrogplugins
 
   - name: plugin_validation
     configuration:

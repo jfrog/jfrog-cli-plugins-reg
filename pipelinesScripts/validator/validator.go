@@ -127,7 +127,7 @@ func upgradeJfrogPlugins() error {
 	}
 	var localErr error
 	fmt.Println("Starting to upgrade JFrog plugins...")
-	token := os.Getenv("int_github_generic_token")
+	token := os.Getenv("int_upgrade_plugin_on_core_release_token")
 	if token == "" {
 		return errors.New("missing Token to open an issue")
 	}
