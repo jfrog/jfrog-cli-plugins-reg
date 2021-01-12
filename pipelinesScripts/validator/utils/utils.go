@@ -16,14 +16,14 @@ type ValidationType string
 
 const (
 	Extension           ValidationType = "extension"
-	Structure                          = "structure"
-	Tests                              = "tests"
-	UpgradeJfrogPlugins                = "upgradejfrogplugins"
-	PluginDescriptorDir                = "plugins"
+	Structure           ValidationType = "structure"
+	Tests               ValidationType = "tests"
+	UpgradeJfrogPlugins ValidationType = "upgradejfrogplugins"
+	PluginDescriptorDir string         = "plugins"
 )
 
 func PrintUsageAndExit() {
-	fmt.Printf("Usage: `go run validator.go <command>`\nPossible commands: '%s', '%s' or '%s'\n", Extension, Structure, Tests)
+	fmt.Printf("Usage: `go run validator.go <command>`\nPossible commands: '%s', '%s', '%s' or '%s'\n", Extension, Structure, Tests, UpgradeJfrogPlugins)
 	os.Exit(1)
 }
 
@@ -32,7 +32,7 @@ func RunCommand(dir string, getOutput bool, name string, args ...string) (output
 	cmd.Dir = dir
 	if getOutput {
 		var data []byte
-		data, err = cmd.Output()
+		data, err = cmd.CombinedOutput()
 		output = string(data)
 	} else {
 		cmd.Stdout, cmd.Stderr = os.Stdout, os.Stderr
@@ -53,7 +53,7 @@ func getRootPath() (string, error) {
 	return absRootPath, nil
 }
 
-func GetPluginsDescriptor() ([]*PluginDescriptor, error) {
+func GetPluginsDescriptor() (r []*PluginDescriptor, err error) {
 	rootPath, err := getRootPath()
 	if err != nil {
 		return nil, err
@@ -73,15 +73,16 @@ func GetPluginsDescriptor() ([]*PluginDescriptor, error) {
 	return results, nil
 }
 
-// Returns the plugins repository owner and name. e.g.: https://github.com/JFrog/jfrog-cli-plugins => (jfrog, jfrog-cli-plugins)
-func GetRepoDetails(pluginRepository string) (owner string, repo string) {
+// Returns the plugins repository owner and name lowecase. e.g.: https://github.com/JFrog/jfrog-CLI-plugins => (jfrog, jfrog-cli-plugins)
+func ExtractRepoDetails(pluginRepository string) (owner string, repo string) {
 	pluginRepository = strings.Replace(pluginRepository, "https://github.com/", "", 1)
 	splitted := strings.Split(pluginRepository, "/")
 	return strings.ToLower(splitted[0]), strings.ToLower(splitted[1])
 }
 
 func UpdateGoDependency(runAt, DepName, depVersion string) (err error) {
-	_, err = RunCommand(runAt, false, "go", "get", DepName+"@"+depVersion)
+	// Keep the stdout clean. Ignoring 'go get' cmd output.
+	_, err = RunCommand(runAt, true, "go", "get", DepName+"@"+depVersion)
 	if err != nil {
 		fmt.Println("Go Get failed for at" + runAt)
 	}

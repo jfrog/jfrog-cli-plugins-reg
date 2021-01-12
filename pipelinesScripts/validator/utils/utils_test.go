@@ -6,8 +6,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestGetRepoDetails(t *testing.T) {
-	owner, repo := GetRepoDetails("https://github.com/JFrog/Jfrog-ClI-plugins")
+func TestExtractRepoDetails(t *testing.T) {
+	owner, repo := ExtractRepoDetails("https://github.com/JFrog/Jfrog-ClI-plugins")
 	assert.Equal(t, "jfrog", owner)
 	assert.Equal(t, "jfrog-cli-plugins", repo)
 }

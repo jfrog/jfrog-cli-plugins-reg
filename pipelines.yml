@@ -1,20 +1,20 @@
 # Update commit status in GitHub
 updateCommitStatus: &UPDATE_COMMIT_STATUS
   onStart:
-    - update_commit_status jfrog_cli_plugins_reg_git --context "$step_name"
+    - update_commit_status jfrog_cli_plugins_reg_git4 --context "$step_name"
   onComplete:
-    - update_commit_status jfrog_cli_plugins_reg_git --context "$step_name"
+    - update_commit_status jfrog_cli_plugins_reg_git4 --context "$step_name"
 
 commonConfiguration: &COMMON_CONFIGURATION
   inputResources:
-    - name: jfrog_cli_plugins_reg_git
+    - name: jfrog_cli_plugins_reg_git4
 
 resources:
-  - name: buildJfrogCliPluginGit
+  - name: buildJfrogCliPluginGit2
     type: GitRepo
     configuration:
-      path: jfrog/jfrog-cli-plugins-reg
-      gitProvider: github
+      path: Or-Gabay/jfrog-cli-plugins-reg
+      gitProvider: or_cli_github
       buildOn:
         # Manually trigger only
         commit: false
@@ -23,41 +23,29 @@ resources:
         include: master
       files:
         include: ^plugins\/.+
-  - name: jfrog_cli_plugins_reg_git
+  - name: jfrog_cli_plugins_reg_git4
     type: GitRepo
     configuration:
-      path: jfrog/jfrog-cli-plugins-reg
-      gitProvider: github
+      path: Or-Gabay/jfrog-cli-plugins-reg
+      gitProvider: or_cli_github
       buildOn:
         commit: false
-        pullRequestCreate: true
       branches:
         include: master
-      files:
-        include: ^plugins\/.+
-  - name: jfrog_cli_core_trigger
+
+  - name: jfrog_or_core_cli
     type: GitRepo
     configuration:
-      path: frog/jfrog-cli-core
-      gitProvider: github
+      path: Or-Geva/abc
+      gitProvider: or_cli_github
       buildOn:
         commit: false
         releaseCreate: true
       branches:
         include: master
-  - name: frog_cli_core_workspace
-    type: GitRepo
-    configuration:
-      path: jfrog/jfrog-cli-plugins-reg
-      gitProvider: github
-      buildOn:
-        # This should never trigger the step '' since it uses a token as one of its env vars.
-        commit: false
-      branches:
-        include: master
 
 pipelines:
-  - name: build_jfrog_cli_plugin
+  - name: or_build_jfrog_cli_plugin
     steps:
       - name: BuildAndPush
         type: Bash
@@ -65,21 +53,21 @@ pipelines:
           integrations:
             - name: releases_jfrog
           inputResources:
-            - name: buildJfrogCliPluginGit
+            - name: buildJfrogCliPluginGit2
           runtime:
             type: image
             image:
               auto:
                 language: go
                 versions:
-                  - "1.15.2"
+                  - "1.14.4"
           environmentVariables:
             JFROG_CLI_PLUGIN_DESCRIPTOR_FILE_NAME: "file-name-with-extension.yml"
         execution:
           onStart:
-            - update_commit_status buildJfrogCliPluginGit --context "$step_name"
+            - update_commit_status buildJfrogCliPluginGit2 --context "$step_name"
           onExecute:
-            # Install yq to parse yaml.
+           # Install yq to parse yaml.
             - GO111MODULE=on go get github.com/mikefarah/yq/v3
             # Extract params from yaml.
             - ymlPath="$res_buildJfrogCliPluginGit_resourcePath/plugins/$JFROG_CLI_PLUGIN_DESCRIPTOR_FILE_NAME"
@@ -95,18 +83,16 @@ pipelines:
             - cp "$res_buildJfrogCliPluginGit_resourcePath/pipelinesScripts/pluginRelease.sh" "./$pluginRepoName/$pluginRelativePath"
             - cd "./$pluginRepoName/$pluginRelativePath"
             # Run plugin release script with the required env variables.
-            - >
-              env -i PATH=$PATH HOME=$HOME PWD=$PWD CI="true"
-              JFROG_CLI_PLUGINS_RT_REGISTRY_URL="https://releases.jfrog.io/artifactory"
-              JFROG_CLI_PLUGINS_RT_REGISTRY_TOKEN=$int_releases_jfrog_token
-              JFROG_CLI_PLUGINS_RT_REGISTRY_REPO="jfrog-cli-plugins"
-              JFROG_CLI_PLUGIN_PLUGIN_NAME=$JFROG_CLI_PLUGIN_PLUGIN_NAME
-              JFROG_CLI_PLUGIN_VERSION=$JFROG_CLI_PLUGIN_VERSION
+            - env -i PATH=$PATH HOME=$HOME PWD=$PWD CI="true" \
+              JFROG_CLI_PLUGINS_REGISTRY_URL="https://releases.jfrog.io/artifactory" \
+              JFROG_CLI_PLUGINS_RT_REGISTRY_REPO="jfrog-cli-plugins" \
+              JFROG_CLI_PLUGIN_PLUGIN_NAME=$JFROG_CLI_PLUGIN_PLUGIN_NAME \
+              JFROG_CLI_PLUGIN_VERSION=$JFROG_CLI_PLUGIN_VERSION \
               bash "./pluginRelease.sh"
           onComplete:
-            - update_commit_status buildJfrogCliPluginGit --context "$step_name"
+            - update_commit_status buildJfrogCliPluginGit2 --context "$step_name"
 
-  - name: upgrade_plugin_on_core_release
+  - name: or_plugin_release
     configuration:
       runtime:
         type: image
@@ -115,59 +101,31 @@ pipelines:
             name: releases-docker.jfrog.io/jfrog-ecosystem-integration-env
             tag: 1.0.0
     steps:
-      - name: upgrade_plugin_on_core_release
+      - name: or_upgrade_plugin_on_core_release
         type: Bash
         configuration:
           inputResources:
-            - name: jfrog_cli_core_trigger
-            - name: frog_cli_core_workspace
+            - name: jfrog_or_core_cli
           integrations:
-            - name: upgrade_plugin_on_core_release
+            - name: ILAutomation2
+            - name: JFrogCLIPluginsRegBot
+            - name: or_token
         execution:
           onExecute:
-            - cd $res_jfrog_cli_plugins_reg_git_resourcePath/pipelinesScripts/validator
-            - go run validator.go upgradejfrogplugins
-
-  - name: plugin_validation
-    configuration:
-      runtime:
-        type: image
-        image:
-          custom:
-            name: releases-docker.jfrog.io/jfrog-ecosystem-integration-env
-            tag: 1.2.0
-    steps:
-      # Validate PR contains only the plugin descriptor
-      - name: PR_includes_only_plugin_descriptor
-        type: Bash
-        configuration:
-          <<: *COMMON_CONFIGURATION
-        execution:
-          <<: *UPDATE_COMMIT_STATUS
-          onExecute:
-            - cd $res_jfrog_cli_plugins_reg_git_resourcePath/pipelinesScripts/validator
-            - env -i PATH=$PATH HOME=$HOME PWD=$PWD JAVA_HOME=$JAVA_HOME GRADLE_HOME=$GRADLE_HOME MAVEN_HOME=$MAVEN_HOME go run validator.go extension
-      # Validate plugin descriptor yml
-      - name: Plugin_descriptor_structure_is_valid
-        type: Bash
-        configuration:
-          <<: *COMMON_CONFIGURATION
-          inputSteps:
-            - name: PR_includes_only_plugin_descriptor
-        execution:
-          <<: *UPDATE_COMMIT_STATUS
-          onExecute:
-            - cd $res_jfrog_cli_plugins_reg_git_resourcePath/pipelinesScripts/validator
-            - env -i PATH=$PATH HOME=$HOME PWD=$PWD JAVA_HOME=$JAVA_HOME GRADLE_HOME=$GRADLE_HOME MAVEN_HOME=$MAVEN_HOME go run validator.go structure
-      # Run `go vet ./...` and `go test ./...`
-      - name: Plugin_tests_passed
-        type: Bash
-        configuration:
-          <<: *COMMON_CONFIGURATION
-          inputSteps:
-            - name: Plugin_descriptor_structure_is_valid
-        execution:
-          <<: *UPDATE_COMMIT_STATUS
-          onExecute:
-            - cd $res_jfrog_cli_plugins_reg_git_resourcePath/pipelinesScripts/validator
-            - env -i PATH=$PATH HOME=$HOME PWD=$PWD JAVA_HOME=$JAVA_HOME GRADLE_HOME=$GRADLE_HOME MAVEN_HOME=$MAVEN_HOME go run validator.go tests
+            - git clone https://github.com/jfrog/jfrog-cli-plugins.git && jfrogCliPluginsPath=`pwd`/jfrog-cli-plugins
+            - git clone https://github.com/or-geva/jfrog-cli-plugins-reg.git && cd jfrog-cli-plugins-reg/pipelinesScripts/validator
+            - env -i PATH=$PATH issue_token=$int_JFrogCLIPluginsRegBot_token HOME=$HOME PWD=$PWD JAVA_HOME=$JAVA_HOME GRADLE_HOME=$GRADLE_HOME MAVEN_HOME=$MAVEN_HOME go run validator.go upgradejfrogplugins $jfrogCliPluginsPath
+            - cd $jfrogCliPluginsPath
+            # Override origin.
+            - git remote set-url origin https://github.com/jfrog/jfrog-cli-plugins.git && git fetch origin main && git checkout main
+            # Check if new commits were added.
+            - "[[ $(git log origin/main...main --oneline | wc -l) -eq 0 ]]"
+            # Check if staged files contains none .mod or .sum files.
+            - "[[ $(git diff --name-only --staged | grep -v -e .mod$ -e.sum$ | wc -l) -eq 0 ]]"
+            # Check total number of staged files is not greater than  twice the number of directories (plugins).
+            - "[[ $(git diff --name-only --staged | wc -l) -lt $(($(ls -l | grep ^d | wc -l)*2+1)) ]]"
+            # Commit and push
+            - git config user.email "orgab+2@jfrog.com"
+            - git config user.name "EcoSystem-bot"
+            - git commit -m "Upgrade jfrog plugins dependencies to core"
+            - git push https://$int_or_token_token@github.com/or-geva/jfrog-cli-plugins.git main

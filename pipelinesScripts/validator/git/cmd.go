@@ -15,8 +15,6 @@ import (
 const (
 	JfrogCliPluginRegUrl    = "https://github.com/jfrog/jfrog-cli-plugins-reg.git"
 	JfrogCliPluginRegBranch = "master"
-	JfrogCliPluginUrl       = "https://github.com/jfrog/jfrog-cli-plugins.git"
-	JfrogCliPluginBranch    = "main"
 )
 
 // Clone the plugin's repository to a local temp directory and return the full path of the plugin's source code.
@@ -58,7 +56,7 @@ func GetModifiedFiles() (modifiedFiles []string, err error) {
 	return runGitDiff(currentDir, uniqueUpstream+"/master")
 }
 
-// Runs thr cmd 'git add FILE -v' over all 'files' and returns the total number of staged files.
+// Runs the cmd 'git add FILE -v' over all 'files' and returns the total number of staged files.
 func StageModifiedFiles(runAt string, files ...string) (stagedCount int, err error) {
 	var cmdOutput string
 	for _, file := range files {
@@ -94,14 +92,6 @@ func CommitStagedFiles(runAt, commitMessage string) (err error) {
 func Fetch(runAt, remoteName, branch string) (err error) {
 	if _, err = utils.RunCommand(runAt, false, "git", "fetch", remoteName, branch); err != nil {
 		fmt.Println("Failed to fetch from " + remoteName + ", branch " + branch + ".")
-	}
-	return
-}
-
-func Push(runAt, url, token, branch string) (err error) {
-	url = strings.Replace(url, "https://", "https://"+token+"@", 1) + ".git"
-	if _, err = utils.RunCommand(runAt, false, "git", "push", url, branch); err != nil {
-		fmt.Println("Failed to push changes ")
 	}
 	return
 }

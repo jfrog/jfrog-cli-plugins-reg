@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/jfrog/jfrog-cli-plugins-reg/dependency"
@@ -15,16 +16,15 @@ import (
 
 const (
 	GitHubIssueTitle = "Failed upgrading dependencies"
-	GitHubIssueBody  = "This issue opened by the JFrog CLI plugins bot. I attended to upgrade '%s' plugin to:\n %s.\n The following commands failed after upgrading:\n go ver ./...\ngo test -v ./...\nThe upgrade was therefore aborted. Please fix and upgrade manually."
+	GitHubIssueBody  = "This issue opened by the JFrog CLI plugins bot. I attended to upgrade the following plugin(s) to\n%s:%s\nThe following commands failed after upgrading:\n go ver ./...\ngo test -v ./...\nThe upgrade was therefore aborted. Please fix and upgrade manually."
 )
 
 // This program runs a series of validations on a new JFrog CLI plugin, following a pull request to register it in the public registry.
 func main() {
-	if len(os.Args) != 2 {
+	if len(os.Args) < 2 {
 		fmt.Println("ERROR: Wrong number of arguments.")
 		utils.PrintUsageAndExit()
 	}
-
 	command := os.Args[1]
 	var err error
 	switch strings.ToLower(command) {
@@ -121,75 +121,70 @@ func runTests() error {
 }
 
 func upgradeJfrogPlugins() error {
+	if len(os.Args) < 3 {
+		return errors.New("missing cli plugin path.")
+	}
+	cliPluginPath := os.Args[2]
+	fileInfo, err := os.Stat(cliPluginPath)
+	if os.IsNotExist(err) || !fileInfo.IsDir() {
+		return errors.New("ERROR: " + cliPluginPath + " is not a directory.")
+	}
 	descriptors, err := utils.GetPluginsDescriptor()
 	if err != nil {
 		return err
 	}
-	var localErr error
 	fmt.Println("Starting to upgrade JFrog plugins...")
-	token := os.Getenv("int_upgrade_plugin_on_core_release_token")
+	token := os.Getenv("issue_token")
 	if token == "" {
-		return errors.New("missing Token to open an issue")
+		return errors.New("issue_token was not found.")
 	}
+	depToUpgrade, err := dependency.GetJfrogLatest()
+	if err != nil {
+		return err
+	}
+	var failedPlugins []string
 	for _, descriptor := range descriptors {
 		// Filter plugins that are not owned by JFrog.
-		owner, repo := utils.GetRepoDetails(descriptor.Repository)
+		owner, _ := utils.ExtractRepoDetails(descriptor.Repository)
 		if owner != "jfrog" {
 			continue
 		}
 		fmt.Println("Upgrading: " + descriptor.PluginName)
-		tempDir, err := ioutil.TempDir("", "pluginRepo")
-		if err != nil {
-			return errors.New("ERROR: Failed to create temp dir: " + err.Error())
-		}
-		defer func() {
-			if deferErr := os.RemoveAll(tempDir); deferErr != nil {
-				fmt.Println("ERROR: Failed to remove temp dir. Error:" + deferErr.Error())
-			}
-		}()
-		fmt.Println("Cloning repository: " + descriptor.Repository)
-		projectPath, err := git.CloneRepository(tempDir, descriptor.Repository, descriptor.RelativePath, descriptor.Branch, descriptor.Tag)
-		if err != nil {
-			return err
-		}
-		depToUpgrade, err := dependency.GetJfrogLatest(projectPath)
-		if err != nil {
-			return err
-		}
-		fmt.Println("Upgrading dependencies...")
+		projectPath := filepath.Join(cliPluginPath, descriptor.RelativePath)
 		if err := dependency.Upgrade(projectPath, depToUpgrade); err != nil {
-			fmt.Println("ERROR: " + descriptor.PluginName + " failed to upgrade. Error" + err.Error())
-			localErr = err
+			return err
 		}
+		fmt.Println("Running tests after upgrade...")
+		if err := runValidation(projectPath); err != nil {
+			fmt.Println("ERROR: Go test/vert failed, skipping upgrade " + descriptor.PluginName + ".")
+			failedPlugins = append(failedPlugins, descriptor.PluginName)
+			continue
+		}
+		fmt.Println("Stage go.mod and go.sum")
 		stagedCount, err := git.StageModifiedFiles(projectPath, "go.mod", "go.sum")
 		if err != nil {
 			return err
 		}
 		if stagedCount == 0 {
-			fmt.Println("No file were changed due to upgrade. Skipping commit step ")
-			continue
+			fmt.Println("No file were changed due to upgrade for plugin: " + descriptor.PluginName)
+		} else {
+			fmt.Println(fmt.Sprintf("%v files were staged.", stagedCount))
 		}
-		fmt.Println("Running tests after upgrade...")
-		if err := runValidation(projectPath); err != nil {
-			fmt.Println("ERROR: Go test/vert failed, skipping upgrading " + descriptor.PluginName + ". Opening a GitHub issue ")
-			req := github.IssuesReq{
-				Title: GitHubIssueTitle,
-				Body:  fmt.Sprintf(GitHubIssueBody, descriptor.PluginName, dependency.ToString(depToUpgrade)),
-			}
-			github.OpenIssue(owner, repo, token, req)
-			continue
-		}
-		fmt.Println("Commiting changes...")
-		if err := git.CommitStagedFiles(projectPath, "Upgrade dependencies of plugin "+descriptor.PluginName); err != nil {
-			return err
-		}
-		fmt.Println("Pushing changes...")
-		if err := git.Push(projectPath, descriptor.Repository, token, descriptor.Branch); err != nil {
-			return err
-		}
-		fmt.Println(descriptor.PluginName + " plugin upgraded successfully")
 	}
-	return localErr
+	if len(failedPlugins) > 0 {
+		pluginsSummary := ""
+		for _, pluginName := range failedPlugins {
+			pluginsSummary += "\n" + pluginName
+		}
+		req := github.IssuesReq{
+			Title: GitHubIssueTitle,
+			Body:  fmt.Sprintf(GitHubIssueBody, dependency.ToString(depToUpgrade), pluginsSummary),
+		}
+		if err := github.OpenIssue("jfrog", "jfrog-cli-plugins", token, req); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func runProjectTests(projectPath string) error {
@@ -234,13 +229,13 @@ func validateContent(descriptor *utils.PluginDescriptor) error {
 }
 
 func runValidation(projectPath string) (err error) {
-	utils.RunCommand(projectPath, false, "go", "vet", "-v", "./...")
-	if _, err = utils.RunCommand(projectPath, false, "go", "vet", "-v", "./..."); err != nil {
-		fmt.Println("Failed to Lint plugin source code, located at " + projectPath)
+	var output string
+	if output, err = utils.RunCommand(projectPath, true, "go", "vet", "-v", "./..."); err != nil {
+		fmt.Println("Failed to Lint plugin source code, located at " + projectPath + ". Error:\n" + output)
 		return
 	}
-	if _, err = utils.RunCommand(projectPath, false, "go", "test", "-v", "./..."); err != nil {
-		fmt.Println("Plugin Tests failed at " + projectPath)
+	if output, err = utils.RunCommand(projectPath, true, "go", "test", "-v", "./..."); err != nil {
+		fmt.Println("Plugin Tests failed at " + projectPath + ". Error:\n" + output)
 	}
 	return
 }

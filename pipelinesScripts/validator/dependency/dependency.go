@@ -20,8 +20,8 @@ var (
 	JfrogDependencies = [...]string{"jfrog-cli-core", "jfrog-client-go"}
 )
 
-// Returns thr latest jfrog dependencies version in order to upgrade plugings dependencies.
-func GetJfrogLatest(projectPath string) (dependencies []Details, err error) {
+// Returns thr latest jfrog dependencies version in order to upgrade plugins dependencies.
+func GetJfrogLatest() (dependencies []Details, err error) {
 	for _, dep := range JfrogDependencies {
 		latest, err := github.GetLatest("jfrog", dep)
 		if err != nil {
