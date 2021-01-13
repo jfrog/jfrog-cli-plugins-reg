@@ -24,7 +24,6 @@ func TestValidateExtension(t *testing.T) {
 	defer func() {
 		require.NoError(t, git.CleanupTestPlayground(tempDirPath, oldCW))
 	}()
-
 	// cd to the cloned project
 	assert.NoError(t, os.Chdir(playgroundPath))
 	descriptorName := "test_extention_plugin"
