@@ -117,6 +117,7 @@ downloadJfrogCli
 # Keep 'linux-386' first to prevent unnecessary uploads in case the built version doesn't match the provided one.
 buildAndUpload 'linux-386' 'linux' '386' ''
 buildAndUpload 'linux-amd64' 'linux' 'amd64' ''
+buildAndUpload 'linux-s390x' 'linux' 's390x' ''
 buildAndUpload 'linux-arm64' 'linux' 'arm64' ''
 buildAndUpload 'linux-arm' 'linux' 'arm' ''
 buildAndUpload 'mac-386' 'darwin' 'amd64' ''
