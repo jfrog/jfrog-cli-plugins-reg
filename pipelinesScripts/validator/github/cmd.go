@@ -24,7 +24,7 @@ type IssuesReq struct {
 	Body  string `json:"body,omitempty"`
 }
 
-func GetLatest(owner, repo string) (version string, err error) {
+func GetLatestRelease(owner, repo string) (version string, err error) {
 	uri := "https://api.github.com/repos/" + owner + "/" + repo + "/releases?per_page=1"
 	resp, err := http.Get(uri)
 	if err != nil {

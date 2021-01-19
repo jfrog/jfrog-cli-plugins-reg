@@ -2,7 +2,6 @@ package git
 
 import (
 	"errors"
-	"fmt"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -13,11 +12,11 @@ import (
 )
 
 const (
-	JfrogCliPluginRegUrl    = "https://github.com/jfrog/jfrog-cli-plugins-reg.git"
-	JfrogCliPluginRegBranch = "master"
+	JfrogCliPluginsRegUrl    = "https://github.com/jfrog/jfrog-cli-plugins-reg.git"
+	JfrogCliPluginsRegBranch = "master"
 )
 
-// Clone the plugin's repository to a local temp directory and return the full path of the plugin's source code.
+// Clones the plugin's repository to a local temp directory and returns the full path of the plugin's source code.
 // 'tempDir' - Temporary dir to which the project will be cloned.
 // 'gitRepository' - The GitHub repository to clone.
 // 'relativePath' - Relative path inside the repository.
@@ -41,16 +40,16 @@ func GetModifiedFiles() (modifiedFiles []string, err error) {
 	// Create unique upstream and branch names
 	timestamp := strconv.Itoa(int(time.Now().Unix()))
 	uniqueUpstream := "remote-origin-" + timestamp
-	if err := AddRemote(currentDir, uniqueUpstream, JfrogCliPluginRegUrl); err != nil {
+	if err := addRemote(currentDir, uniqueUpstream, JfrogCliPluginsRegUrl); err != nil {
 		return nil, err
 	}
 	defer func() {
-		if deferErr := RemoveRemote(currentDir, uniqueUpstream); err == nil {
+		if deferErr := removeRemote(currentDir, uniqueUpstream); err == nil {
 			err = deferErr
 		}
 	}()
 	// Fetch from upstream
-	if err := Fetch(currentDir, uniqueUpstream, JfrogCliPluginRegBranch); err != nil {
+	if err := fetch(currentDir, uniqueUpstream, JfrogCliPluginsRegBranch); err != nil {
 		return nil, err
 	}
 	return runGitDiff(currentDir, uniqueUpstream+"/master")
@@ -61,7 +60,7 @@ func StageModifiedFiles(runAt string, files ...string) (stagedCount int, err err
 	var cmdOutput string
 	for _, file := range files {
 		if cmdOutput, err = utils.RunCommand(runAt, true, "git", "add", file, "-v"); err != nil {
-			fmt.Println("Failed to stage modified files at " + runAt)
+			return
 		}
 		if cmdOutput != "" {
 			stagedCount++
@@ -70,28 +69,23 @@ func StageModifiedFiles(runAt string, files ...string) (stagedCount int, err err
 	return
 }
 
-func AddRemote(runAt, remoteName, remoteUrl string) (err error) {
+func addRemote(runAt, remoteName, remoteUrl string) (err error) {
 	if _, err = utils.RunCommand(runAt, false, "git", "remote", "add", remoteName, remoteUrl); err != nil {
-		fmt.Println("Failed to add git remote for " + remoteName + " upstream and" + remoteUrl + " branch.")
+		err = errors.New("Failed to add git remote for " + remoteName + " upstream and" + remoteUrl + " branch. Error:" + err.Error())
 	}
 	return
 }
 
-func RemoveRemote(runAt, remoteName string) (err error) {
+func removeRemote(runAt, remoteName string) (err error) {
 	if _, err = utils.RunCommand(runAt, false, "git", "remote", "remove", remoteName); err != nil {
-		fmt.Println("Failed to remove remote upstream " + remoteName + ".")
+		err = errors.New("Failed to remove remote upstream " + remoteName + ". Error:" + err.Error())
 	}
 	return
 }
 
-func CommitStagedFiles(runAt, commitMessage string) (err error) {
-	_, err = utils.RunCommand(runAt, false, "git", "commit", "-m", commitMessage)
-	return
-}
-
-func Fetch(runAt, remoteName, branch string) (err error) {
+func fetch(runAt, remoteName, branch string) (err error) {
 	if _, err = utils.RunCommand(runAt, false, "git", "fetch", remoteName, branch); err != nil {
-		fmt.Println("Failed to fetch from " + remoteName + ", branch " + branch + ".")
+		err = errors.New("Failed to fetch from " + remoteName + ", branch " + branch + ". Error:" + err.Error())
 	}
 	return
 }

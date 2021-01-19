@@ -11,7 +11,7 @@ func CreatePlaygroundForJfrogCliTest() (string, string, error) {
 	if err != nil {
 		return "", "", err
 	}
-	playgroundPath, err := CloneRepository(tempDirPath, JfrogCliPluginRegUrl, "", JfrogCliPluginRegBranch, "")
+	playgroundPath, err := CloneRepository(tempDirPath, JfrogCliPluginsRegUrl, "", JfrogCliPluginsRegBranch, "")
 	if err != nil {
 		return "", "", err
 	}

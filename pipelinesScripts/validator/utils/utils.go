@@ -41,6 +41,7 @@ func RunCommand(dir string, getOutput bool, name string, args ...string) (output
 	return
 }
 
+// Gets the root directory of `jfrog-cli-plugins-reg` project, where the plugins descriptors directory located.
 func getRootPath() (string, error) {
 	rootPath := filepath.Join("..", "..")
 	absRootPath, err := filepath.Abs(rootPath)
@@ -53,7 +54,7 @@ func getRootPath() (string, error) {
 	return absRootPath, nil
 }
 
-func GetPluginsDescriptor() (r []*PluginDescriptor, err error) {
+func GetPluginsDescriptors() ([]*PluginDescriptor, error) {
 	rootPath, err := getRootPath()
 	if err != nil {
 		return nil, err

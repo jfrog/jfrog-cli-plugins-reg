@@ -16,7 +16,7 @@ import (
 
 const (
 	GitHubIssueTitle = "Failed upgrading dependencies"
-	GitHubIssueBody  = "This issue opened by the JFrog CLI plugins bot. I attended to upgrade the following plugin(s) to\n%s:%s\nThe following commands failed after upgrading:\n go ver ./...\ngo test -v ./...\nThe upgrade was therefore aborted. Please fix and upgrade manually."
+	GitHubIssueBody  = "This issue was opened by the JFrog CLI Plugins Registry bot. We attended to upgrade the following plugin(s) to\n%s:%s\nThe following commands failed after upgrading:\n go ver ./...\ngo test -v ./...\nThe upgrade commit and push were therefore aborted. Please fix the issue and upgrade manually."
 )
 
 // This program runs a series of validations on a new JFrog CLI plugin, following a pull request to register it in the public registry.
@@ -88,25 +88,24 @@ func validateDescriptor() error {
 }
 
 // Verifies the plugin and run the plugin tests using 'go test ./...'.
-func runTests() error {
+func runTests() (err error) {
 	files, err := git.GetModifiedFiles()
 	if err != nil {
 		return err
 	}
 	for _, yamlPath := range files {
 		fmt.Println("Analyzing:" + yamlPath)
-
 		descriptor, err := utils.ReadDescriptor(yamlPath)
 		if err != nil {
 			return err
 		}
 		tempDir, err := ioutil.TempDir("", "pluginRepo")
 		if err != nil {
-			return errors.New("ERROR: Failed to create temp dir: " + err.Error())
+			return err
 		}
 		defer func() {
-			if deferErr := os.RemoveAll(tempDir); deferErr != nil {
-				fmt.Println("ERROR: Failed to remove temp dir. Error:" + deferErr.Error())
+			if deferErr := os.RemoveAll(tempDir); err == nil {
+				err = deferErr
 			}
 		}()
 		projectPath, err := git.CloneRepository(tempDir, descriptor.Repository, descriptor.RelativePath, descriptor.Branch, descriptor.Tag)
@@ -117,53 +116,58 @@ func runTests() error {
 			return err
 		}
 	}
-	return nil
+	return err
 }
 
 func upgradeJfrogPlugins() error {
-	if len(os.Args) < 3 {
-		return errors.New("missing cli plugin path.")
-	}
-	cliPluginPath := os.Args[2]
-	fileInfo, err := os.Stat(cliPluginPath)
-	if os.IsNotExist(err) || !fileInfo.IsDir() {
-		return errors.New("ERROR: " + cliPluginPath + " is not a directory.")
-	}
-	descriptors, err := utils.GetPluginsDescriptor()
+	cliPluginPath, token, err := getUpgradeArgs()
 	if err != nil {
 		return err
 	}
-	fmt.Println("Starting to upgrade JFrog plugins...")
-	token := os.Getenv("issue_token")
-	if token == "" {
-		return errors.New("issue_token was not found.")
+	descriptors, err := utils.GetPluginsDescriptors()
+	if err != nil {
+		return err
 	}
 	depToUpgrade, err := dependency.GetJfrogLatest()
 	if err != nil {
 		return err
 	}
-	var failedPlugins []string
+	fmt.Println("Starting to upgrade JFrog plugins...")
+	failedPlugins, err := doUpgrade(descriptors, depToUpgrade, cliPluginPath)
+	if err != nil {
+		return err
+	}
+	if len(failedPlugins) > 0 {
+		openIssue(failedPlugins, depToUpgrade, token)
+	}
+	return nil
+}
+
+// Upgrade jfrog plugins dependencies.
+// Returns a list of plugins that got broken in the upgrade process.
+func doUpgrade(descriptors []*utils.PluginDescriptor, depToUpgrade []dependency.Details, pluginsRoot string) (failedPlugins []string, err error) {
 	for _, descriptor := range descriptors {
-		// Filter plugins that are not owned by JFrog.
+		// Filter out plugins which are not owned by JFrog.
 		owner, _ := utils.ExtractRepoDetails(descriptor.Repository)
 		if owner != "jfrog" {
 			continue
 		}
 		fmt.Println("Upgrading: " + descriptor.PluginName)
-		projectPath := filepath.Join(cliPluginPath, descriptor.RelativePath)
-		if err := dependency.Upgrade(projectPath, depToUpgrade); err != nil {
-			return err
+		projectPath := filepath.Join(pluginsRoot, descriptor.RelativePath)
+		if err = dependency.Upgrade(projectPath, depToUpgrade); err != nil {
+			return
 		}
 		fmt.Println("Running tests after upgrade...")
-		if err := runValidation(projectPath); err != nil {
-			fmt.Println("ERROR: Go test/vert failed, skipping upgrade " + descriptor.PluginName + ".")
+		if err = runValidation(projectPath); err != nil {
+			fmt.Println(err.Error() + ". Skipping upgrade " + descriptor.PluginName + ".")
 			failedPlugins = append(failedPlugins, descriptor.PluginName)
 			continue
 		}
 		fmt.Println("Stage go.mod and go.sum")
-		stagedCount, err := git.StageModifiedFiles(projectPath, "go.mod", "go.sum")
+		var stagedCount int
+		stagedCount, err = git.StageModifiedFiles(projectPath, "go.mod", "go.sum")
 		if err != nil {
-			return err
+			return
 		}
 		if stagedCount == 0 {
 			fmt.Println("No file were changed due to upgrade for plugin: " + descriptor.PluginName)
@@ -171,36 +175,58 @@ func upgradeJfrogPlugins() error {
 			fmt.Println(fmt.Sprintf("%v files were staged.", stagedCount))
 		}
 	}
-	if len(failedPlugins) > 0 {
-		pluginsSummary := ""
-		for _, pluginName := range failedPlugins {
-			pluginsSummary += "\n" + pluginName
-		}
-		req := github.IssuesReq{
-			Title: GitHubIssueTitle,
-			Body:  fmt.Sprintf(GitHubIssueBody, dependency.ToString(depToUpgrade), pluginsSummary),
-		}
-		if err := github.OpenIssue("jfrog", "jfrog-cli-plugins", token, req); err != nil {
-			return err
-		}
+	return
+}
+
+// Open GitHub issue for plugins that couldn't be upgraded.
+func openIssue(failedPlugins []string, depToUpgrade []dependency.Details, token string) error {
+	pluginsSummary := ""
+	for _, pluginName := range failedPlugins {
+		pluginsSummary += "\n" + pluginName
+	}
+	depsDetails, err := dependency.ToString(depToUpgrade)
+	if err != nil {
+		return err
+	}
+	req := github.IssuesReq{
+		Title: GitHubIssueTitle,
+		Body:  fmt.Sprintf(GitHubIssueBody, depsDetails, pluginsSummary),
+	}
+	if err := github.OpenIssue("jfrog", "jfrog-cli-plugins", token, req); err != nil {
+		return err
 	}
 	return nil
 }
 
-func runProjectTests(projectPath string) error {
+func getUpgradeArgs() (string, string, error) {
+	if len(os.Args) < 3 {
+		return "", "", errors.New("missing cli plugin path.")
+	}
+	cliPluginPath := os.Args[2]
+	fileInfo, err := os.Stat(cliPluginPath)
+	if os.IsNotExist(err) || !fileInfo.IsDir() {
+		return "", "", errors.New(cliPluginPath + " is not a directory.")
+	}
+	token := os.Getenv("issue_token")
+	if token == "" {
+		return "", "", errors.New("issue_token env was not found.")
+	}
+	return cliPluginPath, token, nil
+}
+
+func runProjectTests(projectPath string) (err error) {
 	var currentDir string
-	currentDir, err := os.Getwd()
+	currentDir, err = os.Getwd()
 	if err != nil {
-		return errors.New("Failed to get current directory: " + err.Error())
+		return err
 	}
 	defer func() {
-		if deferErr := os.Chdir(currentDir); deferErr != nil {
-			fmt.Println("ERROR: Failed to change dir to " + currentDir + ". Error:" + deferErr.Error())
+		if deferErr := os.Chdir(currentDir); err == nil {
+			err = deferErr
 		}
 	}()
-	err = os.Chdir(projectPath)
-	if err != nil {
-		return errors.New("Failed to get change directory to" + projectPath + ": " + err.Error())
+	if err = os.Chdir(projectPath); err != nil {
+		return err
 	}
 	return runValidation(projectPath)
 }
@@ -231,11 +257,11 @@ func validateContent(descriptor *utils.PluginDescriptor) error {
 func runValidation(projectPath string) (err error) {
 	var output string
 	if output, err = utils.RunCommand(projectPath, true, "go", "vet", "-v", "./..."); err != nil {
-		fmt.Println("Failed to Lint plugin source code, located at " + projectPath + ". Error:\n" + output)
+		err = errors.New("Failed to Lint plugin source code, located at " + projectPath + ". Error:\n" + output)
 		return
 	}
 	if output, err = utils.RunCommand(projectPath, true, "go", "test", "-v", "./..."); err != nil {
-		fmt.Println("Plugin Tests failed at " + projectPath + ". Error:\n" + output)
+		err = errors.New("Plugin Tests failed at " + projectPath + ". Error:\n" + output)
 	}
 	return
 }

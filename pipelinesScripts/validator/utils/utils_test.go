@@ -13,7 +13,7 @@ func TestExtractRepoDetails(t *testing.T) {
 }
 
 func TestGetPluginsDescriptor(t *testing.T) {
-	results, err := GetPluginsDescriptor()
+	results, err := GetPluginsDescriptors()
 	assert.NoError(t, err)
 	assert.NotZero(t, len(results))
 }
