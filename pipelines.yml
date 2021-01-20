@@ -129,7 +129,7 @@ pipelines:
             # Commit and push
             - git config user.email "eco-system-dev@jfrog.com"
             - git config user.name "EcoSystem-bot"
-            - git commit -m "Upgrade jfrog plugins to jfrog-cli-core $res_jfrog_cli_core_trigger_releaseName"
+            - git commit -m "Updated plugins to the latest releases of jfrog-cli-core and jfrog-client-go"
             - git push https://$int_ILAutomation2_token@github.com/jfrog/jfrog-cli-plugins.git main
           onFailure:
             - >

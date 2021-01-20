@@ -1,4 +1,3 @@
-// Package dependency collects common JFrog dependencies for plugins to update.
 package dependency
 
 import (
@@ -9,9 +8,8 @@ import (
 	"github.com/jfrog/jfrog-cli-plugins-reg/utils"
 )
 
-// `Details` struct identifies the golang dependency.
+// This struct represents a go dependency in the go.mod file.
 type Details struct {
-	// Dependency Import path as listed in go.mod.
 	Path    string
 	Version string
 }
