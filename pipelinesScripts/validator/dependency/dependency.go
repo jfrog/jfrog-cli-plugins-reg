@@ -16,7 +16,6 @@ type Details struct {
 
 // String returns the name and version of the dependency, omitting the path prefix.
 func (d *Details) String() (string, error) {
-	// Starting position of dependency name.
 	idx := strings.LastIndex(d.Path, "/")
 	if idx == -1 {
 		return "", errors.New("failed to locate dependency name")
@@ -28,7 +27,7 @@ var (
 	jfrogDependencies = [...]string{"jfrog-cli-core", "jfrog-client-go"}
 )
 
-// Returns thr latest jfrog dependencies version in order to upgrade plugins dependencies.
+// Returns the latest jfrog dependencies version in order to upgrade plugins dependencies.
 func GetJfrogLatest() (dependencies []Details, err error) {
 	for _, dep := range jfrogDependencies {
 		latest, err := github.GetLatestRelease("jfrog", dep)

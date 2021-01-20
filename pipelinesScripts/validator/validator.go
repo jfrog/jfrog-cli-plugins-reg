@@ -19,7 +19,7 @@ const (
 	GitHubIssueBody  = "This issue was opened by the JFrog CLI Plugins Registry bot. We attended to upgrade the following plugin(s) to\n%s:%s\nThe following commands failed after upgrading:\n go ver ./...\ngo test -v ./...\nThe upgrade commit and push were therefore aborted. Please fix the issue and upgrade manually."
 )
 
-// This program runs a series of validations on a new JFrog CLI plugin, following a pull request to register it in the public registry.
+// This program runs a series of validations and upgrades on JFrog CLI plugins, following a pull request to register it in the public registry.
 func main() {
 	if len(os.Args) < 2 {
 		fmt.Println("ERROR: Wrong number of arguments.")
@@ -46,8 +46,8 @@ func main() {
 }
 
 // In order to add a plugin to the registry,
-// the maintainer should create a pull request to the registry.
-// The pull request should include the plugin(s) YAML.
+// the maintainer required to create a pull request to the registry.
+// The pull request must include the plugin(s) YAML.
 // If the pull request includes other files, return an error.
 func validateExtension() error {
 	prFiles, err := git.GetModifiedFiles()
@@ -87,7 +87,7 @@ func validateDescriptor() error {
 	return nil
 }
 
-// Verifies the plugin and run the plugin tests using 'go test ./...'.
+// Run the plugin tests using 'go test ./...'.
 func runTests() (err error) {
 	files, err := git.GetModifiedFiles()
 	if err != nil {
@@ -144,7 +144,7 @@ func upgradeJfrogPlugins() error {
 }
 
 // Upgrade jfrog plugins dependencies.
-// Returns a list of plugins that got broken in the upgrade process.
+// Returns a list of plugins that failed in the upgrade process.
 func doUpgrade(descriptors []*utils.PluginDescriptor, depToUpgrade []dependency.Details, pluginsRoot string) (failedPlugins []string, err error) {
 	for _, descriptor := range descriptors {
 		// Filter out plugins which are not owned by JFrog.
@@ -178,7 +178,7 @@ func doUpgrade(descriptors []*utils.PluginDescriptor, depToUpgrade []dependency.
 	return
 }
 
-// Open GitHub issue for plugins that couldn't be upgraded.
+// Open a new GitHub issue for plugins that failed in the upgrade process.
 func openIssue(failedPlugins []string, depToUpgrade []dependency.Details, token string) error {
 	pluginsSummary := ""
 	for _, pluginName := range failedPlugins {
@@ -198,6 +198,7 @@ func openIssue(failedPlugins []string, depToUpgrade []dependency.Details, token 
 	return nil
 }
 
+// Returns the necessary arguments to run the upgrade process.
 func getUpgradeArgs() (string, string, error) {
 	if len(os.Args) < 3 {
 		return "", "", errors.New("missing cli plugin path.")
