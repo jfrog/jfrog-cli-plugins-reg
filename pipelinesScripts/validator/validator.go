@@ -16,7 +16,7 @@ import (
 
 const (
 	GitHubIssueTitle = "Failed upgrading dependencies"
-	GitHubIssueBody  = "This issue was opened by the JFrog CLI Plugins Registry bot. We attended to upgrade the following plugin(s) to\n%s:%s\nThe following commands failed after upgrading:\n go ver ./...\ngo test -v ./...\nThe upgrade commit and push were therefore aborted. Please fix the issue and upgrade manually."
+	GitHubIssueBody  = "This issue was opened by the JFrog CLI Plugins Registry bot. We attended to upgrade the following plugin(s) to\n%s:%s\nThe following commands failed after upgrading:\n go vet ./...\ngo test -v ./...\nThe upgrade commit and push were therefore aborted. Please fix the issue and upgrade manually."
 )
 
 // This program runs a series of validations and upgrades on JFrog CLI plugins, following a pull request to register it in the public registry.
