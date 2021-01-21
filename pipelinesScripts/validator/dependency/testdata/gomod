@@ -1,0 +1,8 @@
+module github.com/dummy-owner/dummy-project
+
+go 1.14
+
+require (
+	github.com/jfrog/jfrog-cli-core v1.2.5
+	github.com/jfrog/jfrog-client-go v0.17.5
+)

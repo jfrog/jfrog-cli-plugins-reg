@@ -35,6 +35,16 @@ resources:
         include: master
       files:
         include: ^plugins\/.+
+  - name: jfrog_cli_core_trigger
+    type: GitRepo
+    configuration:
+      path: frog/jfrog-cli-core
+      gitProvider: github
+      buildOn:
+        commit: false
+        releaseCreate: true
+      branches:
+        include: master
 
 pipelines:
   - name: build_jfrog_cli_plugin
@@ -85,6 +95,44 @@ pipelines:
               bash "./pluginRelease.sh"
           onComplete:
             - update_commit_status buildJfrogCliPluginGit --context "$step_name"
+
+  - name: upgrade_plugin_on_core_release
+    configuration:
+      runtime:
+        type: image
+        image:
+          custom:
+            name: releases-docker.jfrog.io/jfrog-ecosystem-integration-env
+            tag: 1.2.0
+    steps:
+      - name: upgrade_plugin_on_core_release
+        type: Bash
+        configuration:
+          inputResources:
+            - name: jfrog_cli_core_trigger
+          integrations:
+            - name: ILAutomation2
+            - name: JFrogCLIPluginsRegBot
+          onExecute:
+            - git clone https://github.com/jfrog/jfrog-cli-plugins.git && jfrogCliPluginsPath=`pwd`/jfrog-cli-plugins
+            - git clone https://github.com/jfrog/jfrog-cli-plugins-reg.git && cd jfrog-cli-plugins-reg/pipelinesScripts/validator
+            - env -i PATH=$PATH issue_token=$int_JFrogCLIPluginsRegBot_token HOME=$HOME PWD=$PWD JAVA_HOME=$JAVA_HOME GRADLE_HOME=$GRADLE_HOME MAVEN_HOME=$MAVEN_HOME go run validator.go upgradejfrogplugins $jfrogCliPluginsPath
+            - cd $jfrogCliPluginsPath
+            # Override origin.
+            - git remote set-url origin https://github.com/jfrog/jfrog-cli-plugins.git && git fetch origin main && git checkout main
+            # Check if new commits were added.
+            - "[[ $(git log origin/main...main --oneline | wc -l) -eq 0 ]]"
+            # Check if the staged files do not include .mod or .sum files.
+            - "[[ $(git diff --name-only --staged | grep -v -e .mod$ -e.sum$ | wc -l) -eq 0 ]]"
+            # Check total number of staged files is not greater than twice the number of directories (plugins).
+            - "[[ $(git diff --name-only --staged | wc -l) -lt $(($(ls -l | grep ^d | wc -l)*2+1)) ]]"
+            # Commit and push
+            - git config user.email "eco-system+1@jfrog.com"
+            - git config user.name "JFrog-CLI-Plugins-bot"
+            - git commit -m "Updated plugins to the latest releases of jfrog-cli-core and jfrog-client-go"
+            - git push https://$int_ILAutomation2_token@github.com/jfrog/jfrog-cli-plugins.git main
+          onFailure:
+            - "curl --location --request POST \"https://api.github.com/repos/jfrog/jfrog-cli-plugins-reg/issues\" --header \"Authorization: token $int_JFrogCLIPluginsRegBot_token\" --header \"Content-Type: application/json\" --data-raw \"{\\\"title\\\":\\\"JFrog Pipelines $pipeline_name run number $run_number failed\\\"}\""
 
   - name: plugin_validation
     configuration:

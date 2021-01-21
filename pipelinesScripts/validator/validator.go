@@ -4,21 +4,27 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"os"
-	"os/exec"
+	"path/filepath"
 	"strings"
 
+	"github.com/jfrog/jfrog-cli-plugins-reg/dependency"
+	"github.com/jfrog/jfrog-cli-plugins-reg/git"
+	"github.com/jfrog/jfrog-cli-plugins-reg/github"
 	"github.com/jfrog/jfrog-cli-plugins-reg/utils"
 )
 
-// This program runs a series of validations on a new JFrog CLI plugin, following a pull request to register it in the public registry.
+const (
+	GitHubIssueTitle = "Failed upgrading dependencies"
+	GitHubIssueBody  = "This issue was opened by the JFrog CLI Plugins Registry bot. We attended to upgrade the following plugin(s) to\n%s:%s\nThe following commands failed after upgrading:\n go vet -v ./...\ngo test -v ./...\nThe upgrade commit and push were therefore aborted. Please fix the issue and upgrade manually."
+)
+
+// This program runs a series of validations and upgrades on JFrog CLI plugins, following a pull request to register it in the public registry.
 func main() {
-	if len(os.Args) != 2 {
+	if len(os.Args) < 2 {
 		fmt.Println("ERROR: Wrong number of arguments.")
 		utils.PrintUsageAndExit()
 	}
-
 	command := os.Args[1]
 	var err error
 	switch strings.ToLower(command) {
@@ -28,6 +34,8 @@ func main() {
 		err = validateDescriptor()
 	case string(utils.Tests):
 		err = runTests()
+	case string(utils.UpgradeJfrogPlugins):
+		err = upgradeJfrogPlugins()
 	default:
 		err = errors.New("Unknown command: " + command)
 	}
@@ -38,17 +46,17 @@ func main() {
 }
 
 // In order to add a plugin to the registry,
-// the maintainer should create a pull request to the registry.
-// The pull request should include the plugin(s) YAML.
+// the maintainer required to create a pull request to the registry.
+// The pull request must include the plugin(s) YAML.
 // If the pull request includes other files, return an error.
 func validateExtension() error {
-	prFiles, err := utils.GetModifiedFiles()
+	prFiles, err := git.GetModifiedFiles()
 	if err != nil {
 		return err
 	}
 	forbiddenFiles := ""
 	for _, committedFilePath := range prFiles {
-		if !strings.HasSuffix(committedFilePath, ".yml") || !strings.HasPrefix(committedFilePath, utils.PluginDescriptoPrefix) {
+		if !strings.HasSuffix(committedFilePath, ".yml") || !strings.HasPrefix(committedFilePath, utils.PluginDescriptorDir+"/") {
 			forbiddenFiles += committedFilePath + "\n"
 		}
 	}
@@ -60,12 +68,12 @@ func validateExtension() error {
 
 // Check the plugin YAML file format. if one of the mandatory fields are missing, return an error.
 func validateDescriptor() error {
-	files, err := utils.GetModifiedFiles()
+	files, err := git.GetModifiedFiles()
 	if err != nil {
 		return err
 	}
 	for _, yamlPath := range files {
-		log.Print("Validating:" + yamlPath)
+		fmt.Println("Validating:" + yamlPath)
 
 		descriptor, err := utils.ReadDescriptor(yamlPath)
 		if err != nil {
@@ -79,29 +87,28 @@ func validateDescriptor() error {
 	return nil
 }
 
-// Verifies the plugin and run the plugin tests using 'go test ./...'.
-func runTests() error {
-	files, err := utils.GetModifiedFiles()
+// Run the plugin tests using 'go test ./...'.
+func runTests() (err error) {
+	files, err := git.GetModifiedFiles()
 	if err != nil {
 		return err
 	}
 	for _, yamlPath := range files {
 		fmt.Println("Analyzing:" + yamlPath)
-
 		descriptor, err := utils.ReadDescriptor(yamlPath)
 		if err != nil {
 			return err
 		}
 		tempDir, err := ioutil.TempDir("", "pluginRepo")
 		if err != nil {
-			return errors.New("Failed to create temp dir: " + err.Error())
+			return err
 		}
 		defer func() {
-			if deferErr := os.RemoveAll(tempDir); deferErr != nil {
-				log.Print("Failed to remove temp dir. Error:" + deferErr.Error())
+			if deferErr := os.RemoveAll(tempDir); err == nil {
+				err = deferErr
 			}
 		}()
-		projectPath, err := utils.CloneRepository(tempDir, descriptor.Repository, descriptor.RelativePath, descriptor.Branch, descriptor.Tag)
+		projectPath, err := git.CloneRepository(tempDir, descriptor.Repository, descriptor.RelativePath, descriptor.Branch, descriptor.Tag)
 		if err != nil {
 			return err
 		}
@@ -109,36 +116,120 @@ func runTests() error {
 			return err
 		}
 	}
+	return err
+}
+
+func upgradeJfrogPlugins() error {
+	cliPluginPath, token, err := getUpgradeArgs()
+	if err != nil {
+		return err
+	}
+	descriptors, err := utils.GetPluginsDescriptors()
+	if err != nil {
+		return err
+	}
+	depToUpgrade, err := dependency.GetJfrogLatest()
+	if err != nil {
+		return err
+	}
+	fmt.Println("Starting to upgrade JFrog plugins...")
+	failedPlugins, err := doUpgrade(descriptors, depToUpgrade, cliPluginPath)
+	if err != nil {
+		return err
+	}
+	if len(failedPlugins) > 0 {
+		openIssue(failedPlugins, depToUpgrade, token)
+	}
 	return nil
 }
 
-func runProjectTests(projectPath string) error {
-	var currentDir string
-	currentDir, err := os.Getwd()
-	if err != nil {
-		return errors.New("Failed to get current directory: " + err.Error())
-	}
-	defer func() {
-		if deferErr := os.Chdir(currentDir); deferErr != nil {
-			log.Print("Failed to change dir to " + currentDir + ". Error:" + deferErr.Error())
+// Upgrade jfrog plugins dependencies.
+// Returns a list of plugins that failed in the upgrade process.
+func doUpgrade(descriptors []*utils.PluginDescriptor, depToUpgrade []dependency.Details, pluginsRoot string) (failedPlugins []string, err error) {
+	for _, descriptor := range descriptors {
+		// Filter out plugins which are not owned by JFrog.
+		owner, _ := utils.ExtractRepoDetails(descriptor.Repository)
+		if owner != "jfrog" {
+			continue
 		}
-	}()
-	err = os.Chdir(projectPath)
-	if err != nil {
-		return errors.New("Failed to get change directory to" + projectPath + ": " + err.Error())
+		fmt.Println("Upgrading: " + descriptor.PluginName)
+		projectPath := filepath.Join(pluginsRoot, descriptor.RelativePath)
+		if err = dependency.Upgrade(projectPath, depToUpgrade); err != nil {
+			return
+		}
+		fmt.Println("Running tests after upgrade...")
+		if err = runValidation(projectPath); err != nil {
+			fmt.Println(err.Error() + ". Skipping upgrade " + descriptor.PluginName + ".")
+			failedPlugins = append(failedPlugins, descriptor.PluginName)
+			continue
+		}
+		fmt.Println("Stage go.mod and go.sum")
+		var stagedCount int
+		stagedCount, err = git.StageModifiedFiles(projectPath, "go.mod", "go.sum")
+		if err != nil {
+			return
+		}
+		if stagedCount == 0 {
+			fmt.Println("No file were changed due to upgrade for plugin: " + descriptor.PluginName)
+		} else {
+			fmt.Println(fmt.Sprintf("%v files were staged.", stagedCount))
+		}
 	}
-	cmd := exec.Command("go", "vet", "-v", "./...")
-	cmd.Stdout, cmd.Stderr = os.Stdout, os.Stderr
-	if err := cmd.Run(); err != nil {
-		return errors.New("Lint failed for " + projectPath + ": " + err.Error())
-	}
+	return
+}
 
-	cmd = exec.Command("go", "test", "-v", "./...")
-	cmd.Stdout, cmd.Stderr = os.Stdout, os.Stderr
-	if err := cmd.Run(); err != nil {
-		return errors.New("Tests failed for " + projectPath + ": " + err.Error())
+// Open a new GitHub issue for plugins that failed in the upgrade process.
+func openIssue(failedPlugins []string, depToUpgrade []dependency.Details, token string) error {
+	pluginsSummary := ""
+	for _, pluginName := range failedPlugins {
+		pluginsSummary += "\n" + pluginName
+	}
+	depsDetails, err := dependency.ToString(depToUpgrade)
+	if err != nil {
+		return err
+	}
+	req := github.IssuesReq{
+		Title: GitHubIssueTitle,
+		Body:  fmt.Sprintf(GitHubIssueBody, depsDetails, pluginsSummary),
+	}
+	if err := github.OpenIssue("jfrog", "jfrog-cli-plugins", token, req); err != nil {
+		return err
 	}
 	return nil
+}
+
+// Returns the necessary arguments to run the upgrade process.
+func getUpgradeArgs() (string, string, error) {
+	if len(os.Args) < 3 {
+		return "", "", errors.New("missing cli plugin path.")
+	}
+	cliPluginPath := os.Args[2]
+	fileInfo, err := os.Stat(cliPluginPath)
+	if os.IsNotExist(err) || !fileInfo.IsDir() {
+		return "", "", errors.New(cliPluginPath + " is not a directory.")
+	}
+	token := os.Getenv("issue_token")
+	if token == "" {
+		return "", "", errors.New("issue_token env was not found.")
+	}
+	return cliPluginPath, token, nil
+}
+
+func runProjectTests(projectPath string) (err error) {
+	var currentDir string
+	currentDir, err = os.Getwd()
+	if err != nil {
+		return err
+	}
+	defer func() {
+		if deferErr := os.Chdir(currentDir); err == nil {
+			err = deferErr
+		}
+	}()
+	if err = os.Chdir(projectPath); err != nil {
+		return err
+	}
+	return runValidation(projectPath)
 }
 
 func validateContent(descriptor *utils.PluginDescriptor) error {
@@ -162,4 +253,16 @@ func validateContent(descriptor *utils.PluginDescriptor) error {
 		return errors.New("Errors detected in the yml descriptor file:\n" + missingfields)
 	}
 	return nil
+}
+
+func runValidation(projectPath string) (err error) {
+	var output string
+	if output, err = utils.RunCommand(projectPath, true, "go", "vet", "-v", "./..."); err != nil {
+		err = errors.New("Failed to Lint plugin source code, located at " + projectPath + ". Error:\n" + output)
+		return
+	}
+	if output, err = utils.RunCommand(projectPath, true, "go", "test", "-v", "./..."); err != nil {
+		err = errors.New("Plugin Tests failed at " + projectPath + ". Error:\n" + output)
+	}
+	return
 }
