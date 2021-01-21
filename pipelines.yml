@@ -128,7 +128,7 @@ pipelines:
             - "[[ $(git diff --name-only --staged | wc -l) -lt $(($(ls -l | grep ^d | wc -l)*2+1)) ]]"
             # Commit and push
             - git config user.email "eco-system-dev@jfrog.com"
-            - git config user.name "EcoSystem-bot"
+            - git config user.name "JFrog-CLI-Plugins-bot"
             - git commit -m "Updated plugins to the latest releases of jfrog-cli-core and jfrog-client-go"
             - git push https://$int_ILAutomation2_token@github.com/jfrog/jfrog-cli-plugins.git main
           onFailure:
