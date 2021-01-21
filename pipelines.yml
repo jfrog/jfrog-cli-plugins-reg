@@ -132,8 +132,7 @@ pipelines:
             - git commit -m "Updated plugins to the latest releases of jfrog-cli-core and jfrog-client-go"
             - git push https://$int_ILAutomation2_token@github.com/jfrog/jfrog-cli-plugins.git main
           onFailure:
-            - >
-              curl --location --request POST "https://api.github.com/repos/jfrog/jfrog-cli-plugins-reg/issues" --header "Authorization: token $int_JFrogCLIPluginsRegBot_token" --header "Content-Type: application/json" --data-raw "{"title": "JFrog Pipelines $pipeline_name run number $run_number failed"}"
+            - "curl --location --request POST \"https://api.github.com/repos/jfrog/jfrog-cli-plugins-reg/issues\" --header \"Authorization: token $int_JFrogCLIPluginsRegBot_token\" --header \"Content-Type: application/json\" --data-raw \"{\\\"title\\\":\\\"JFrog Pipelines $pipeline_name run number $run_number failed\\\"}\""
 
   - name: plugin_validation
     configuration:
