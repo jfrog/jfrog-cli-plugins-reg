@@ -113,6 +113,7 @@ pipelines:
           integrations:
             - name: ILAutomation2
             - name: JFrogCLIPluginsRegBot
+        execution:
           onExecute:
             - git clone https://github.com/jfrog/jfrog-cli-plugins.git && jfrogCliPluginsPath=`pwd`/jfrog-cli-plugins
             - git clone https://github.com/jfrog/jfrog-cli-plugins-reg.git && cd jfrog-cli-plugins-reg/pipelinesScripts/validator
