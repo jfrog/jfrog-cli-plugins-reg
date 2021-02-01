@@ -38,7 +38,7 @@ resources:
   - name: jfrog_cli_core_trigger
     type: GitRepo
     configuration:
-      path: frog/jfrog-cli-core
+      path: jfrog/jfrog-cli-core
       gitProvider: github
       buildOn:
         commit: false
