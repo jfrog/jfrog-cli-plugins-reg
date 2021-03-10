@@ -259,11 +259,11 @@ func runValidation(projectPath string) (err error) {
 	var output string
 	// Golang 1.16 or above requires to run 'go mod tidy' in order to update go.mod and go.sum files after the upgrade.
 	if output, err = utils.RunCommand(projectPath, true, "go", "mod", "tidy"); err != nil {
-		err = errors.New("Failed to run 'go mod tidy' plugin source code, located at " + projectPath + ". Error:\n" + output)
+		err = errors.New("Failed to run 'go mod tidy' located at " + projectPath + ". Error:\n" + output)
 		return
 	}
 	if output, err = utils.RunCommand(projectPath, true, "go", "vet", "-v", "./..."); err != nil {
-		err = errors.New("Failed to Lint plugin source code, located at " + projectPath + ". Error:\n" + output)
+		err = errors.New("Failed to run 'go vet -v ./...' located at " + projectPath + ". Error:\n" + output)
 		return
 	}
 	if output, err = utils.RunCommand(projectPath, true, "go", "test", "-v", "./..."); err != nil {
