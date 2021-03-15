@@ -149,8 +149,8 @@ func doUpgrade(descriptors []*utils.PluginDescriptor, depToUpgrade []dependency.
 	var failedPlugins []string
 	for _, descriptor := range descriptors {
 		// Filter out plugins which are not owned by JFrog.
-		owner, _ := utils.ExtractRepoDetails(descriptor.Repository)
-		if owner != "jfrog" {
+		owner, repo := utils.ExtractRepoDetails(descriptor.Repository)
+		if owner != "jfrog" || !strings.HasPrefix(repo, "jfrog-cli-plugins") {
 			continue
 		}
 		fmt.Println("Upgrading: " + descriptor.PluginName)
