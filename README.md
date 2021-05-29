@@ -14,8 +14,6 @@ After a plugin is included in this Registry, it becomes available for installati
 
 * [jfrog-yocto](https://github.com/rdar-lab/jfrog-cli-yocto-plugin) - This plugin allows integrating Yocto builds with the JFrog Platform.
 
-* [keyring](https://github.com/jfrog/jfrog-cli-plugins/tree/main/keyring) - This plugin allows using the OS keyring for managing the Artifactory connection details.
-
 * [live-logs](https://github.com/jfrog/live-logs) - The JFrog Platform includes an integrated Live Logs plugin, which allows customers to get the JFrog product logs (Artifactory, Xray, Mission Control, Distribution, and Pipelines) using the JFrog CLI Plugin. The plugin also provides the ability to cat and tail -f any log on any product node.
 
 * [metrics-viewer](https://github.com/eldada/metrics-viewer/tree/master) - A plugin or standalone binary to show open-metrics formatted data in a terminal based graph.
