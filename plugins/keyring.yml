@@ -1,8 +1,0 @@
-# mandatory:
-pluginName: keyring
-version: v1.0.0
-repository: https://github.com/jfrog/jfrog-cli-plugins
-maintainers:
-  - eyalbe4
-# optional:
-relativePath: keyring
