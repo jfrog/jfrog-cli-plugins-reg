@@ -1,6 +1,6 @@
 # mandatory:
 pluginName: rt-cleanup
-version: v1.0.0
+version: v1.0.1
 repository: https://github.com/jfrog/jfrog-cli-plugins
 maintainers:
   - talarian1
