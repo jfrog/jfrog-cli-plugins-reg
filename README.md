@@ -20,9 +20,9 @@ After a plugin is included in this Registry, it becomes available for installati
 
 * [rb-gen](https://github.com/jfrog/jfrog-cli-plugins/tree/main/rb-gen) - This plugin is designed to simplify interaction with release bundles, by generating them from other formats. Currently, it can generate release bundles from Helm charts.
 
-* [repostats](https://github.com/chanti529/repostats) - This plugin can help find out the most popularly downlaoded artifacts in a given repository, Artifacts that are consuming the most space in a given repository with various levels of customization avaialble. Results obtained can also be sorted and filtered.
+* [repostats](https://github.com/chanti529/repostats) - This plugin can help find out the most popularly downloaded artifacts in a given repository, Artifacts that are consuming the most space in a given repository with various levels of customization available. Results obtained can also be sorted and filtered.
 
-* [rt-cleanup](https://github.com/jfrog/jfrog-cli-plugins/tree/main/rt-cleanup) - This plugin is a simple Artifactory cleanup plugin. It can be used to delete all artifacts that have not been downloaded for the past n time units (both can bu configured) from a given repository.
+* [rt-cleanup](https://github.com/jfrog/jfrog-cli-plugins/tree/main/rt-cleanup) - This plugin is a simple Artifactory cleanup plugin. It can be used to delete all artifacts that have not been downloaded for the past n time units (both can be configured) from a given repository.
 
 * [rt-fs](https://github.com/jfrog/jfrog-cli-plugins/tree/main/rt-fs) - This plugin executes file system commands in Artifactory. It is designed to mimic the functionality of the Linux/Unix 'ls' and 'cat' commands.
 
