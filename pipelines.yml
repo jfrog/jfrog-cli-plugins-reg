@@ -77,7 +77,7 @@ pipelines:
             - JFROG_CLI_PLUGIN_VERSION=$(~/go/bin/yq e ".version" $ymlPath) && echo $JFROG_CLI_PLUGIN_VERSION
             - pluginRepoFullUrl=$(~/go/bin/yq e ".repository" $ymlPath) && echo $pluginRepoFullUrl
             - pluginRepoName=$(basename $pluginRepoFullUrl .git) && echo $pluginRepoName
-            - pluginRelativePath=$(~/go/bin/yq e ".relativePath" $ymlPath) && echo $pluginRelativePath
+            - pluginRelativePath=$(~/go/bin/yq e ".relativePath // \"\"" $ymlPath) && echo $pluginRelativePath
             # Clone plugin repo.
             - git clone $pluginRepoFullUrl
             # Copy the plugin release script from registry repo to plugin repo.
