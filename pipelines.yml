@@ -59,10 +59,9 @@ pipelines:
           runtime:
             type: image
             image:
-              auto:
-                language: go
-                versions:
-                  - "1.15.2"
+              custom:
+                name: releases-docker.jfrog.io/jfrog-ecosystem-integration-env
+                tag: 1.4.0
           environmentVariables:
             JFROG_CLI_PLUGIN_DESCRIPTOR_FILE_NAME: "file-name-with-extension.yml"
         execution:
@@ -103,7 +102,7 @@ pipelines:
         image:
           custom:
             name: releases-docker.jfrog.io/jfrog-ecosystem-integration-env
-            tag: 1.2.0
+            tag: 1.4.0
     steps:
       - name: upgrade_plugin_on_core_release
         type: Bash
@@ -142,7 +141,7 @@ pipelines:
         image:
           custom:
             name: releases-docker.jfrog.io/jfrog-ecosystem-integration-env
-            tag: 1.2.0
+            tag: 1.4.0
     steps:
       # Validate PR contains only the plugin descriptor
       - name: PR_includes_only_plugin_descriptor
