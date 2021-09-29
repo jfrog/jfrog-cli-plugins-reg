@@ -59,10 +59,9 @@ pipelines:
           runtime:
             type: image
             image:
-              auto:
-                language: go
-                versions:
-                  - "1.15.2"
+              custom:
+                name: releases-docker.jfrog.io/jfrog-ecosystem-integration-env
+                tag: 1.4.0
           environmentVariables:
             JFROG_CLI_PLUGIN_DESCRIPTOR_FILE_NAME: "file-name-with-extension.yml"
         execution:
@@ -70,15 +69,15 @@ pipelines:
             - update_commit_status buildJfrogCliPluginGit --context "$step_name"
           onExecute:
             # Install yq to parse yaml.
-            - GO111MODULE=on go get github.com/mikefarah/yq/v3
+            - GO111MODULE=on go get github.com/mikefarah/yq/v4
             # Extract params from yaml.
             - ymlPath="$res_buildJfrogCliPluginGit_resourcePath/plugins/$JFROG_CLI_PLUGIN_DESCRIPTOR_FILE_NAME"
             - echo "extracting details from $ymlPath"
-            - JFROG_CLI_PLUGIN_PLUGIN_NAME=$(yq r $ymlPath "pluginName") && echo $JFROG_CLI_PLUGIN_PLUGIN_NAME
-            - JFROG_CLI_PLUGIN_VERSION=$(yq r $ymlPath "version") && echo $JFROG_CLI_PLUGIN_VERSION
-            - pluginRepoFullUrl=$(yq r $ymlPath "repository") && echo $pluginRepoFullUrl
+            - JFROG_CLI_PLUGIN_PLUGIN_NAME=$(~/go/bin/yq e ".pluginName" $ymlPath) && echo $JFROG_CLI_PLUGIN_PLUGIN_NAME
+            - JFROG_CLI_PLUGIN_VERSION=$(~/go/bin/yq e ".version" $ymlPath) && echo $JFROG_CLI_PLUGIN_VERSION
+            - pluginRepoFullUrl=$(~/go/bin/yq e ".repository" $ymlPath) && echo $pluginRepoFullUrl
             - pluginRepoName=$(basename $pluginRepoFullUrl .git) && echo $pluginRepoName
-            - pluginRelativePath=$(yq r $ymlPath "relativePath") && echo $pluginRelativePath
+            - pluginRelativePath=$(~/go/bin/yq e ".relativePath // \"\"" $ymlPath) && echo $pluginRelativePath
             # Clone plugin repo.
             - git clone $pluginRepoFullUrl
             # Copy the plugin release script from registry repo to plugin repo.
@@ -103,7 +102,7 @@ pipelines:
         image:
           custom:
             name: releases-docker.jfrog.io/jfrog-ecosystem-integration-env
-            tag: 1.2.0
+            tag: 1.4.0
     steps:
       - name: upgrade_plugin_on_core_release
         type: Bash
@@ -142,7 +141,7 @@ pipelines:
         image:
           custom:
             name: releases-docker.jfrog.io/jfrog-ecosystem-integration-env
-            tag: 1.2.0
+            tag: 1.4.0
     steps:
       # Validate PR contains only the plugin descriptor
       - name: PR_includes_only_plugin_descriptor
