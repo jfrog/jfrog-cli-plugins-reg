@@ -22,6 +22,8 @@ After a plugin is included in this Registry, it becomes available for installati
 
 * [repostats](https://github.com/chanti529/repostats) - This plugin can help find out the most popularly downlaoded artifacts in a given repository, Artifacts that are consuming the most space in a given repository with various levels of customization avaialble. Results obtained can also be sorted and filtered.
 
+* [rt-empty](https://github.com/jfrog/jfrog-cli-plugins/tree/main/rm-empty) - This plugin deletes all the empty folders under a specific path in Artifactory.
+
 * [rt-cleanup](https://github.com/jfrog/jfrog-cli-plugins/tree/main/rt-cleanup) - This plugin is a simple Artifactory cleanup plugin. It can be used to delete all artifacts that have not been downloaded for the past n time units (both can bu configured) from a given repository.
 
 * [rt-fs](https://github.com/jfrog/jfrog-cli-plugins/tree/main/rt-fs) - This plugin executes file system commands in Artifactory. It is designed to mimic the functionality of the Linux/Unix 'ls' and 'cat' commands.
