@@ -3,7 +3,7 @@
 **JFrog CLI Plugins** allow enhancing the functionality of [JFrog CLI](https://www.jfrog.com/confluence/display/CLI/JFrog+CLI) to meet the specific user and organization needs. The source code of a plugin is maintained as an open source Go project on GitHub. All public plugins are registered in **JFrog CLI's Plugins Registry**. The Registry is hosted in this GitHub repository. The [plugins](plugins) directory includes a descriptor file for each plugin included in the Registry. 
 
 ## Installing a plugin 
-After a plugin is included in this Registry, it becomes available for installation using JFrog CLI. JFrog CLI version 1.41.1 or above is required. To install a plugin included in this registry, run the following JFrog CLI command -  `jfrog plugin install plugin-name`. 
+After a plugin is included in this Registry, it becomes available for installation using JFrog CLI. JFrog CLI version 1.41.1 or above is required. To install a plugin included in this registry, run the following JFrog CLI command -  `jfrog plugin install plugin-name`. 
 
 ## The list of available plugins
 * [build-deps-info](https://github.com/jfrog/jfrog-cli-plugins/tree/main/build-deps-info) - The build-deps-info plugin prints the dependencies' details of a specific build, which has been previously published to Artifactory.
@@ -20,11 +20,11 @@ After a plugin is included in this Registry, it becomes available for installati
 
 * [rb-gen](https://github.com/jfrog/jfrog-cli-plugins/tree/main/rb-gen) - This plugin is designed to simplify interaction with release bundles, by generating them from other formats. Currently, it can generate release bundles from Helm charts.
 
-* [repostats](https://github.com/chanti529/repostats) - This plugin can help find out the most popularly downlaoded artifacts in a given repository, Artifacts that are consuming the most space in a given repository with various levels of customization avaialble. Results obtained can also be sorted and filtered.
+* [repostats](https://github.com/chanti529/repostats) - This plugin can help find out the most popularly downlaoded artifacts in a given repository, Artifacts that are consuming the most space in a given repository with various levels of customization available. Results obtained can also be sorted and filtered.
 
-* [rt-empty](https://github.com/jfrog/jfrog-cli-plugins/tree/main/rm-empty) - This plugin deletes all the empty folders under a specific path in Artifactory.
+* [rm-empty](https://github.com/jfrog/jfrog-cli-plugins/tree/main/rm-empty) - This plugin deletes all the empty folders under a specific path in Artifactory.
 
-* [rt-cleanup](https://github.com/jfrog/jfrog-cli-plugins/tree/main/rt-cleanup) - This plugin is a simple Artifactory cleanup plugin. It can be used to delete all artifacts that have not been downloaded for the past n time units (both can bu configured) from a given repository.
+* [rt-cleanup](https://github.com/jfrog/jfrog-cli-plugins/tree/main/rt-cleanup) - This plugin is a simple Artifactory cleanup plugin. It can be used to delete all artifacts that have not been downloaded for the past n time units (both can be configured) from a given repository.
 
 * [rt-fs](https://github.com/jfrog/jfrog-cli-plugins/tree/main/rt-fs) - This plugin executes file system commands in Artifactory. It is designed to mimic the functionality of the Linux/Unix 'ls' and 'cat' commands.
 
