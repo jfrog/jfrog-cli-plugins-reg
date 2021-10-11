@@ -107,6 +107,8 @@ pipelines:
       - name: upgrade_plugin_on_core_release
         type: Bash
         configuration:
+          environmentVariables:
+            GOPROXY: direct
           inputResources:
             - name: jfrog_cli_core_trigger
           integrations:
