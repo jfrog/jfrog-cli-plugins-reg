@@ -86,10 +86,9 @@ func UpdateGoDependency(runAt, DepName, depVersion string) (err error) {
 	fmt.Println(fmt.Sprintf("Running command 'go get %v' at '%v'", dependency, runAt))
 	var output string
 	output, err = RunCommand(runAt, true, "go", "get", dependency)
-	if err == nil {
-		return
+	if err != nil {
+		fmt.Println(fmt.Sprintf("Go Get failed at %v, output:'%v'", runAt, output))
 	}
-	fmt.Println(fmt.Sprintf("Go Get failed at %v, output:'%v'", runAt, output))
 	return
 }
 
