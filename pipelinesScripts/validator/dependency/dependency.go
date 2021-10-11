@@ -2,6 +2,7 @@ package dependency
 
 import (
 	"errors"
+	"fmt"
 	"strings"
 
 	"github.com/jfrog/jfrog-cli-plugins-reg/github"
@@ -41,9 +42,11 @@ func GetJfrogLatest() (dependencies []Details, err error) {
 
 func Upgrade(projectPath string, dependencies []Details) (err error) {
 	for _, dependency := range dependencies {
+		fmt.Println("Updating: " + dependency.Path+" to version " + dependency.Version)
 		if err = utils.UpdateGoDependency(projectPath, dependency.Path, dependency.Version); err != nil {
 			return
 		}
+		fmt.Println("Successfully updated!")
 	}
 	return
 }

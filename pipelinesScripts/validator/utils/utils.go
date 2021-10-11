@@ -8,6 +8,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"gopkg.in/yaml.v2"
 )
@@ -83,10 +84,17 @@ func ExtractRepoDetails(pluginRepository string) (owner string, repo string) {
 
 func UpdateGoDependency(runAt, DepName, depVersion string) (err error) {
 	// Keep the stdout clean. Ignoring 'go get' cmd output.
-	_, err = RunCommand(runAt, true, "go", "get", DepName+"@"+depVersion)
-	if err != nil {
-		fmt.Println("Go Get failed for at" + runAt)
+	dependency := DepName + "@" + depVersion
+	fmt.Println(fmt.Sprintf("Running command 'go get %v' at '%v'", dependency, runAt))
+	var output string
+	for i := 0; i < 3; i++ {
+		output, err = RunCommand(runAt, true, "go", "get", dependency)
+		if err == nil {
+			return
+		}
+		time.Sleep(time.Minute)
 	}
+	fmt.Println(fmt.Sprintf("Go Get failed at %v, output:'%v'", runAt, output))
 	return
 }
 
