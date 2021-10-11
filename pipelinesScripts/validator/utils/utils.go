@@ -81,8 +81,8 @@ func ExtractRepoDetails(pluginRepository string) (owner string, repo string) {
 	return strings.ToLower(splitted[0]), strings.ToLower(splitted[1])
 }
 
-func UpdateGoDependency(runAt, DepName, depVersion string) (err error) {
-	dependency := DepName + "@" + depVersion
+func UpdateGoDependency(runAt, depName, depVersion string) (err error) {
+	dependency := depName + "@" + depVersion
 	fmt.Println(fmt.Sprintf("Running command 'go get %v' at '%v'", dependency, runAt))
 	var output string
 	output, err = RunCommand(runAt, true, "go", "get", dependency)
