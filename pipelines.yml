@@ -107,8 +107,6 @@ pipelines:
       - name: upgrade_plugin_on_core_release
         type: Bash
         configuration:
-          environmentVariables:
-            GOPROXY: direct
           inputResources:
             - name: jfrog_cli_core_trigger
           integrations:
@@ -118,7 +116,7 @@ pipelines:
           onExecute:
             - git clone https://github.com/jfrog/jfrog-cli-plugins.git && jfrogCliPluginsPath=`pwd`/jfrog-cli-plugins
             - git clone https://github.com/jfrog/jfrog-cli-plugins-reg.git && cd jfrog-cli-plugins-reg/pipelinesScripts/validator
-            - env -i PATH=$PATH issue_token=$int_JFrog_CLI_Plugins_Issure_token HOME=$HOME PWD=$PWD JAVA_HOME=$JAVA_HOME GRADLE_HOME=$GRADLE_HOME MAVEN_HOME=$MAVEN_HOME go run validator.go upgradejfrogplugins $jfrogCliPluginsPath
+            - env -i PATH=$PATH GOPROXY=direct issue_token=$int_JFrog_CLI_Plugins_Issure_token HOME=$HOME PWD=$PWD JAVA_HOME=$JAVA_HOME GRADLE_HOME=$GRADLE_HOME MAVEN_HOME=$MAVEN_HOME go run validator.go upgradejfrogplugins $jfrogCliPluginsPath
             - cd $jfrogCliPluginsPath
             # Override origin.
             - git remote set-url origin https://github.com/jfrog/jfrog-cli-plugins.git && git fetch origin main && git checkout main
