@@ -18,7 +18,7 @@ type Details struct {
 
 type JFrogDependencyDetails struct {
 	Name                    string
-	MajorVersionsModulePath string
+	MajorVersionModulePath string
 }
 
 // String returns the name and version of the dependency, omitting the path prefix.
@@ -31,7 +31,7 @@ func (d *Details) String() (string, error) {
 }
 
 var (
-	jfrogDependencies = [...]JFrogDependencyDetails{{Name: "jfrog-cli-core", MajorVersionsModulePath: "/v2"}, {Name: "jfrog-client-go", MajorVersionsModulePath: ""}}
+	jfrogDependencies = [...]JFrogDependencyDetails{{Name: "jfrog-cli-core", MajorVersionModulePath: "/v2"}, {Name: "jfrog-client-go", MajorVersionModulePath: ""}}
 )
 
 // Returns the latest jfrog dependencies version in order to upgrade plugins dependencies.
@@ -41,7 +41,7 @@ func GetJfrogLatest() (dependencies []Details, err error) {
 		if err != nil {
 			return nil, err
 		}
-		dependencies = append(dependencies, Details{Path: "github.com/jfrog/" + dep.Name + dep.MajorVersionsModulePath, Version: latest})
+		dependencies = append(dependencies, Details{Path: "github.com/jfrog/" + dep.Name + dep.MajorVersionModulePath, Version: latest})
 	}
 	return
 }
