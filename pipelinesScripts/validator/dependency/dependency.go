@@ -13,7 +13,6 @@ import (
 type Details struct {
 	Path                    string
 	Version                 string
-	MajorVersionsModulePath string
 }
 
 type JFrogDependencyDetails struct {
