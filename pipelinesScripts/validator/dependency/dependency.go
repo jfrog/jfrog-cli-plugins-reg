@@ -11,8 +11,14 @@ import (
 
 // This struct represents a go dependency in the go.mod file.
 type Details struct {
-	Path    string
-	Version string
+	Path                    string
+	Version                 string
+	MajorVersionsModulePath string
+}
+
+type JFrogDependencyDetails struct {
+	Name                    string
+	MajorVersionsModulePath string
 }
 
 // String returns the name and version of the dependency, omitting the path prefix.
@@ -25,24 +31,24 @@ func (d *Details) String() (string, error) {
 }
 
 var (
-	jfrogDependencies = [...]string{"jfrog-cli-core", "jfrog-client-go"}
+	jfrogDependencies = [...]JFrogDependencyDetails{{Name: "jfrog-cli-core", MajorVersionsModulePath: "/v2"}, {Name: "jfrog-client-go", MajorVersionsModulePath: ""}}
 )
 
 // Returns the latest jfrog dependencies version in order to upgrade plugins dependencies.
 func GetJfrogLatest() (dependencies []Details, err error) {
 	for _, dep := range jfrogDependencies {
-		latest, err := github.GetLatestRelease("jfrog", dep)
+		latest, err := github.GetLatestRelease("jfrog", dep.Name)
 		if err != nil {
 			return nil, err
 		}
-		dependencies = append(dependencies, Details{Path: "github.com/jfrog/" + dep, Version: latest})
+		dependencies = append(dependencies, Details{Path: "github.com/jfrog/" + dep.Name + dep.MajorVersionsModulePath, Version: latest})
 	}
 	return
 }
 
 func Upgrade(projectPath string, dependencies []Details) (err error) {
 	for _, dependency := range dependencies {
-		fmt.Println("Updating: " + dependency.Path+" to version " + dependency.Version)
+		fmt.Println("Updating: " + dependency.Path + " to version " + dependency.Version)
 		if err = utils.UpdateGoDependency(projectPath, dependency.Path, dependency.Version); err != nil {
 			return
 		}
