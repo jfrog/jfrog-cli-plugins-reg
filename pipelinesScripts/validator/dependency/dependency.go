@@ -11,12 +11,12 @@ import (
 
 // This struct represents a go dependency in the go.mod file.
 type Details struct {
-	Path                    string
-	Version                 string
+	Path    string
+	Version string
 }
 
 type JFrogDependencyDetails struct {
-	Name                    string
+	Name                   string
 	MajorVersionModulePath string
 }
 
