@@ -54,7 +54,6 @@ pipelines:
         configuration:
           integrations:
             - name: releases_jfrog_io_deployer
-            - name: il_automation
             - name: entplus_deployer
           inputResources:
             - name: buildJfrogCliPluginGit
