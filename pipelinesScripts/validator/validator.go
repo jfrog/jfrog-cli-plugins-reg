@@ -145,29 +145,29 @@ func upgradeJfrogPlugins() error {
 
 // Upgrade jfrog plugins dependencies.
 // Returns a list of plugins that failed in the upgrade process.
-func doUpgrade(descriptors []*utils.PluginDescriptor, depToUpgrade []dependency.Details, pluginsRoot string) (failedPlugins []string, err error) {
+func doUpgrade(descriptors []*utils.PluginDescriptor, depToUpgrade []dependency.Details, pluginsRoot string) ([]string, error) {
+	var failedPlugins []string
 	for _, descriptor := range descriptors {
 		// Filter out plugins which are not owned by JFrog.
-		owner, _ := utils.ExtractRepoDetails(descriptor.Repository)
-		if owner != "jfrog" {
+		owner, repo := utils.ExtractRepoDetails(descriptor.Repository)
+		if owner != "jfrog" || !strings.HasPrefix(repo, "jfrog-cli-plugins") {
 			continue
 		}
 		fmt.Println("Upgrading: " + descriptor.PluginName)
 		projectPath := filepath.Join(pluginsRoot, descriptor.RelativePath)
-		if err = dependency.Upgrade(projectPath, depToUpgrade); err != nil {
-			return
+		if err := dependency.Upgrade(projectPath, depToUpgrade); err != nil {
+			return nil, err
 		}
 		fmt.Println("Running tests after upgrade...")
-		if err = runValidation(projectPath); err != nil {
+		if err := runValidation(projectPath); err != nil {
 			fmt.Println(err.Error() + ". Skipping upgrade " + descriptor.PluginName + ".")
 			failedPlugins = append(failedPlugins, descriptor.PluginName)
 			continue
 		}
 		fmt.Println("Stage go.mod and go.sum")
-		var stagedCount int
-		stagedCount, err = git.StageModifiedFiles(projectPath, "go.mod", "go.sum")
+		stagedCount, err := git.StageModifiedFiles(projectPath, "go.mod", "go.sum")
 		if err != nil {
-			return
+			return nil, err
 		}
 		if stagedCount == 0 {
 			fmt.Println("No file were changed due to upgrade for plugin: " + descriptor.PluginName)
@@ -175,7 +175,7 @@ func doUpgrade(descriptors []*utils.PluginDescriptor, depToUpgrade []dependency.
 			fmt.Println(fmt.Sprintf("%v files were staged.", stagedCount))
 		}
 	}
-	return
+	return failedPlugins, nil
 }
 
 // Open a new GitHub issue for plugins that failed in the upgrade process.
@@ -257,8 +257,13 @@ func validateContent(descriptor *utils.PluginDescriptor) error {
 
 func runValidation(projectPath string) (err error) {
 	var output string
+	// Golang 1.16 or above requires to run 'go mod tidy' in order to update go.mod and go.sum files after the upgrade.
+	if output, err = utils.RunCommand(projectPath, true, "go", "mod", "tidy"); err != nil {
+		err = errors.New("Failed to run 'go mod tidy' located at " + projectPath + ". Error:\n" + output)
+		return
+	}
 	if output, err = utils.RunCommand(projectPath, true, "go", "vet", "-v", "./..."); err != nil {
-		err = errors.New("Failed to Lint plugin source code, located at " + projectPath + ". Error:\n" + output)
+		err = errors.New("Failed to run 'go vet -v ./...' located at " + projectPath + ". Error:\n" + output)
 		return
 	}
 	if output, err = utils.RunCommand(projectPath, true, "go", "test", "-v", "./..."); err != nil {
