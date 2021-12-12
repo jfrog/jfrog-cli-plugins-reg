@@ -14,7 +14,7 @@ resources:
     type: GitRepo
     configuration:
       path: jfrog/jfrog-cli-plugins-reg
-      gitProvider: github
+      gitProvider: il_automation
       buildOn:
         # Manually trigger only
         commit: false
@@ -27,7 +27,7 @@ resources:
     type: GitRepo
     configuration:
       path: jfrog/jfrog-cli-plugins-reg
-      gitProvider: github
+      gitProvider: il_automation
       buildOn:
         commit: false
         pullRequestCreate: true
@@ -39,7 +39,7 @@ resources:
     type: GitRepo
     configuration:
       path: jfrog/jfrog-cli-core
-      gitProvider: github
+      gitProvider: il_automation
       buildOn:
         commit: false
         releaseCreate: true
@@ -53,16 +53,17 @@ pipelines:
         type: Bash
         configuration:
           integrations:
-            - name: releases_jfrog
+            - name: releases_jfrog_io_deployer
+            - name: il_automation
+            - name: entplus_deployer
           inputResources:
             - name: buildJfrogCliPluginGit
           runtime:
             type: image
             image:
-              auto:
-                language: go
-                versions:
-                  - "1.15.2"
+              custom:
+                name: releases-docker.jfrog.io/jfrog-ecosystem-integration-env
+                tag: 1.4.0
           environmentVariables:
             JFROG_CLI_PLUGIN_DESCRIPTOR_FILE_NAME: "file-name-with-extension.yml"
         execution:
@@ -70,29 +71,38 @@ pipelines:
             - update_commit_status buildJfrogCliPluginGit --context "$step_name"
           onExecute:
             # Install yq to parse yaml.
-            - GO111MODULE=on go get github.com/mikefarah/yq/v3
+            - GO111MODULE=on go get github.com/mikefarah/yq/v4
             # Extract params from yaml.
             - ymlPath="$res_buildJfrogCliPluginGit_resourcePath/plugins/$JFROG_CLI_PLUGIN_DESCRIPTOR_FILE_NAME"
             - echo "extracting details from $ymlPath"
-            - JFROG_CLI_PLUGIN_PLUGIN_NAME=$(yq r $ymlPath "pluginName") && echo $JFROG_CLI_PLUGIN_PLUGIN_NAME
-            - JFROG_CLI_PLUGIN_VERSION=$(yq r $ymlPath "version") && echo $JFROG_CLI_PLUGIN_VERSION
-            - pluginRepoFullUrl=$(yq r $ymlPath "repository") && echo $pluginRepoFullUrl
+            - JFROG_CLI_PLUGIN_PLUGIN_NAME=$(~/go/bin/yq e ".pluginName" $ymlPath) && echo $JFROG_CLI_PLUGIN_PLUGIN_NAME
+            - JFROG_CLI_PLUGIN_VERSION=$(~/go/bin/yq e ".version" $ymlPath) && echo $JFROG_CLI_PLUGIN_VERSION
+            - pluginRepoFullUrl=$(~/go/bin/yq e ".repository" $ymlPath) && echo $pluginRepoFullUrl
             - pluginRepoName=$(basename $pluginRepoFullUrl .git) && echo $pluginRepoName
-            - pluginRelativePath=$(yq r $ymlPath "relativePath") && echo $pluginRelativePath
+            - pluginRelativePath=$(~/go/bin/yq e ".relativePath // \"\"" $ymlPath) && echo $pluginRelativePath
             # Clone plugin repo.
             - git clone $pluginRepoFullUrl
-            # Copy the plugin release script from registry repo to plugin repo.
-            - cp "$res_buildJfrogCliPluginGit_resourcePath/pipelinesScripts/pluginRelease.sh" "./$pluginRepoName/$pluginRelativePath"
+            # Copy the plugin release script and distribution spec from registry repo to plugin repo.
+            - cp "$res_buildJfrogCliPluginGit_resourcePath/pipelinesScripts/pluginUpload.sh" "./$pluginRepoName/$pluginRelativePath"
+            - cp "$res_buildJfrogCliPluginGit_resourcePath/pipelinesScripts/specs/plugin-rbc-spec.json" "./$pluginRepoName/$pluginRelativePath"
             - cd "./$pluginRepoName/$pluginRelativePath"
+            # Download JFrog CLI
+            - curl -fL https://getcli.jfrog.io | bash -s v2 && chmod +x jfrog
+            - ./jfrog c add internal --url=$int_entplus_deployer_url --user=$int_entplus_deployer_user --password=$int_entplus_deployer_apikey
             # Run plugin release script with the required env variables.
             - >
               env -i PATH=$PATH HOME=$HOME PWD=$PWD CI="true"
-              JFROG_CLI_PLUGINS_RT_REGISTRY_URL="https://releases.jfrog.io/artifactory"
-              JFROG_CLI_PLUGINS_RT_REGISTRY_TOKEN=$int_releases_jfrog_token
-              JFROG_CLI_PLUGINS_RT_REGISTRY_REPO="jfrog-cli-plugins"
+              JFROG_CLI_PLUGINS_RT_REGISTRY_URL=$int_entplus_deployer_url"/artifactory"
+              JFROG_CLI_PLUGINS_RT_REGISTRY_REPO="ecosys-jfrog-cli-plugins"
               JFROG_CLI_PLUGIN_PLUGIN_NAME=$JFROG_CLI_PLUGIN_PLUGIN_NAME
               JFROG_CLI_PLUGIN_VERSION=$JFROG_CLI_PLUGIN_VERSION
-              bash "./pluginRelease.sh"
+              bash "./pluginUpload.sh"
+            # Distribute Plugin to releases.
+            - options="--url=$int_entplus_deployer_url/distribution --user=$int_entplus_deployer_user --password=$int_entplus_deployer_apikey"
+            - ./jfrog ds rbc "cli-plugins" $JFROG_CLI_PLUGIN_VERSION --spec="plugin-rbc-spec.json" --spec-vars="NAME=$JFROG_CLI_PLUGIN_PLUGIN_NAME;VERSION=$JFROG_CLI_PLUGIN_VERSION" --sign $options
+            - ./jfrog ds rbd "cli-plugins" $JFROG_CLI_PLUGIN_VERSION --site=releases.jfrog.io --sync $options
+            # Copy version to 'latest' directory in releases.jfrog.io
+            - ./jfrog rt cp "jfrog-cli-plugins/$JFROG_CLI_PLUGIN_PLUGIN_NAME/$JFROG_CLI_PLUGIN_VERSION/(*)" "jfrog-cli-plugins/$JFROG_CLI_PLUGIN_PLUGIN_NAME/latest/{1}" --url=https://releases.jfrog.io/artifactory/ --access-token=$int_releases_jfrog_io_deployer_access_token
           onComplete:
             - update_commit_status buildJfrogCliPluginGit --context "$step_name"
 
@@ -103,7 +113,7 @@ pipelines:
         image:
           custom:
             name: releases-docker.jfrog.io/jfrog-ecosystem-integration-env
-            tag: 1.2.0
+            tag: 1.4.0
     steps:
       - name: upgrade_plugin_on_core_release
         type: Bash
@@ -142,7 +152,7 @@ pipelines:
         image:
           custom:
             name: releases-docker.jfrog.io/jfrog-ecosystem-integration-env
-            tag: 1.2.0
+            tag: 1.4.0
     steps:
       # Validate PR contains only the plugin descriptor
       - name: PR_includes_only_plugin_descriptor

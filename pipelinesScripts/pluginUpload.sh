@@ -62,17 +62,6 @@ verifyUniqueVersion () {
   fi
 }
 
-#function downloadJfrogCli()
-downloadJfrogCli () {
-  # Downloading the latest version of JFrog CLI...
-  curl -sSfL https://getcli.jfrog.io | sh
-  # Verify CLI was downloaded
-  if [[ ! -f ./jfrog ]]; then
-      echo "Error: JFrog CLI downloaded failed."
-      exit 1
-  fi
-}
-
 #function buildAndUpload(pkg, goos, goarch, fileExtension)
 buildAndUpload () {
   pkg="$1"
@@ -86,7 +75,7 @@ buildAndUpload () {
   destPath="$JFROG_CLI_PLUGINS_RT_REGISTRY_REPO/$JFROG_CLI_PLUGIN_PLUGIN_NAME/$JFROG_CLI_PLUGIN_VERSION/$pkg/$exeName"
   echo "Uploading $exeName to $JFROG_CLI_PLUGINS_RT_REGISTRY_URL/$destPath ..."
 
-  ./jfrog rt u "./$exeName" "$destPath" --url="$JFROG_CLI_PLUGINS_RT_REGISTRY_URL" --access-token=$JFROG_CLI_PLUGINS_RT_REGISTRY_TOKEN
+  res=$(eval "./jfrog rt u ./$exeName $destPath")
   exitCode=$?
   if [[ $exitCode -ne 0 ]]; then
     echo "Error: Failed uploading plugin"
@@ -99,7 +88,7 @@ copyToLatestDir () {
   pluginPath="$JFROG_CLI_PLUGINS_RT_REGISTRY_REPO/$JFROG_CLI_PLUGIN_PLUGIN_NAME"
   echo "Copy version to latest dir: $pluginPath"
 
-  ./jfrog rt cp "$pluginPath/$JFROG_CLI_PLUGIN_VERSION/(*)" "$pluginPath/latest/{1}" --flat --url="$JFROG_CLI_PLUGINS_RT_REGISTRY_URL" --access-token=$JFROG_CLI_PLUGINS_RT_REGISTRY_TOKEN
+  res=$(eval "./jfrog rt cp \"$pluginPath/$JFROG_CLI_PLUGIN_VERSION/(*)\" \"$pluginPath/latest/{1}\" --flat")
   exitCode=$?
   if [[ $exitCode -ne 0 ]]; then
     echo "Error: Failed uploading plugin"
@@ -110,9 +99,6 @@ copyToLatestDir () {
 # Verify uniqueness of the requested plugin's version
 verifyUniqueVersion
 
-# Download JFrog CLI
-downloadJfrogCli
-
 # Build and upload for every architecture.
 # Keep 'linux-386' first to prevent unnecessary uploads in case the built version doesn't match the provided one.
 buildAndUpload 'linux-386' 'linux' '386' ''
@@ -120,6 +106,8 @@ buildAndUpload 'linux-amd64' 'linux' 'amd64' ''
 buildAndUpload 'linux-s390x' 'linux' 's390x' ''
 buildAndUpload 'linux-arm64' 'linux' 'arm64' ''
 buildAndUpload 'linux-arm' 'linux' 'arm' ''
+buildAndUpload 'linux-ppc64' 'linux' 'ppc64' ''
+buildAndUpload 'linux-ppc64le' 'linux' 'ppc64le' ''
 buildAndUpload 'mac-386' 'darwin' 'amd64' ''
 buildAndUpload 'windows-amd64' 'windows' 'amd64' '.exe'
 
