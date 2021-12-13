@@ -74,26 +74,7 @@ buildAndUpload () {
 
   destPath="$JFROG_CLI_PLUGINS_RT_REGISTRY_REPO/$JFROG_CLI_PLUGIN_PLUGIN_NAME/$JFROG_CLI_PLUGIN_VERSION/$pkg/$exeName"
   echo "Uploading $exeName to $JFROG_CLI_PLUGINS_RT_REGISTRY_URL/$destPath ..."
-
-  res=$(eval "./jfrog rt u ./$exeName $destPath")
-  exitCode=$?
-  if [[ $exitCode -ne 0 ]]; then
-    echo "Error: Failed uploading plugin"
-    exit $exitCode
-  fi
-}
-
-#function copyToLatestDir()
-copyToLatestDir () {
-  pluginPath="$JFROG_CLI_PLUGINS_RT_REGISTRY_REPO/$JFROG_CLI_PLUGIN_PLUGIN_NAME"
-  echo "Copy version to latest dir: $pluginPath"
-
-  res=$(eval "./jfrog rt cp \"$pluginPath/$JFROG_CLI_PLUGIN_VERSION/(*)\" \"$pluginPath/latest/{1}\" --flat")
-  exitCode=$?
-  if [[ $exitCode -ne 0 ]]; then
-    echo "Error: Failed uploading plugin"
-    exit $exitCode
-  fi
+  jf rt u ./"$exeNamev" "$destPath"
 }
 
 # Verify uniqueness of the requested plugin's version
@@ -110,6 +91,3 @@ buildAndUpload 'linux-ppc64' 'linux' 'ppc64' ''
 buildAndUpload 'linux-ppc64le' 'linux' 'ppc64le' ''
 buildAndUpload 'mac-386' 'darwin' 'amd64' ''
 buildAndUpload 'windows-amd64' 'windows' 'amd64' '.exe'
-
-# Copy the uploaded version to override latest dir
-copyToLatestDir

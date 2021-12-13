@@ -70,7 +70,7 @@ pipelines:
             - update_commit_status buildJfrogCliPluginGit --context "$step_name"
           onExecute:
             # Install yq to parse yaml.
-            - GO111MODULE=on go get github.com/mikefarah/yq/v4
+            - GO111MODULE=on go install github.com/mikefarah/yq/v4@latest
             # Extract params from yaml.
             - ymlPath="$res_buildJfrogCliPluginGit_resourcePath/plugins/$JFROG_CLI_PLUGIN_DESCRIPTOR_FILE_NAME"
             - echo "extracting details from $ymlPath"
@@ -86,8 +86,8 @@ pipelines:
             - cp "$res_buildJfrogCliPluginGit_resourcePath/pipelinesScripts/specs/plugin-rbc-spec.json" "./$pluginRepoName/$pluginRelativePath"
             - cd "./$pluginRepoName/$pluginRelativePath"
             # Download JFrog CLI
-            - curl -fL https://getcli.jfrog.io | bash -s v2 && chmod +x jfrog
-            - ./jfrog c add internal --url=$int_entplus_deployer_url --user=$int_entplus_deployer_user --password=$int_entplus_deployer_apikey
+            - curl -fL https://install-cli.jfrog.io | sh
+            - jf c add internal --url=$int_entplus_deployer_url --user=$int_entplus_deployer_user --password=$int_entplus_deployer_apikey
             # Run plugin release script with the required env variables.
             - >
               env -i PATH=$PATH HOME=$HOME PWD=$PWD CI="true"
@@ -98,10 +98,10 @@ pipelines:
               bash "./pluginUpload.sh"
             # Distribute Plugin to releases.
             - options="--url=$int_entplus_deployer_url/distribution --user=$int_entplus_deployer_user --password=$int_entplus_deployer_apikey"
-            - ./jfrog ds rbc "cli-plugins" $JFROG_CLI_PLUGIN_VERSION --spec="plugin-rbc-spec.json" --spec-vars="NAME=$JFROG_CLI_PLUGIN_PLUGIN_NAME;VERSION=$JFROG_CLI_PLUGIN_VERSION" --sign $options
-            - ./jfrog ds rbd "cli-plugins" $JFROG_CLI_PLUGIN_VERSION --site=releases.jfrog.io --sync $options
+            - jf ds rbc "cli-plugins" $JFROG_CLI_PLUGIN_VERSION --spec="plugin-rbc-spec.json" --spec-vars="NAME=$JFROG_CLI_PLUGIN_PLUGIN_NAME;VERSION=$JFROG_CLI_PLUGIN_VERSION" --sign $options
+            - jf ds rbd "cli-plugins" $JFROG_CLI_PLUGIN_VERSION --site=releases.jfrog.io --sync $options
             # Copy version to 'latest' directory in releases.jfrog.io
-            - ./jfrog rt cp "jfrog-cli-plugins/$JFROG_CLI_PLUGIN_PLUGIN_NAME/$JFROG_CLI_PLUGIN_VERSION/(*)" "jfrog-cli-plugins/$JFROG_CLI_PLUGIN_PLUGIN_NAME/latest/{1}" --url=https://releases.jfrog.io/artifactory/ --access-token=$int_releases_jfrog_io_deployer_access_token
+            - jf rt cp "jfrog-cli-plugins/$JFROG_CLI_PLUGIN_PLUGIN_NAME/$JFROG_CLI_PLUGIN_VERSION/(*)" "jfrog-cli-plugins/$JFROG_CLI_PLUGIN_PLUGIN_NAME/latest/{1}" --url=https://releases.jfrog.io/artifactory/ --access-token=$int_releases_jfrog_io_deployer_access_token
           onComplete:
             - update_commit_status buildJfrogCliPluginGit --context "$step_name"
 
