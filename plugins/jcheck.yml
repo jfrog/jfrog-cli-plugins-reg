@@ -1,0 +1,9 @@
+# mandatory:
+pluginName: jcheck
+version: v1.0.0
+repository: https://github.com/rdar-lab/JCheck
+maintainers:
+    - rdar-lab
+    - galusben
+    - gabuna
+
