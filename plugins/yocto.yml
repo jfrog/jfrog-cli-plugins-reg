@@ -1,6 +1,6 @@
 # mandatory:
 pluginName: jfrog-yocto
-version: v0.1.0
+version: v0.1.2
 repository: https://github.com/rdar-lab/jfrog-cli-yocto-plugin
 maintainers:
     - rdar-lab
