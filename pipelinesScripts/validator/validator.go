@@ -138,7 +138,9 @@ func upgradeJfrogPlugins() error {
 		return err
 	}
 	if len(failedPlugins) > 0 {
-		openIssue(failedPlugins, depToUpgrade, token)
+		if err := openIssue(failedPlugins, depToUpgrade, token); err != nil {
+			return err
+		}
 	}
 	return nil
 }
