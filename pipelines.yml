@@ -85,7 +85,7 @@ pipelines:
             - cp "$res_buildJfrogCliPluginGit_resourcePath/pipelinesScripts/pluginUpload.sh" "./$pluginRepoName/$pluginRelativePath"
             - cp "$res_buildJfrogCliPluginGit_resourcePath/pipelinesScripts/specs/plugin-rbc-spec.json" "./$pluginRepoName/$pluginRelativePath"
             - cd "./$pluginRepoName/$pluginRelativePath"
-            # Download JFrog CLI
+            # Install JFrog CLI
             - curl -fL https://install-cli.jfrog.io | sh
             - jf c add internal --url=$int_entplus_deployer_url --user=$int_entplus_deployer_user --password=$int_entplus_deployer_apikey
             # Run plugin release script with the required env variables.
