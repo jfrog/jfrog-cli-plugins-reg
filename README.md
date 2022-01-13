@@ -12,13 +12,13 @@ After a plugin is included in this Registry, it becomes available for installati
 
 * [file-spec-gen](https://github.com/jfrog/jfrog-cli-plugins/tree/main/file-spec-gen) - This plugin provides an easy way for generating file-specs json.
 
+* [JCheck](https://github.com/rdar-lab/JCheck) - A Micro-UTP, plug-able sanity checker for any on-prem JFrog platform instance.
+
 * [jfrog-yocto](https://github.com/rdar-lab/jfrog-cli-yocto-plugin) - This plugin allows integrating Yocto builds with the JFrog Platform.
 
 * [live-logs](https://github.com/jfrog/live-logs) - The JFrog Platform includes an integrated Live Logs plugin, which allows customers to get the JFrog product logs (Artifactory, Xray, Mission Control, Distribution, and Pipelines) using the JFrog CLI Plugin. The plugin also provides the ability to cat and tail -f any log on any product node.
 
 * [metrics-viewer](https://github.com/eldada/metrics-viewer/tree/master) - A plugin or standalone binary to show open-metrics formatted data in a terminal based graph.
-
-* [rb-gen](https://github.com/jfrog/jfrog-cli-plugins/tree/main/rb-gen) - This plugin is designed to simplify interaction with release bundles, by generating them from other formats. Currently, it can generate release bundles from Helm charts.
 
 * [repostats](https://github.com/chanti529/repostats) - This plugin can help find out the most popularly downlaoded artifacts in a given repository, Artifacts that are consuming the most space in a given repository with various levels of customization available. Results obtained can also be sorted and filtered.
 
