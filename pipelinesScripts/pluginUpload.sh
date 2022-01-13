@@ -74,7 +74,7 @@ buildAndUpload () {
 
   destPath="$JFROG_CLI_PLUGINS_RT_REGISTRY_REPO/$JFROG_CLI_PLUGIN_PLUGIN_NAME/$JFROG_CLI_PLUGIN_VERSION/$pkg/$exeName"
   echo "Uploading $exeName to $JFROG_CLI_PLUGINS_RT_REGISTRY_URL/$destPath ..."
-  jf rt u "./$exeNamev" "$destPath"
+  jf rt u "./$exeName" "$destPath"
 }
 
 # Verify uniqueness of the requested plugin's version
