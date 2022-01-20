@@ -10,6 +10,8 @@ After a plugin is included in this Registry, it becomes available for installati
 
 * [build-report](https://github.com/jfrog/jfrog-cli-plugins/tree/main/build-report) - This JFrog CLI plugin prints a report of a published build info in Artifactory, or the diff between two builds.
 
+* [cve-impact-check](https://github.com/rdar-lab/cve-impact-check) - This plugin allows checking via Xray if there are any impacted artifacts on a specific env/jfrog platform. It requires the artifacts to be already indexed by Xray.
+
 * [file-spec-gen](https://github.com/jfrog/jfrog-cli-plugins/tree/main/file-spec-gen) - This plugin provides an easy way for generating file-specs json.
 
 * [JCheck](https://github.com/rdar-lab/JCheck) - A Micro-UTP, plug-able sanity checker for any on-prem JFrog platform instance.
