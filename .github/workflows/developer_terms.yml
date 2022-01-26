@@ -1,5 +1,6 @@
 name: "CLA Assistant"
 on:
+  # issue_comment triggers this action on each comment on issues and pull requests
   issue_comment:
     types: [created]
   pull_request_target:
@@ -8,10 +9,14 @@ jobs:
   CLAssistant:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions-ecosystem/action-regex-match@v2
+        id: sign-or-recheck
+        with:
+          text: ${{ github.event.comment.body }}
+          regex: '\s*(I have read the Developer Terms and I hereby accept the terms)|(recheckcla)\s*'
       - name: "CLA Assistant"
-        if: (github.event.comment.body == 'recheck' || github.event.comment.body == 'I have read the Developer Terms and I hereby accept the terms') || github.event_name == 'pull_request_target'
-        # Alpha Release
-        uses: cla-assistant/github-action@v2.0.3-alpha
+        if: ${{ steps.sign-or-recheck.outputs.match != '' || github.event_name == 'pull_request_target' }}
+        uses: cla-assistant/github-action@v2.1.1-beta
         env:
           # Generated and maintained by github
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
