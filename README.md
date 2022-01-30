@@ -66,10 +66,18 @@ After a plugin is included in this Registry, it becomes available for installati
     </tr>
     <tr>
         <td width="20%">
-            <a href="https://github.com/eldada/metrics-viewer/tree/master">metrics-viewer</a>
+            <a href="https://github.com/eldada/metrics-viewer">metrics-viewer</a>
         </td>
         <td>
             A plugin or standalone binary to show open-metrics formatted data in a terminal based graph.
+        </td>
+    </tr>
+    <tr>
+        <td width="20%">
+            <a href="https://github.com/hanochg/piperika">Piperika</a>
+        </td>
+        <td>
+            This is a JFrog Pipelines CLI utility with an emphasis on the consumer experience. As a consumer of CI/CD system, you don't always want to understand the complexity but just "use" it.
         </td>
     </tr>
     <tr>
