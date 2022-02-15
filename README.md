@@ -1,4 +1,11 @@
-# JFrog CLI plugins registry
+[![](images/introduction.png)](#readme)
+
+<div align="center">
+
+# JFrog CLI Plugins Registry
+
+</div>
+
 ## General
 **JFrog CLI Plugins** allow enhancing the functionality of [JFrog CLI](https://www.jfrog.com/confluence/display/CLI/JFrog+CLI) to meet the specific user and organization needs. The source code of a plugin is maintained as an open source Go project on GitHub. All public plugins are registered in **JFrog CLI's Plugins Registry**. The Registry is hosted in this GitHub repository. The [plugins](plugins) directory includes a descriptor file for each plugin included in the Registry. 
 
