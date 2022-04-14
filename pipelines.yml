@@ -82,7 +82,7 @@ pipelines:
             # Clone plugin repo.
             - git clone $pluginRepoFullUrl
             # Copy the plugin release script and distribution spec from registry repo to plugin repo.
-            - cp "$res_buildJfrogCliPluginGit_resourcePath/pipelinesScripts/pluginUpload.sh" "./$pluginRepoName/$pluginRelativePath"
+            - cp "$res_buildJfrogCliPluginGit_resourcePath/pipelinesScripts/publishPlugin.sh" "./$pluginRepoName/$pluginRelativePath"
             - cp "$res_buildJfrogCliPluginGit_resourcePath/pipelinesScripts/specs/plugin-rbc-spec.json" "./$pluginRepoName/$pluginRelativePath"
             - cd "./$pluginRepoName/$pluginRelativePath"
             # Install JFrog CLI
@@ -95,7 +95,7 @@ pipelines:
               JFROG_CLI_PLUGINS_RT_REGISTRY_REPO="ecosys-jfrog-cli-plugins"
               JFROG_CLI_PLUGIN_PLUGIN_NAME=$JFROG_CLI_PLUGIN_PLUGIN_NAME
               JFROG_CLI_PLUGIN_VERSION=$JFROG_CLI_PLUGIN_VERSION
-              bash "./pluginUpload.sh"
+              bash "./publishPlugin.sh"
             # Distribute Plugin to releases.
             - options="--url=$int_entplus_deployer_url/distribution --user=$int_entplus_deployer_user --password=$int_entplus_deployer_apikey"
             - jf ds rbc "cli-plugins" $JFROG_CLI_PLUGIN_VERSION --spec="plugin-rbc-spec.json" --spec-vars="NAME=$JFROG_CLI_PLUGIN_PLUGIN_NAME;VERSION=$JFROG_CLI_PLUGIN_VERSION" --sign $options
