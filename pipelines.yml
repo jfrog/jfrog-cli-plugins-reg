@@ -91,11 +91,12 @@ pipelines:
             # Run plugin release script with the required env variables.
             - >
               env -i PATH=$PATH HOME=$HOME PWD=$PWD CI="true"
-              JFROG_CLI_PLUGINS_RT_REGISTRY_URL=$int_entplus_deployer_url"/artifactory"
-              JFROG_CLI_PLUGINS_RT_REGISTRY_REPO="ecosys-jfrog-cli-plugins"
+              JFROG_CLI_PLUGIN_SERVER="internal"
+              JFROG_CLI_PLUGINS_REPO="ecosys-jfrog-cli-plugins"
               JFROG_CLI_PLUGIN_PLUGIN_NAME=$JFROG_CLI_PLUGIN_PLUGIN_NAME
               JFROG_CLI_PLUGIN_VERSION=$JFROG_CLI_PLUGIN_VERSION
-              bash "./publishPlugin.sh"
+            # Publish the plugin to repo21.
+            - jf plugin p "$JFROG_CLI_PLUGIN_PLUGIN_NAME" "$JFROG_CLI_PLUGIN_VERSION"
             # Distribute Plugin to releases.
             - options="--url=$int_entplus_deployer_url/distribution --user=$int_entplus_deployer_user --password=$int_entplus_deployer_apikey"
             - jf ds rbc "cli-plugins" $JFROG_CLI_PLUGIN_VERSION --spec="plugin-rbc-spec.json" --spec-vars="NAME=$JFROG_CLI_PLUGIN_PLUGIN_NAME;VERSION=$JFROG_CLI_PLUGIN_VERSION" --sign $options
