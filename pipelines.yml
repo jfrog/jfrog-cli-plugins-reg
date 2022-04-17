@@ -81,8 +81,7 @@ pipelines:
             - pluginRelativePath=$(~/go/bin/yq e ".relativePath // \"\"" $ymlPath) && echo $pluginRelativePath
             # Clone plugin repo.
             - git clone $pluginRepoFullUrl
-            # Copy the plugin release script and distribution spec from registry repo to plugin repo.
-            - cp "$res_buildJfrogCliPluginGit_resourcePath/pipelinesScripts/publishPlugin.sh" "./$pluginRepoName/$pluginRelativePath"
+            # Copy the plugin distribution spec from the registry repo to the plugin repo.
             - cp "$res_buildJfrogCliPluginGit_resourcePath/pipelinesScripts/specs/plugin-rbc-spec.json" "./$pluginRepoName/$pluginRelativePath"
             - cd "./$pluginRepoName/$pluginRelativePath"
             # Install JFrog CLI
