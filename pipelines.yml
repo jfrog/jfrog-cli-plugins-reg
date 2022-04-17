@@ -95,6 +95,7 @@ pipelines:
               JFROG_CLI_PLUGINS_RT_REGISTRY_REPO="ecosys-jfrog-cli-plugins"
               JFROG_CLI_PLUGIN_PLUGIN_NAME=$JFROG_CLI_PLUGIN_PLUGIN_NAME
               JFROG_CLI_PLUGIN_VERSION=$JFROG_CLI_PLUGIN_VERSION
+              JFROG_CLI_PLUGIN_SERVER="internal"
               bash "./publishPlugin.sh"
             # Distribute Plugin to releases.
             - options="--url=$int_entplus_deployer_url/distribution --user=$int_entplus_deployer_user --password=$int_entplus_deployer_apikey"
