@@ -90,7 +90,7 @@ pipelines:
             # Run plugin release script with the required env variables.
             - >
               env -i PATH=$PATH HOME=$HOME PWD=$PWD CI="true"
-              JFROG_CLI_PLUGIN_SERVER="internal"
+              JFROG_CLI_PLUGINS_SERVER="internal"
               JFROG_CLI_PLUGINS_REPO="ecosys-jfrog-cli-plugins"
               JFROG_CLI_PLUGIN_PLUGIN_NAME=$JFROG_CLI_PLUGIN_PLUGIN_NAME
               JFROG_CLI_PLUGIN_VERSION=$JFROG_CLI_PLUGIN_VERSION
