@@ -1,0 +1,8 @@
+pluginName: env_verify
+version: v1.0.0
+repository: https://github.com/jfrog/log4j-tools
+maintainers:
+  - srmish-jfrog
+branch: main
+relativePath: env_verify/jfrog_cli_plugin
+
