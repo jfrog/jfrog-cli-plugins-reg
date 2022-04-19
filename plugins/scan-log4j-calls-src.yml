@@ -4,5 +4,5 @@ repository: https://github.com/jfrog/log4j-tools
 maintainers:
   - srmish-jfrog
 branch: main
-relativePath: scan_log4j_calls_src/jfrog_cli_plugin
+relativePath: scan-log4j-calls-src/jfrog_cli_plugin
 

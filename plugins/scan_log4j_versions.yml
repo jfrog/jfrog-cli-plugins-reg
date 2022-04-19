@@ -1,8 +1,0 @@
-pluginName: scan_log4j_versions
-version: v1.0.0
-repository: https://github.com/jfrog/log4j-tools
-maintainers:
-  - srmish-jfrog
-branch: main
-relativePath: scan_log4j_versions/jfrog_cli_plugin
-
