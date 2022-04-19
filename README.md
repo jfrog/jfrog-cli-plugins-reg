@@ -36,7 +36,7 @@ After a plugin is included in this Registry, it becomes available for installati
             <a href="https://github.com/jfrog/log4j-tools/tree/main/scan_log4j_calls_jar/jfrog_cli_plugin">scan-log4j-calls-jar</a>
         </td>
         <td>
-            This plugin recursively scans all *.jar* files in a root-folder. For each jar file, the plugin prints out the locations (class name and method name) of calls to *info/warn/error/log/debug/trace/fatal* methods of *log4j2.Logger*. 
+            This plugin recursively scans all <i>.jar</i> files in a root-folder. For each jar file, the plugin prints out the locations (class name and method name) of calls to <i>info/warn/error/log/debug/trace/fatal</i> methods of <i>log4j2.Logger</i>. 
         </td>
     </tr>
     <tr>
@@ -44,7 +44,7 @@ After a plugin is included in this Registry, it becomes available for installati
             <a href="https://github.com/jfrog/log4j-tools/tree/main/scan_log4j_calls_src/jfrog_cli_plugin">scan-log4j-calls-src</a>
         </td>
         <td>
-            This plugin recursively scans all *.java* files in a root-folder. For each file, the plugin prints out the locations (file name and corresponding code lines) of calls to *log4j2* logging methods. 
+            This plugin recursively scans all <i>.java</i> files in a root-folder. For each file, the plugin prints out the locations (file name and corresponding code lines) of calls to <i>log4j2</i> logging methods. 
         </td>
     </tr>
      <tr>
@@ -52,7 +52,7 @@ After a plugin is included in this Registry, it becomes available for installati
             <a href="https://github.com/jfrog/log4j-tools/tree/main/scan_log4j_versions/jfrog_cli_plugin">scan-log4j-versions</a>
         </td>
         <td>
-            This plugin recursively scans a root folder for *.jar* and *.war* files. For every file that is detected, the plugin looks for *log4j/core/net/JndiManager.class and *log4j/core/lookup/JndiLookup.class*.
+            This plugin recursively scans a root folder for <i>.jar</i> and <i>.war</i> files. For every file that is detected, the plugin looks for <i>log4j/core/net/JndiManager.class</i> and <i>log4j/core/lookup/JndiLookup.class</i>.
         </td>
     </tr>
 </table>
