@@ -4,5 +4,5 @@ repository: https://github.com/jfrog/log4j-tools
 maintainers:
   - srmish-jfrog
 branch: main
-relativePath: env-verify/jfrog_cli_plugin
+relativePath: env_verify/jfrog_cli_plugin
 
