@@ -1,4 +1,4 @@
-pluginName: scan_log4j_versions
+pluginName: scan-log4j-versions
 version: v1.0.0
 repository: https://github.com/jfrog/log4j-tools
 maintainers:
