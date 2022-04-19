@@ -166,7 +166,7 @@ After a plugin is included in this Registry, it becomes available for installati
 </table>
 
 ## Developing and publishing plugins
-We encourage you, as developers, to create plugins and share them publicly with the rest of the community. Read the [JFrog CLI Plugins Developer Guide](https://github.com/jfrog/jfrog-cli/blob/master/guides/jfrog-cli-plugins-developer-guide.md) for information about developing and publishing JFrog CLI Plugins.
+We encourage you, as developers, to create plugins and share them publicly with the rest of the community. Read the [JFrog CLI Plugins Developer Guide](https://github.com/jfrog/jfrog-cli/blob/v2/guides/jfrog-cli-plugins-developer-guide.md#JFrog-CLI-Plugin-Developer-Guide) for information about developing and publishing JFrog CLI Plugins.
 
 [![rt-fs-plugin](images/rt-fs-plugin.png)](https://youtu.be/zQ1JV83frFI)
 
