@@ -13,7 +13,51 @@
 After a plugin is included in this Registry, it becomes available for installation using JFrog CLI. JFrog CLI version 1.41.1 or above is required. To install a plugin included in this registry, run the following JFrog CLI command -  `jf plugin install plugin-name`. 
 
 ## Available plugins
+### Security plugins
+<table>
+    <tr>
+        <td width="20%">
+            <a href="https://github.com/jfrog/log4j-tools/tree/main/env_verify/jfrog_cli_plugin">env-verify<a>
+        </td>
+        <td>
+            This plugin verifies that the Java environment and command line options of your log4j-enabled Java application, allow for the exploitation of CVE-2021-44228.
+        </td>
+    </tr>
+    <tr>
+        <td width="20%">
+            <a href="https://github.com/jfrog/log4j-tools/tree/main/scan_cve_2021_45046_config/jfrog_cli_plugin">scan-cve-2021-45046-config</a>
+        </td>
+        <td>
+            This plugin scans a root-folder and all the archive files in it, looking for probable log4j configuration files. Inside each archive, the plugin looks for configuration options which may enable an attacker to exploit CVE-2021-45046.
+        </td>
+    </tr>
+    <tr>
+        <td width="20%">
+            <a href="https://github.com/jfrog/log4j-tools/tree/main/scan_log4j_calls_jar/jfrog_cli_plugin">scan-log4j-calls-jar</a>
+        </td>
+        <td>
+            This plugin recursively scans all *.jar* files in a root-folder. For each jar file, the plugin prints out the locations (class name and method name) of calls to *info/warn/error/log/debug/trace/fatal* methods of *log4j2.Logger*. 
+        </td>
+    </tr>
+    <tr>
+        <td width="20%">
+            <a href="https://github.com/jfrog/log4j-tools/tree/main/scan_log4j_calls_src/jfrog_cli_plugin">scan-log4j-calls-src</a>
+        </td>
+        <td>
+            This plugin recursively scans all *.java* files in a root-folder. For each file, the plugin prints out the locations (file name and corresponding code lines) of calls to *log4j2* logging methods. 
+        </td>
+    </tr>
+     <tr>
+        <td width="20%">
+            <a href="https://github.com/jfrog/log4j-tools/tree/main/scan_log4j_versions/jfrog_cli_plugin">scan-log4j-versions</a>
+        </td>
+        <td>
+            This plugin recursively scans a root folder for *.jar* and *.war* files. For every file that is detected, the plugin looks for *log4j/core/net/JndiManager.class and *log4j/core/lookup/JndiLookup.class*.
+        </td>
+    </tr>
+</table>
 
+### General plugins
 <table>
     <tr>
         <td width="20%">
