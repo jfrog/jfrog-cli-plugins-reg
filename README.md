@@ -17,15 +17,15 @@ After a plugin is included in this Registry, it becomes available for installati
 <table>
     <tr>
         <td width="20%">
-            <a href="https://github.com/jfrog/log4j-tools/tree/main/env_verify/jfrog_cli_plugin">env-verify<a>
+            <a href="https://github.com/jfrog/log4j-tools/tree/main/env_verify/jfrog_cli_plugin#readme">env-verify<a>
         </td>
         <td>
             This plugin checks whether the Java environment and command line options of your log4j-enabled Java application, allow for the exploitation of CVE-2021-44228.
-        </td>
+        </td>https://releases.jfrog.io/artifactry
     </tr>
     <tr>
         <td width="20%">
-            <a href="https://github.com/jfrog/log4j-tools/tree/main/scan_cve_2021_45046_config/jfrog_cli_plugin">scan-cve-2021-45046-config</a>
+            <a href="https://github.com/jfrog/log4j-tools/tree/main/scan_cve_2021_45046_config/jfrog_cli_plugin#readme">scan-cve-2021-45046-config</a>
         </td>
         <td>
             This plugin scans a root-folder and all the archive files in it, looking for probable log4j configuration files. Inside each archive, the plugin looks for configuration options which may enable an attacker to exploit CVE-2021-45046.
@@ -33,7 +33,7 @@ After a plugin is included in this Registry, it becomes available for installati
     </tr>
     <tr>
         <td width="20%">
-            <a href="https://github.com/jfrog/log4j-tools/tree/main/scan_log4j_calls_jar/jfrog_cli_plugin">scan-log4j-calls-jar</a>
+            <a href="https://github.com/jfrog/log4j-tools/tree/main/scan_log4j_calls_jar/jfrog_cli_plugin#readme">scan-log4j-calls-jar</a>
         </td>
         <td>
             This plugin recursively scans all <i>.jar</i> files in a root-folder. For each jar file, the plugin prints out the locations (class name and method name) of calls to <i>info/warn/error/log/debug/trace/fatal</i> methods of <i>log4j2.Logger</i>. 
@@ -41,7 +41,7 @@ After a plugin is included in this Registry, it becomes available for installati
     </tr>
     <tr>
         <td width="20%">
-            <a href="https://github.com/jfrog/log4j-tools/tree/main/scan_log4j_calls_src/jfrog_cli_plugin">scan-log4j-calls-src</a>
+            <a href="https://github.com/jfrog/log4j-tools/tree/main/scan_log4j_calls_src/jfrog_cli_plugin#readme">scan-log4j-calls-src</a>
         </td>
         <td>
             This plugin recursively scans all <i>.java</i> files in a root-folder. For each file, the plugin prints out the locations (file name and corresponding code lines) of calls to <i>log4j2</i> logging methods. 
@@ -49,7 +49,7 @@ After a plugin is included in this Registry, it becomes available for installati
     </tr>
      <tr>
         <td width="20%">
-            <a href="https://github.com/jfrog/log4j-tools/tree/main/scan_log4j_versions/jfrog_cli_plugin">scan-log4j-versions</a>
+            <a href="https://github.com/jfrog/log4j-tools/tree/main/scan_log4j_versions/jfrog_cli_plugin#readme">scan-log4j-versions</a>
         </td>
         <td>
             This plugin recursively scans a root folder for <i>.jar</i> and <i>.war</i> files. For every file that is detected, the plugin looks for <i>log4j/core/net/JndiManager.class</i> and <i>log4j/core/lookup/JndiLookup.class</i>.
@@ -61,7 +61,7 @@ After a plugin is included in this Registry, it becomes available for installati
 <table>
     <tr>
         <td width="20%">
-            <a href="https://github.com/jfrog/jfrog-cli-plugins/tree/main/build-deps-info">build-deps-info</a>
+            <a href="https://github.com/jfrog/jfrog-cli-plugins/tree/main/build-deps-info#readme">build-deps-info</a>
         </td>
         <td>
             The build-deps-info plugin prints the dependencies' details of a specific build, which has been previously published to Artifactory.
@@ -69,7 +69,7 @@ After a plugin is included in this Registry, it becomes available for installati
     </tr>
     <tr>
         <td width="20%">
-            <a href="https://github.com/jfrog/jfrog-cli-plugins/tree/main/build-report">build-report</a>
+            <a href="https://github.com/jfrog/jfrog-cli-plugins/tree/main/build-report#readme">build-report</a>
         </td>
         <td>
             This JFrog CLI plugin prints a report of a published build info in Artifactory, or the diff between two builds.
@@ -77,7 +77,7 @@ After a plugin is included in this Registry, it becomes available for installati
     </tr>
     <tr>
         <td width="20%">
-            <a href="https://github.com/rdar-lab/cve-impact-check">cve-impact-check</a>
+            <a href="https://github.com/rdar-lab/cve-impact-check#readme">cve-impact-check</a>
         </td>
         <td>
             This plugin allows checking via Xray if there are any impacted artifacts on a specific env/jfrog platform. It requires the artifacts to be already indexed by Xray.
@@ -85,7 +85,7 @@ After a plugin is included in this Registry, it becomes available for installati
     </tr>
     <tr>
         <td width="20%">
-            <a href="https://github.com/jfrog/jfrog-cli-plugins/tree/main/file-spec-gen">file-spec-gen</a>
+            <a href="https://github.com/jfrog/jfrog-cli-plugins/tree/main/file-spec-gen#readme">file-spec-gen</a>
         </td>
         <td>
             This plugin provides an easy way for generating file-specs json.
@@ -93,7 +93,7 @@ After a plugin is included in this Registry, it becomes available for installati
     </tr>
     <tr>
         <td width="20%">
-            <a href="https://github.com/rdar-lab/JCheck">JCheck</a>
+            <a href="https://github.com/rdar-lab/JCheck#readme">JCheck</a>
         </td>
         <td>
             A Micro-UTP, plug-able sanity checker for any on-prem JFrog platform instance.
@@ -101,7 +101,7 @@ After a plugin is included in this Registry, it becomes available for installati
     </tr>
     <tr>
         <td width="20%">
-            <a href="https://github.com/rdar-lab/jfrog-cli-yocto-plugin">jfrog-yocto</a>
+            <a href="https://github.com/rdar-lab/jfrog-cli-yocto-plugin#readme">jfrog-yocto</a>
         </td>
         <td>
             This plugin allows integrating Yocto builds with the JFrog Platform.
@@ -109,7 +109,7 @@ After a plugin is included in this Registry, it becomes available for installati
     </tr>
     <tr>
         <td width="20%">
-            <a href="https://github.com/jfrog/live-logs">live-logs</a>
+            <a href="https://github.com/jfrog/live-logs#readme">live-logs</a>
         </td>
         <td>
             The JFrog Platform includes an integrated Live Logs plugin, which allows customers to get the JFrog product logs (Artifactory, Xray, Mission Control, Distribution, and Pipelines) using the JFrog CLI Plugin. The plugin also provides the ability to cat and tail -f any log on any product node.
@@ -117,7 +117,7 @@ After a plugin is included in this Registry, it becomes available for installati
     </tr>
     <tr>
         <td width="20%">
-            <a href="https://github.com/eldada/metrics-viewer">metrics-viewer</a>
+            <a href="https://github.com/eldada/metrics-viewer#readme">metrics-viewer</a>
         </td>
         <td>
             A plugin or standalone binary to show open-metrics formatted data in a terminal based graph.
@@ -125,7 +125,7 @@ After a plugin is included in this Registry, it becomes available for installati
     </tr>
     <tr>
         <td width="20%">
-            <a href="https://github.com/hanochg/piperika">Piperika</a>
+            <a href="https://github.com/hanochg/piperika#readme">Piperika</a>
         </td>
         <td>
             This is a JFrog Pipelines CLI utility with an emphasis on the consumer experience. As a consumer of CI/CD system, you don't always want to understand the complexity but just "use" it.
@@ -133,7 +133,7 @@ After a plugin is included in this Registry, it becomes available for installati
     </tr>
     <tr>
         <td width="20%">
-            <a href="https://github.com/chanti529/repostats">repostats</a>
+            <a href="https://github.com/chanti529/repostats#readme">repostats</a>
         </td>
         <td>
             This plugin can help find out the most popularly downlaoded artifacts in a given repository, Artifacts that are consuming the most space in a given repository with various levels of customization available. Results obtained can also be sorted and filtered.
@@ -141,7 +141,7 @@ After a plugin is included in this Registry, it becomes available for installati
     </tr>
     <tr>
         <td width="20%">
-            <a href="https://github.com/jfrog/jfrog-cli-plugins/tree/main/rm-empty">rm-empty</a>
+            <a href="https://github.com/jfrog/jfrog-cli-plugins/tree/main/rm-empty#readme">rm-empty</a>
         </td>
         <td>
             This plugin deletes all the empty folders under a specific path in Artifactory.
@@ -149,7 +149,7 @@ After a plugin is included in this Registry, it becomes available for installati
     </tr>
     <tr>
         <td width="20%">
-            <a href="https://github.com/jfrog/jfrog-cli-plugins/tree/main/rt-cleanup">rt-cleanup</a>
+            <a href="https://github.com/jfrog/jfrog-cli-plugins/tree/main/rt-cleanup#readme">rt-cleanup</a>
         </td>
         <td>
             This plugin is a simple Artifactory cleanup plugin. It can be used to delete all artifacts that have not been downloaded for the past n time units (both can be configured) from a given repository.
@@ -157,7 +157,7 @@ After a plugin is included in this Registry, it becomes available for installati
     </tr>
     <tr>
         <td width="20%">
-            <a href="https://github.com/jfrog/jfrog-cli-plugins/tree/main/rt-fs">rt-fs</a>
+            <a href="https://github.com/jfrog/jfrog-cli-plugins/tree/main/rt-fs#readme">rt-fs</a>
         </td>
         <td>
             This plugin executes file system commands in Artifactory. It is designed to mimic the functionality of the Linux/Unix 'ls' and 'cat' commands.
