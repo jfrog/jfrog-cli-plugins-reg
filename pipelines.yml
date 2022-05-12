@@ -81,8 +81,7 @@ pipelines:
             - pluginRelativePath=$(~/go/bin/yq e ".relativePath // \"\"" $ymlPath) && echo $pluginRelativePath
             # Clone plugin repo.
             - git clone $pluginRepoFullUrl
-            # Copy the plugin release script and distribution spec from registry repo to plugin repo.
-            - cp "$res_buildJfrogCliPluginGit_resourcePath/pipelinesScripts/pluginUpload.sh" "./$pluginRepoName/$pluginRelativePath"
+            # Copy the plugin distribution spec from the registry repo to the plugin repo.
             - cp "$res_buildJfrogCliPluginGit_resourcePath/pipelinesScripts/specs/plugin-rbc-spec.json" "./$pluginRepoName/$pluginRelativePath"
             - cd "./$pluginRepoName/$pluginRelativePath"
             # Install JFrog CLI
@@ -91,15 +90,15 @@ pipelines:
             # Run plugin release script with the required env variables.
             - >
               env -i PATH=$PATH HOME=$HOME PWD=$PWD CI="true"
-              JFROG_CLI_PLUGINS_RT_REGISTRY_URL=$int_entplus_deployer_url"/artifactory"
-              JFROG_CLI_PLUGINS_RT_REGISTRY_REPO="ecosys-jfrog-cli-plugins"
+              JFROG_CLI_PLUGINS_SERVER="internal"
+              JFROG_CLI_PLUGINS_REPO="ecosys-jfrog-cli-plugins"
               JFROG_CLI_PLUGIN_PLUGIN_NAME=$JFROG_CLI_PLUGIN_PLUGIN_NAME
               JFROG_CLI_PLUGIN_VERSION=$JFROG_CLI_PLUGIN_VERSION
-              bash "./pluginUpload.sh"
+              jf plugin p "$JFROG_CLI_PLUGIN_PLUGIN_NAME" "$JFROG_CLI_PLUGIN_VERSION"
             # Distribute Plugin to releases.
             - options="--url=$int_entplus_deployer_url/distribution --user=$int_entplus_deployer_user --password=$int_entplus_deployer_apikey"
-            - jf ds rbc "cli-plugins" $JFROG_CLI_PLUGIN_VERSION --spec="plugin-rbc-spec.json" --spec-vars="NAME=$JFROG_CLI_PLUGIN_PLUGIN_NAME;VERSION=$JFROG_CLI_PLUGIN_VERSION" --sign $options
-            - jf ds rbd "cli-plugins" $JFROG_CLI_PLUGIN_VERSION --site=releases.jfrog.io --sync $options
+            - jf ds rbc "cli-plugins-$JFROG_CLI_PLUGIN_PLUGIN_NAME" $JFROG_CLI_PLUGIN_VERSION --spec="plugin-rbc-spec.json" --spec-vars="NAME=$JFROG_CLI_PLUGIN_PLUGIN_NAME;VERSION=$JFROG_CLI_PLUGIN_VERSION" --sign $options
+            - jf ds rbd "cli-plugins-$JFROG_CLI_PLUGIN_PLUGIN_NAME" $JFROG_CLI_PLUGIN_VERSION --site=releases.jfrog.io --sync $options
             # Copy version to 'latest' directory in releases.jfrog.io
             - jf rt cp "jfrog-cli-plugins/$JFROG_CLI_PLUGIN_PLUGIN_NAME/$JFROG_CLI_PLUGIN_VERSION/(*)" "jfrog-cli-plugins/$JFROG_CLI_PLUGIN_PLUGIN_NAME/latest/{1}" --url=https://releases.jfrog.io/artifactory/ --access-token=$int_releases_jfrog_io_deployer_access_token
           onComplete:
