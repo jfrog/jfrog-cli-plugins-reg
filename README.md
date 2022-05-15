@@ -21,7 +21,7 @@ After a plugin is included in this Registry, it becomes available for installati
         </td>
         <td>
             This plugin checks whether the Java environment and command line options of your log4j-enabled Java application, allow for the exploitation of CVE-2021-44228.
-        </td>https://releases.jfrog.io/artifactry
+        </td>
     </tr>
     <tr>
         <td width="20%">
