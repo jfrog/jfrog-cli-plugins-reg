@@ -150,7 +150,7 @@ pipelines:
         image:
           custom:
             name: releases-docker.jfrog.io/jfrog-ecosystem-integration-env
-            tag: 1.4.0
+            tag: 1.6.0
     steps:
       # Validate PR contains only the plugin descriptor
       - name: PR_includes_only_plugin_descriptor
