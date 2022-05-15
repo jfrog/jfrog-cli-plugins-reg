@@ -1,6 +1,6 @@
 # mandatory:
 pluginName: build-report
-version: v1.0.1
+version: v1.0.2
 repository: https://github.com/jfrog/jfrog-cli-plugins
 maintainers:
   - RobiNino
