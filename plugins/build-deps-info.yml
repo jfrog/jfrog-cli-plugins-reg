@@ -1,6 +1,6 @@
 # mandatory:
 pluginName: build-deps-info
-version: v1.2.2
+version: v1.2.3
 repository: https://github.com/jfrog/jfrog-cli-plugins
 maintainers:
   - Or-Gabay
