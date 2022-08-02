@@ -1,8 +1,8 @@
 # The Piperika plugin
 pluginName: piperika
-version: v2.1.4
+version: v2.1.5
 repository: https://github.com/hanochg/piperika
 maintainers:
   - hanochg
   - itairaz1
-tag: v2.1.4
+tag: v2.1.5
