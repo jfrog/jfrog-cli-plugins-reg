@@ -1,8 +1,9 @@
 # The live-logs plugin
 pluginName: live-logs
-version: v1.0.3
+version: v1.0.4
 repository: https://github.com/jfrog/live-logs
 maintainers:
   - amithins
-tag: v1.0.3
+  - shahiinn
+tag: v1.0.4
 
