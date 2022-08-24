@@ -36,7 +36,7 @@ func TestUpgrade(t *testing.T) {
 	assert.NoError(t, fileutils.CopyFile(tempDirPath, filepath.Join(wd, "testdata", "gomod")))
 	assert.NoError(t, fileutils.MoveFile(filepath.Join(tempDirPath, "gomod"), filepath.Join(tempDirPath, "go.mod")))
 	assert.NoError(t, Upgrade(tempDirPath, []Details{{Path: "github.com/jfrog/jfrog-cli-core", Version: "v1.2.6"}, {Path: "github.com/jfrog/jfrog-client-go", Version: "v0.18.0"}}))
-	fileDetails, err := fileutils.GetFileDetails(filepath.Join(tempDirPath, "go.mod"))
+	fileDetails, err := fileutils.GetFileDetails(filepath.Join(tempDirPath, "go.mod"), false)
 	assert.NoError(t, err)
 	assert.Equal(t, fileDetails.Checksum.Md5, "393573bda8c6f6a10dee023785165ee1")
 }
