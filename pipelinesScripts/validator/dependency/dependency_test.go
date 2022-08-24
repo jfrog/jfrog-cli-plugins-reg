@@ -41,9 +41,9 @@ func TestUpgrade(t *testing.T) {
 	assert.Equal(t, fileDetails.Checksum.Md5, "393573bda8c6f6a10dee023785165ee1")
 }
 
-func TestIsCoreVersionOneReleased(t *testing.T) {
+func TestIsCoreV1DepIncluded(t *testing.T) {
 	dependency := []Details{{Path: "github.com/jfrog/jfrog-cli-core/v2", Version: "v1.11.4"}}
-	assert.True(t,IsCoreVersionOneReleased(dependency))
+	assert.True(t, IsCoreV1DepIncluded(dependency))
 	dependency = []Details{{Path: "github.com/jfrog/jfrog-cli-core/v2", Version: "v2.11.4"}}
-	assert.False(t,IsCoreVersionOneReleased(dependency))
+	assert.False(t, IsCoreV1DepIncluded(dependency))
 }
