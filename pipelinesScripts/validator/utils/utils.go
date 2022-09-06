@@ -20,6 +20,7 @@ const (
 	Tests               ValidationType = "tests"
 	UpgradeJfrogPlugins ValidationType = "upgradejfrogplugins"
 	PluginDescriptorDir string         = "plugins"
+	rootDirName                        = "jfrog-cli-plugins-reg"
 )
 
 func PrintUsageAndExit() {
@@ -43,15 +44,14 @@ func RunCommand(dir string, getOutput bool, name string, args ...string) (output
 
 // Gets the root directory of `jfrog-cli-plugins-reg` project, where the plugins descriptors directory located.
 func getRootPath() (string, error) {
-	rootPath := filepath.Join("..", "..")
-	absRootPath, err := filepath.Abs(rootPath)
+	pwd, err := os.Getwd()
 	if err != nil {
-		return "", errors.New("Failed to convert path to Abs path for " + rootPath + ". Error:" + err.Error())
+		return "", err
 	}
-	if _, err := os.Stat(filepath.Join(absRootPath, "plugins")); os.IsNotExist(err) {
-		return "", errors.New("Failed to find 'plugin' folder in:" + rootPath + ". Error:" + err.Error())
+	if !strings.Contains(pwd, rootDirName) {
+		return "", errors.New("Failed to find 'plugin' folder in:" + pwd + ".")
 	}
-	return absRootPath, nil
+	return strings.Split(pwd, rootDirName)[0] + rootDirName, nil
 }
 
 func GetPluginsDescriptors() ([]*PluginDescriptor, error) {

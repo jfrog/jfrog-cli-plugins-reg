@@ -132,6 +132,10 @@ func upgradeJfrogPlugins() error {
 	if err != nil {
 		return err
 	}
+	if dependency.IsCoreV1DepIncluded(depToUpgrade) {
+		fmt.Println("The JFrog-cli-core release 1.x.x was detected. Skipping the upgrade process...")
+		return nil
+	}
 	fmt.Println("Starting to upgrade JFrog plugins...")
 	failedPlugins, err := doUpgrade(descriptors, depToUpgrade, cliPluginPath)
 	if err != nil {

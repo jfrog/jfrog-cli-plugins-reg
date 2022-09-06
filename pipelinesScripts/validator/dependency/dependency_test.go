@@ -36,7 +36,14 @@ func TestUpgrade(t *testing.T) {
 	assert.NoError(t, fileutils.CopyFile(tempDirPath, filepath.Join(wd, "testdata", "gomod")))
 	assert.NoError(t, fileutils.MoveFile(filepath.Join(tempDirPath, "gomod"), filepath.Join(tempDirPath, "go.mod")))
 	assert.NoError(t, Upgrade(tempDirPath, []Details{{Path: "github.com/jfrog/jfrog-cli-core", Version: "v1.2.6"}, {Path: "github.com/jfrog/jfrog-client-go", Version: "v0.18.0"}}))
-	fileDetails, err := fileutils.GetFileDetails(filepath.Join(tempDirPath, "go.mod"))
+	fileDetails, err := fileutils.GetFileDetails(filepath.Join(tempDirPath, "go.mod"), true)
 	assert.NoError(t, err)
 	assert.Equal(t, fileDetails.Checksum.Md5, "393573bda8c6f6a10dee023785165ee1")
+}
+
+func TestIsCoreV1DepIncluded(t *testing.T) {
+	dependency := []Details{{Path: "github.com/jfrog/jfrog-cli-core/v2", Version: "v1.11.4"}}
+	assert.True(t, IsCoreV1DepIncluded(dependency))
+	dependency = []Details{{Path: "github.com/jfrog/jfrog-cli-core/v2", Version: "v2.11.4"}}
+	assert.False(t, IsCoreV1DepIncluded(dependency))
 }

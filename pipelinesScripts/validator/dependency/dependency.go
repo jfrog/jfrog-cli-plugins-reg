@@ -45,6 +45,16 @@ func GetJfrogLatest() (dependencies []Details, err error) {
 	return
 }
 
+// Return true if dependencies contains jfrog-cli-core v1
+func IsCoreV1DepIncluded(dependencies []Details) bool {
+	for _, dep := range dependencies {
+		if strings.Contains(dep.Path, "jfrog-cli-core") {
+			return strings.HasPrefix(dep.Version, "v1.")
+		}
+	}
+	return false
+}
+
 func Upgrade(projectPath string, dependencies []Details) (err error) {
 	for _, dependency := range dependencies {
 		if err = utils.UpdateGoDependency(projectPath, dependency.Path, dependency.Version); err != nil {
