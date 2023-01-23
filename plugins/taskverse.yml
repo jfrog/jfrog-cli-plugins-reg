@@ -1,0 +1,7 @@
+# mandatory:
+pluginName: taskverse
+version: v1.0.0
+repository: https://github.com/jfrog/taskverse
+maintainers:
+  - elioengcomp
+tag: v1.0.0
