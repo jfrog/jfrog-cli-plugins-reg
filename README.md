@@ -163,6 +163,14 @@ After a plugin is included in this Registry, it becomes available for installati
             This plugin executes file system commands in Artifactory. It is designed to mimic the functionality of the Linux/Unix 'ls' and 'cat' commands.
         </td>
     </tr>
+    <tr>
+        <td width="20%">
+            <a href="https://github.com/jfrog/taskverse#readme">taskverse</a>
+        </td>
+        <td>
+            This plugin allows developers to run JFrog Pipelines Tasks locally in their own machines. It helps with the development process by considerably reducing the feedback loop.
+        </td>
+    </tr>
 </table>
 
 ## Developing and publishing plugins
