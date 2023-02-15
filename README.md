@@ -61,6 +61,14 @@ After a plugin is included in this Registry, it becomes available for installati
 <table>
     <tr>
         <td width="20%">
+            <a href="https://github.com/tamirdavid/benchmark">benchmark</a>
+        </td>
+        <td>
+            This plugin is for measuring upload and download speeds to and from an Artifactory instance.
+        </td>
+    </tr>
+    <tr>
+        <td width="20%">
             <a href="https://github.com/jfrog/jfrog-cli-plugins/tree/main/build-deps-info#readme">build-deps-info</a>
         </td>
         <td>
