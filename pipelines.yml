@@ -54,7 +54,7 @@ pipelines:
         configuration:
           integrations:
             - name: releases_jfrog_io_deployer
-            - name: entplus_deployer
+            - name: ecosys_entplus_deployer
           inputResources:
             - name: buildJfrogCliPluginGit
           runtime:
@@ -86,7 +86,7 @@ pipelines:
             - cd "./$pluginRepoName/$pluginRelativePath"
             # Install JFrog CLI
             - curl -fL https://install-cli.jfrog.io | sh
-            - jf c add internal --url=$int_entplus_deployer_url --user=$int_entplus_deployer_user --password=$int_entplus_deployer_apikey
+            - jf c add internal --url=$int_ecosys_entplus_deployer_url --user=$int_ecosys_entplus_deployer_user --password=$int_ecosys_entplus_deployer_apikey
             # Run plugin release script with the required env variables.
             - >
               env -i PATH=$PATH HOME=$HOME PWD=$PWD CI="true"
@@ -96,7 +96,7 @@ pipelines:
               JFROG_CLI_PLUGIN_VERSION=$JFROG_CLI_PLUGIN_VERSION
               jf plugin p "$JFROG_CLI_PLUGIN_PLUGIN_NAME" "$JFROG_CLI_PLUGIN_VERSION"
             # Distribute Plugin to releases.
-            - options="--url=$int_entplus_deployer_url/distribution --user=$int_entplus_deployer_user --password=$int_entplus_deployer_apikey"
+            - options="--url=$int_ecosys_entplus_deployer_url/distribution --user=$int_ecosys_entplus_deployer_user --password=$int_ecosys_entplus_deployer_apikey"
             - jf ds rbc "cli-plugins-$JFROG_CLI_PLUGIN_PLUGIN_NAME" $JFROG_CLI_PLUGIN_VERSION --spec="plugin-rbc-spec.json" --spec-vars="NAME=$JFROG_CLI_PLUGIN_PLUGIN_NAME;VERSION=$JFROG_CLI_PLUGIN_VERSION" --sign $options
             - jf ds rbd "cli-plugins-$JFROG_CLI_PLUGIN_PLUGIN_NAME" $JFROG_CLI_PLUGIN_VERSION --site=releases.jfrog.io --sync $options
             # Copy version to 'latest' directory in releases.jfrog.io
