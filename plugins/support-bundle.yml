@@ -1,0 +1,6 @@
+ # Mandatory:
+pluginName: upload-support-bundle
+version: v1.0.0
+repository: https://github.com/YonatanHen/upload-support-bundle-plugin/tree/master
+maintainers:
+    - YonatanHen
