@@ -176,7 +176,7 @@ After a plugin is included in this Registry, it becomes available for installati
             <a href="https://github.com/YonatanHen/support-bundle-plugin#readme">support-bundle</a>
         </td>
         <td>
-            This JFrog CLI plugin allows JFrog customers to easily upload [Support Bundles](https://jfrog.com/help/r/jfrog-platform-administration-documentation/support-zone) and files to the [JFrog Support SaaS instance](https://supportlogs.jfrog.com) using CLI command instead of cURL. This plugin also enables the uploading of multiple files using just one command.
+            This plugin allows JFrog customers to easily upload Support Bundles and files to the JFrog Support SaaS instance usinga JFrog CLI command instead of cURL. This plugin also enables the uploading of multiple files using just one command.
         </td>
     </tr>
     <tr>
