@@ -1,7 +1,6 @@
 package main
 
 import (
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"testing"
@@ -17,7 +16,7 @@ const testPluginRepo = "https://github.com/jfrog/jfrog-cli-plugins"
 
 func TestValidateExtension(t *testing.T) {
 	// Init playground
-	tempDirPath, playgroundPath, err := git.CreatePlaygroundForJfrogCliTest()
+	tempDirPath, playgroundPath, err := git.CreatePlaygroundForJfrogCliTest(t)
 	require.NoError(t, err)
 	oldCW, err := os.Getwd()
 	require.NoError(t, err)
@@ -27,13 +26,13 @@ func TestValidateExtension(t *testing.T) {
 	// cd to the cloned project
 	assert.NoError(t, os.Chdir(playgroundPath))
 	descriptorName := "test_extention_plugin"
-	assert.NoError(t, execValidator(&utils.PluginDescriptor{}, descriptorName+".yml", validateExtension))
-	assert.Error(t, execValidator(&utils.PluginDescriptor{}, descriptorName, validateExtension))
+	assert.NoError(t, execValidator(t, &utils.PluginDescriptor{}, descriptorName+".yml", validateExtension))
+	assert.Error(t, execValidator(t, &utils.PluginDescriptor{}, descriptorName, validateExtension))
 }
 
 func TestValidateDescriptorStructure(t *testing.T) {
 	// Init playground
-	tempDirPath, playgroundPath, err := git.CreatePlaygroundForJfrogCliTest()
+	tempDirPath, playgroundPath, err := git.CreatePlaygroundForJfrogCliTest(t)
 	require.NoError(t, err)
 	oldCW, err := os.Getwd()
 	require.NoError(t, err)
@@ -51,33 +50,33 @@ func TestValidateDescriptorStructure(t *testing.T) {
 		Maintainers: []string{"First_maintainer", "Second_maintainer"},
 	}
 	descriptorName := "test_extention_plugin.yml"
-	assert.NoError(t, execValidator(pluginDescriptor, descriptorName, validateDescriptor))
+	assert.NoError(t, execValidator(t, pluginDescriptor, descriptorName, validateDescriptor))
 
 	// Validate mandatory fields
 	pluginDescriptorCopy := *pluginDescriptor
 	pluginDescriptorCopy.PluginName = ""
-	assert.EqualError(t, execValidator(&pluginDescriptorCopy, descriptorName, validateDescriptor), "Errors detected in the yml descriptor file:\n* 'name' is missing\n")
+	assert.EqualError(t, execValidator(t, &pluginDescriptorCopy, descriptorName, validateDescriptor), "Errors detected in the yml descriptor file:\n* 'name' is missing\n")
 	pluginDescriptorCopy = *pluginDescriptor
 	pluginDescriptorCopy.Version = ""
-	assert.EqualError(t, execValidator(&pluginDescriptorCopy, descriptorName, validateDescriptor), "Errors detected in the yml descriptor file:\n* 'version' is missing\n")
+	assert.EqualError(t, execValidator(t, &pluginDescriptorCopy, descriptorName, validateDescriptor), "Errors detected in the yml descriptor file:\n* 'version' is missing\n")
 
 	pluginDescriptorCopy = *pluginDescriptor
 	pluginDescriptorCopy.Repository = ""
-	assert.EqualError(t, execValidator(&pluginDescriptorCopy, descriptorName, validateDescriptor), "Errors detected in the yml descriptor file:\n* 'repository' is missing\n")
+	assert.EqualError(t, execValidator(t, &pluginDescriptorCopy, descriptorName, validateDescriptor), "Errors detected in the yml descriptor file:\n* 'repository' is missing\n")
 
 	pluginDescriptorCopy = *pluginDescriptor
 	pluginDescriptorCopy.Maintainers = nil
-	assert.EqualError(t, execValidator(&pluginDescriptorCopy, descriptorName, validateDescriptor), "Errors detected in the yml descriptor file:\n* 'maintainers' is missing\n")
+	assert.EqualError(t, execValidator(t, &pluginDescriptorCopy, descriptorName, validateDescriptor), "Errors detected in the yml descriptor file:\n* 'maintainers' is missing\n")
 
 	pluginDescriptorCopy = *pluginDescriptor
 	pluginDescriptorCopy.Branch = "my-branch"
 	pluginDescriptorCopy.Tag = "my-tag"
-	assert.EqualError(t, execValidator(&pluginDescriptorCopy, descriptorName, validateDescriptor), "Errors detected in the yml descriptor file:\n* Plugin descriptor yml cannot include both 'tag' and 'branch'.\n")
+	assert.EqualError(t, execValidator(t, &pluginDescriptorCopy, descriptorName, validateDescriptor), "Errors detected in the yml descriptor file:\n* Plugin descriptor yml cannot include both 'tag' and 'branch'.\n")
 }
 
 func TestValidateDescriptorTests(t *testing.T) {
 	// Init playground
-	tempDirPath, playgroundPath, err := git.CreatePlaygroundForJfrogCliTest()
+	tempDirPath, playgroundPath, err := git.CreatePlaygroundForJfrogCliTest(t)
 	require.NoError(t, err)
 	oldCW, err := os.Getwd()
 	require.NoError(t, err)
@@ -95,10 +94,10 @@ func TestValidateDescriptorTests(t *testing.T) {
 		RelativePath: "build-deps-info",
 	}
 	descriptorName := "test_extention_plugin.yml"
-	assert.NoError(t, execValidator(pluginDescriptor, descriptorName, runTests))
+	assert.NoError(t, execValidator(t, pluginDescriptor, descriptorName, runTests))
 }
 
-func execValidator(pluginDescriptor *utils.PluginDescriptor, descriptorName string, validatorFunc func() error) error {
+func execValidator(t *testing.T, pluginDescriptor *utils.PluginDescriptor, descriptorName string, validatorFunc func() error) error {
 	currentDir, err := os.Getwd()
 	if err != nil {
 		return err
@@ -110,8 +109,10 @@ func execValidator(pluginDescriptor *utils.PluginDescriptor, descriptorName stri
 		return err
 	}
 	// Mimic jfrog pipelines entry point.
-	defer os.Chdir(currentDir)
-	os.Chdir(filepath.Join("pipelinesScripts", "validator"))
+	defer func() {
+		assert.NoError(t, os.Chdir(currentDir))
+	}()
+	assert.NoError(t, os.Chdir(filepath.Join("pipelinesScripts", "validator")))
 	return validatorFunc()
 }
 
@@ -122,5 +123,5 @@ func CreatePluginYaml(data *utils.PluginDescriptor, descriptorName, currentDir s
 		return err
 	}
 	pluginPath := filepath.Join(currentDir, "plugins", descriptorName)
-	return ioutil.WriteFile(pluginPath, dataBytes, 0644)
+	return os.WriteFile(pluginPath, dataBytes, 0600)
 }
