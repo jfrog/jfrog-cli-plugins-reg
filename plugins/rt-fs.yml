@@ -1,6 +1,6 @@
 # mandatory:
 pluginName: rt-fs
-version: v1.1.5
+version: v1.1.6
 repository: https://github.com/jfrog/jfrog-cli-plugins
 maintainers:
   - yahavi
