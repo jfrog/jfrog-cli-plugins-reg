@@ -1,16 +1,13 @@
 package git
 
 import (
-	"io/ioutil"
 	"os"
+	"testing"
 )
 
 // Clones the 'jfrog-cli-plugin-reg' repo to a temp dir for tests purposes.
-func CreatePlaygroundForJfrogCliTest() (string, string, error) {
-	tempDirPath, err := ioutil.TempDir("", "out")
-	if err != nil {
-		return "", "", err
-	}
+func CreatePlaygroundForJfrogCliTest(t *testing.T) (string, string, error) {
+	tempDirPath := t.TempDir()
 	playgroundPath, err := CloneRepository(tempDirPath, JfrogCliPluginsRegUrl, "", JfrogCliPluginsRegBranch, "")
 	if err != nil {
 		return "", "", err

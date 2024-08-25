@@ -1,11 +1,11 @@
 package dependency
 
 import (
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"testing"
 
+	"github.com/jfrog/build-info-go/utils"
 	"github.com/jfrog/jfrog-client-go/utils/io/fileutils"
 	"github.com/stretchr/testify/assert"
 )
@@ -25,16 +25,12 @@ func TestToString(t *testing.T) {
 }
 
 func TestUpgrade(t *testing.T) {
-	tempDirPath, err := ioutil.TempDir("", "out")
-	assert.NoError(t, err)
-	defer func() {
-		assert.NoError(t, os.RemoveAll(tempDirPath))
-	}()
+	tempDirPath := t.TempDir()
 	wd, err := os.Getwd()
 	assert.NoError(t, err)
 
-	assert.NoError(t, fileutils.CopyFile(tempDirPath, filepath.Join(wd, "testdata", "gomod")))
-	assert.NoError(t, fileutils.MoveFile(filepath.Join(tempDirPath, "gomod"), filepath.Join(tempDirPath, "go.mod")))
+	assert.NoError(t, utils.CopyFile(tempDirPath, filepath.Join(wd, "testdata", "gomod")))
+	assert.NoError(t, utils.MoveFile(filepath.Join(tempDirPath, "gomod"), filepath.Join(tempDirPath, "go.mod")))
 	assert.NoError(t, Upgrade(tempDirPath, []Details{{Path: "github.com/jfrog/jfrog-cli-core", Version: "v1.2.6"}, {Path: "github.com/jfrog/jfrog-client-go", Version: "v0.18.0"}}))
 	fileDetails, err := fileutils.GetFileDetails(filepath.Join(tempDirPath, "go.mod"), true)
 	assert.NoError(t, err)

@@ -3,7 +3,6 @@ package utils
 import (
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -51,7 +50,13 @@ func getRootPath() (string, error) {
 	if !strings.Contains(pwd, rootDirName) {
 		return "", errors.New("Failed to find 'plugin' folder in:" + pwd + ".")
 	}
-	return strings.Split(pwd, rootDirName)[0] + rootDirName, nil
+
+	// Return the substring up to and including the last occurrence of jfrog-cli-plugins-reg.
+	// Examples:
+	// /Users/frogger/code/jfrog-cli-plugins-reg/pipelinesScripts/validator/utils -> /Users/frogger/code/jfrog-cli-plugins-reg
+	// /home/runner/work/jfrog-cli-plugins-reg/jfrog-cli-plugins-reg/pipelinesScripts/validator/utils -> /home/runner/work/jfrog-cli-plugins-reg/jfrog-cli-plugins-reg
+	lastRepoNameIndex := strings.LastIndex(pwd, rootDirName)
+	return pwd[:lastRepoNameIndex+len(rootDirName)], nil
 }
 
 func GetPluginsDescriptors() ([]*PluginDescriptor, error) {
@@ -59,7 +64,7 @@ func GetPluginsDescriptors() ([]*PluginDescriptor, error) {
 	if err != nil {
 		return nil, err
 	}
-	fileInfos, err := ioutil.ReadDir(filepath.Join(rootPath, PluginDescriptorDir))
+	fileInfos, err := os.ReadDir(filepath.Join(rootPath, PluginDescriptorDir))
 	if err != nil {
 		return nil, err
 	}
@@ -83,11 +88,11 @@ func ExtractRepoDetails(pluginRepository string) (owner string, repo string) {
 
 func UpdateGoDependency(runAt, depName, depVersion string) (err error) {
 	dependency := depName + "@" + depVersion
-	fmt.Println(fmt.Sprintf("Running command 'go get %v' at '%v'", dependency, runAt))
+	fmt.Printf("Running command 'go get %v' at '%v'\n", dependency, runAt)
 	var output string
 	output, err = RunCommand(runAt, true, "go", "get", dependency)
 	if err != nil {
-		fmt.Println(fmt.Sprintf("Go Get failed at %v, output:'%v'", runAt, output))
+		fmt.Printf("Go Get failed at %v, output:'%v'\n", runAt, output)
 	}
 	return
 }
@@ -111,7 +116,7 @@ func ReadDescriptor(filePath string) (*PluginDescriptor, error) {
 	if err != nil {
 		return nil, err
 	}
-	content, err := ioutil.ReadFile(filepath.Join(rootPath, filePath))
+	content, err := os.ReadFile(filepath.Join(rootPath, filePath))
 	if err != nil {
 		return nil, errors.New("Failed to read '" + filePath + "'. Error: " + err.Error())
 	}

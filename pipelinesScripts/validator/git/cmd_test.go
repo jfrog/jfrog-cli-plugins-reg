@@ -1,7 +1,6 @@
 package git
 
 import (
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"testing"
@@ -12,7 +11,7 @@ import (
 
 func TestGetModifiedFiles(t *testing.T) {
 	// Init playground
-	tempDirPath, playgroundPath, err := CreatePlaygroundForJfrogCliTest()
+	tempDirPath, playgroundPath, err := CreatePlaygroundForJfrogCliTest(t)
 	require.NoError(t, err)
 	oldCW, err := os.Getwd()
 	require.NoError(t, err)
@@ -22,7 +21,7 @@ func TestGetModifiedFiles(t *testing.T) {
 	// CD to the cloned project
 	require.NoError(t, os.Chdir(playgroundPath))
 	// Create new file.
-	assert.NoError(t, ioutil.WriteFile("file.txt", []byte("test"), 0644))
+	assert.NoError(t, os.WriteFile("file.txt", []byte("test"), 0600))
 	assert.NoError(t, CommitAllFiles(playgroundPath))
 	files, err := GetModifiedFiles()
 	require.NoError(t, err)
@@ -32,7 +31,7 @@ func TestGetModifiedFiles(t *testing.T) {
 
 func TestStageModifiedFiles(t *testing.T) {
 	// Init playground
-	tempDirPath, playgroundPath, err := CreatePlaygroundForJfrogCliTest()
+	tempDirPath, playgroundPath, err := CreatePlaygroundForJfrogCliTest(t)
 	require.NoError(t, err)
 	oldCW, err := os.Getwd()
 	require.NoError(t, err)
@@ -42,8 +41,8 @@ func TestStageModifiedFiles(t *testing.T) {
 	// CD to the cloned project
 	require.NoError(t, os.Chdir(playgroundPath))
 	// Create new file.
-	assert.NoError(t, ioutil.WriteFile("file", []byte("test"), 0644))
-	assert.NoError(t, ioutil.WriteFile("file2", []byte("test"), 0644))
+	assert.NoError(t, os.WriteFile("file", []byte("test"), 0600))
+	assert.NoError(t, os.WriteFile("file2", []byte("test"), 0600))
 	count, err := StageModifiedFiles(playgroundPath, "file", "file2")
 	assert.NoError(t, err)
 	assert.Equal(t, 2, count)
@@ -51,7 +50,7 @@ func TestStageModifiedFiles(t *testing.T) {
 
 func TestGetModifiedFilesCleanupBranches(t *testing.T) {
 	// Init playground
-	tempDirPath, playgroundPath, err := CreatePlaygroundForJfrogCliTest()
+	tempDirPath, playgroundPath, err := CreatePlaygroundForJfrogCliTest(t)
 	require.NoError(t, err)
 
 	// CD to the cloned project
