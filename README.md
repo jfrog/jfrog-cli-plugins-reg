@@ -187,6 +187,14 @@ After a plugin is included in this Registry, it becomes available for installati
             This plugin allows developers to run JFrog Pipelines Tasks locally in their own machines. It helps with the development process by considerably reducing the feedback loop.
         </td>
     </tr>
+    <tr>
+        <td width="20%">
+            <a href="https://github.com/AlexeiVainshtein/federation-migrator-jfrog-cli-plugin#readme">federation-migrator</a>
+        </td>
+        <td>
+           This plugin allows to migrate your Federation repositories from the legacy Federation service that is part of Artifactory to the standalone Federation service (or rollback).
+        </td>
+    </tr>
 </table>
 
 ## Developing and publishing plugins
