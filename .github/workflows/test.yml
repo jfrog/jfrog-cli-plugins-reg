@@ -15,6 +15,9 @@ jobs:
         os: [ubuntu, windows, macos]
 
     runs-on: ${{ matrix.os }}-latest
+    defaults:
+      run:
+        working-directory: pipelinesScripts/validator
     steps:
       - name: Checkout Source
         uses: actions/checkout@v4
@@ -22,19 +25,20 @@ jobs:
       - name: Setup Go with Cache
         uses: jfrog/.github/actions/install-go-with-cache@main
 
-      - name: Install Linter
-        run: curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin
-        shell: bash
-
-      - name: Test Validator
+      - name: Configure git
         run: |
-          # Configure Git
           git config --global user.email "jfrog-ecosystem@jfrog.com"
           git config --global user.name "jfrog-ecosystem"
 
-          # Run linter
-          golangci-lint run --enable govet,errcheck,gosimple,ineffassign,staticcheck,typecheck,unused,gocritic,asasalint,asciicheck,errchkjson,exportloopref,forcetypeassert,makezero,nilerr,unparam,unconvert,wastedassign,usestdlibvars,gosec
+      - name: Static Code Analysis
+        uses: golangci/golangci-lint-action@v6
+        with:
+          skip-cache: true
+          args: |
+            --timeout 5m --enable govet,errcheck,gosimple,ineffassign,staticcheck,typecheck,unused,gocritic,asasalint,asciicheck,errchkjson,copyloopvar,forcetypeassert,makezero,nilerr,unparam,unconvert,wastedassign,usestdlibvars,gosec
+          working-directory: pipelinesScripts/validator
 
+      - name: Test Validator
+        run: |
           # Run tests
           go test -v ./... -timeout 0 -race
-        working-directory: pipelinesScripts/validator
