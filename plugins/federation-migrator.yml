@@ -1,0 +1,6 @@
+# mandatory:
+pluginName: federation-migrator
+version: v1.1.1
+repository: https://github.com/yoadwo/federation-migrator-jfrog-cli-plugin
+maintainers:
+  - yoadwo

@@ -3,7 +3,6 @@ package main
 import (
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -99,7 +98,7 @@ func runTests() (err error) {
 		if err != nil {
 			return err
 		}
-		tempDir, err := ioutil.TempDir("", "pluginRepo")
+		tempDir, err := os.MkdirTemp("", "pluginRepo")
 		if err != nil {
 			return err
 		}
@@ -132,13 +131,19 @@ func upgradeJfrogPlugins() error {
 	if err != nil {
 		return err
 	}
+	if dependency.IsCoreV1DepIncluded(depToUpgrade) {
+		fmt.Println("The JFrog-cli-core release 1.x.x was detected. Skipping the upgrade process...")
+		return nil
+	}
 	fmt.Println("Starting to upgrade JFrog plugins...")
 	failedPlugins, err := doUpgrade(descriptors, depToUpgrade, cliPluginPath)
 	if err != nil {
 		return err
 	}
 	if len(failedPlugins) > 0 {
-		openIssue(failedPlugins, depToUpgrade, token)
+		if err := openIssue(failedPlugins, depToUpgrade, token); err != nil {
+			return err
+		}
 	}
 	return nil
 }
@@ -172,7 +177,7 @@ func doUpgrade(descriptors []*utils.PluginDescriptor, depToUpgrade []dependency.
 		if stagedCount == 0 {
 			fmt.Println("No file were changed due to upgrade for plugin: " + descriptor.PluginName)
 		} else {
-			fmt.Println(fmt.Sprintf("%v files were staged.", stagedCount))
+			fmt.Printf("%v files were staged.\n", stagedCount)
 		}
 	}
 	return failedPlugins, nil
@@ -201,7 +206,7 @@ func openIssue(failedPlugins []string, depToUpgrade []dependency.Details, token 
 // Returns the necessary arguments to run the upgrade process.
 func getUpgradeArgs() (string, string, error) {
 	if len(os.Args) < 3 {
-		return "", "", errors.New("missing cli plugin path.")
+		return "", "", errors.New("missing cli plugin path")
 	}
 	cliPluginPath := os.Args[2]
 	fileInfo, err := os.Stat(cliPluginPath)
@@ -210,7 +215,7 @@ func getUpgradeArgs() (string, string, error) {
 	}
 	token := os.Getenv("issue_token")
 	if token == "" {
-		return "", "", errors.New("issue_token env was not found.")
+		return "", "", errors.New("issue_token env was not found")
 	}
 	return cliPluginPath, token, nil
 }

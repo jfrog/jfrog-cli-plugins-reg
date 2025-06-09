@@ -1,6 +1,6 @@
 # mandatory:
 pluginName: file-spec-gen
-version: v1.0.1
+version: v1.0.6
 repository: https://github.com/jfrog/jfrog-cli-plugins
 maintainers:
   - barbelity

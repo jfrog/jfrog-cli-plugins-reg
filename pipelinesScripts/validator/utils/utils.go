@@ -3,7 +3,6 @@ package utils
 import (
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -20,6 +19,7 @@ const (
 	Tests               ValidationType = "tests"
 	UpgradeJfrogPlugins ValidationType = "upgradejfrogplugins"
 	PluginDescriptorDir string         = "plugins"
+	rootDirName                        = "jfrog-cli-plugins-reg"
 )
 
 func PrintUsageAndExit() {
@@ -43,15 +43,20 @@ func RunCommand(dir string, getOutput bool, name string, args ...string) (output
 
 // Gets the root directory of `jfrog-cli-plugins-reg` project, where the plugins descriptors directory located.
 func getRootPath() (string, error) {
-	rootPath := filepath.Join("..", "..")
-	absRootPath, err := filepath.Abs(rootPath)
+	pwd, err := os.Getwd()
 	if err != nil {
-		return "", errors.New("Failed to convert path to Abs path for " + rootPath + ". Error:" + err.Error())
+		return "", err
 	}
-	if _, err := os.Stat(filepath.Join(absRootPath, "plugins")); os.IsNotExist(err) {
-		return "", errors.New("Failed to find 'plugin' folder in:" + rootPath + ". Error:" + err.Error())
+	if !strings.Contains(pwd, rootDirName) {
+		return "", errors.New("Failed to find 'plugin' folder in:" + pwd + ".")
 	}
-	return absRootPath, nil
+
+	// Return the substring up to and including the last occurrence of jfrog-cli-plugins-reg.
+	// Examples:
+	// /Users/frogger/code/jfrog-cli-plugins-reg/pipelinesScripts/validator/utils -> /Users/frogger/code/jfrog-cli-plugins-reg
+	// /home/runner/work/jfrog-cli-plugins-reg/jfrog-cli-plugins-reg/pipelinesScripts/validator/utils -> /home/runner/work/jfrog-cli-plugins-reg/jfrog-cli-plugins-reg
+	lastRepoNameIndex := strings.LastIndex(pwd, rootDirName)
+	return pwd[:lastRepoNameIndex+len(rootDirName)], nil
 }
 
 func GetPluginsDescriptors() ([]*PluginDescriptor, error) {
@@ -59,7 +64,7 @@ func GetPluginsDescriptors() ([]*PluginDescriptor, error) {
 	if err != nil {
 		return nil, err
 	}
-	fileInfos, err := ioutil.ReadDir(filepath.Join(rootPath, PluginDescriptorDir))
+	fileInfos, err := os.ReadDir(filepath.Join(rootPath, PluginDescriptorDir))
 	if err != nil {
 		return nil, err
 	}
@@ -81,11 +86,13 @@ func ExtractRepoDetails(pluginRepository string) (owner string, repo string) {
 	return strings.ToLower(splitted[0]), strings.ToLower(splitted[1])
 }
 
-func UpdateGoDependency(runAt, DepName, depVersion string) (err error) {
-	// Keep the stdout clean. Ignoring 'go get' cmd output.
-	_, err = RunCommand(runAt, true, "go", "get", DepName+"@"+depVersion)
+func UpdateGoDependency(runAt, depName, depVersion string) (err error) {
+	dependency := depName + "@" + depVersion
+	fmt.Printf("Running command 'go get %v' at '%v'\n", dependency, runAt)
+	var output string
+	output, err = RunCommand(runAt, true, "go", "get", dependency)
 	if err != nil {
-		fmt.Println("Go Get failed for at" + runAt)
+		fmt.Printf("Go Get failed at %v, output:'%v'\n", runAt, output)
 	}
 	return
 }
@@ -109,7 +116,7 @@ func ReadDescriptor(filePath string) (*PluginDescriptor, error) {
 	if err != nil {
 		return nil, err
 	}
-	content, err := ioutil.ReadFile(filepath.Join(rootPath, filePath))
+	content, err := os.ReadFile(filepath.Join(rootPath, filePath))
 	if err != nil {
 		return nil, errors.New("Failed to read '" + filePath + "'. Error: " + err.Error())
 	}

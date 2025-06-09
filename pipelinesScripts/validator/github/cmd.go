@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"strings"
 	"time"
@@ -26,12 +26,13 @@ type IssuesReq struct {
 
 func GetLatestRelease(owner, repo string) (version string, err error) {
 	uri := "https://api.github.com/repos/" + owner + "/" + repo + "/releases?per_page=1"
+	// #nosec G107 - False positive - 'owner' and 'repo' are not user-provided inputs
 	resp, err := http.Get(uri)
 	if err != nil {
 		return "", err
 	}
 	defer resp.Body.Close()
-	content, err := ioutil.ReadAll(resp.Body)
+	content, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return "", err
 	}

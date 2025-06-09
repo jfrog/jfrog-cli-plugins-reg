@@ -2,6 +2,7 @@ package dependency
 
 import (
 	"errors"
+	"fmt"
 	"strings"
 
 	"github.com/jfrog/jfrog-cli-plugins-reg/github"
@@ -14,6 +15,11 @@ type Details struct {
 	Version string
 }
 
+type JFrogDependencyDetails struct {
+	Name                   string
+	MajorVersionModulePath string
+}
+
 // String returns the name and version of the dependency, omitting the path prefix.
 func (d *Details) String() (string, error) {
 	idx := strings.LastIndex(d.Path, "/")
@@ -24,19 +30,29 @@ func (d *Details) String() (string, error) {
 }
 
 var (
-	jfrogDependencies = [...]string{"jfrog-cli-core", "jfrog-client-go"}
+	jfrogDependencies = [...]JFrogDependencyDetails{{Name: "jfrog-cli-core", MajorVersionModulePath: "/v2"}, {Name: "jfrog-client-go", MajorVersionModulePath: ""}}
 )
 
 // Returns the latest jfrog dependencies version in order to upgrade plugins dependencies.
 func GetJfrogLatest() (dependencies []Details, err error) {
 	for _, dep := range jfrogDependencies {
-		latest, err := github.GetLatestRelease("jfrog", dep)
+		latest, err := github.GetLatestRelease("jfrog", dep.Name)
 		if err != nil {
 			return nil, err
 		}
-		dependencies = append(dependencies, Details{Path: "github.com/jfrog/" + dep, Version: latest})
+		dependencies = append(dependencies, Details{Path: "github.com/jfrog/" + dep.Name + dep.MajorVersionModulePath, Version: latest})
 	}
 	return
+}
+
+// Return true if dependencies contains jfrog-cli-core v1
+func IsCoreV1DepIncluded(dependencies []Details) bool {
+	for _, dep := range dependencies {
+		if strings.Contains(dep.Path, "jfrog-cli-core") {
+			return strings.HasPrefix(dep.Version, "v1.")
+		}
+	}
+	return false
 }
 
 func Upgrade(projectPath string, dependencies []Details) (err error) {
@@ -44,6 +60,7 @@ func Upgrade(projectPath string, dependencies []Details) (err error) {
 		if err = utils.UpdateGoDependency(projectPath, dependency.Path, dependency.Version); err != nil {
 			return
 		}
+		fmt.Println("Successfully updated!")
 	}
 	return
 }

@@ -109,7 +109,7 @@ func runGitDiff(runAt, compareTo string) ([]string, error) {
 		return nil, errors.New("Failed to run git diff command: " + err.Error())
 	}
 	var fullPathCommittedFiles []string
-	for _, file := range strings.Split(string(output), "\n") {
+	for _, file := range strings.Split(output, "\n") {
 		if file != "" {
 			fullPathCommittedFiles = append(fullPathCommittedFiles, file)
 		}
