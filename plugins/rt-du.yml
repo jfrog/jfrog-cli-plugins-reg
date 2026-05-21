@@ -1,0 +1,6 @@
+pluginName: rt-du
+version: v0.1.0
+repository: https://github.com/scaronni/jfrog-cli-plugin-rt-du
+maintainers:
+  - scaronni
+tag: v0.1.0
