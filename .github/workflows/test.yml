@@ -24,6 +24,8 @@ jobs:
 
       - name: Setup Go with Cache
         uses: jfrog/.github/actions/install-go-with-cache@main
+        with:
+          go-version-file: pipelinesScripts/validator/go.mod
 
       - name: Configure git
         run: |
