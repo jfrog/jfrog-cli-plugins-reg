@@ -1,6 +1,6 @@
 module github.com/jfrog/jfrog-cli-plugins-reg
 
-go 1.22.5
+go 1.24.5
 
 require (
 	github.com/jfrog/build-info-go v1.9.34
