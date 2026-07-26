@@ -1,0 +1,7 @@
+# The vulnreport plugin
+pluginName: vulnreport
+version: v1.0.1
+repository: https://github.com/jmhardison/jfrog-vulnreport
+maintainers:
+  - jmhardison
+tag: v1.0.1
