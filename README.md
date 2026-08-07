@@ -7,10 +7,10 @@
 </div>
 
 ## General
-**JFrog CLI Plugins** allow enhancing the functionality of [JFrog CLI](https://www.jfrog.com/confluence/display/CLI/JFrog+CLI) to meet the specific user and organization needs. The source code of a plugin is maintained as an open source Go project on GitHub. All public plugins are registered in **JFrog CLI's Plugins Registry**. The Registry is hosted in this GitHub repository. The [plugins](plugins) directory includes a descriptor file for each plugin included in the Registry. 
+**JFrog CLI Plugins** allow enhancing the functionality of [JFrog CLI](https://www.jfrog.com/confluence/display/CLI/JFrog+CLI) to meet the specific user and organization needs. The source code of a plugin is maintained as an open source Go project on GitHub. All public plugins are registered in **JFrog CLI's Plugins Registry**. The Registry is hosted in this GitHub repository. The [plugins](plugins) directory includes a descriptor file for each plugin included in the Registry.
 
-## Installing a plugin 
-After a plugin is included in this Registry, it becomes available for installation using JFrog CLI. JFrog CLI version 1.41.1 or above is required. To install a plugin included in this registry, run the following JFrog CLI command -  `jf plugin install plugin-name`. 
+## Installing a plugin
+After a plugin is included in this Registry, it becomes available for installation using JFrog CLI. JFrog CLI version 1.41.1 or above is required. To install a plugin included in this registry, run the following JFrog CLI command -  `jf plugin install plugin-name`.
 
 ## Available plugins
 ### Security plugins
@@ -36,7 +36,7 @@ After a plugin is included in this Registry, it becomes available for installati
             <a href="https://github.com/jfrog/log4j-tools/tree/main/scan_log4j_calls_jar/jfrog_cli_plugin#readme">scan-log4j-calls-jar</a>
         </td>
         <td>
-            This plugin recursively scans all <i>.jar</i> files in a root-folder. For each jar file, the plugin prints out the locations (class name and method name) of calls to <i>info/warn/error/log/debug/trace/fatal</i> methods of <i>log4j2.Logger</i>. 
+            This plugin recursively scans all <i>.jar</i> files in a root-folder. For each jar file, the plugin prints out the locations (class name and method name) of calls to <i>info/warn/error/log/debug/trace/fatal</i> methods of <i>log4j2.Logger</i>.
         </td>
     </tr>
     <tr>
@@ -44,7 +44,7 @@ After a plugin is included in this Registry, it becomes available for installati
             <a href="https://github.com/jfrog/log4j-tools/tree/main/scan_log4j_calls_src/jfrog_cli_plugin#readme">scan-log4j-calls-src</a>
         </td>
         <td>
-            This plugin recursively scans all <i>.java</i> files in a root-folder. For each file, the plugin prints out the locations (file name and corresponding code lines) of calls to <i>log4j2</i> logging methods. 
+            This plugin recursively scans all <i>.java</i> files in a root-folder. For each file, the plugin prints out the locations (file name and corresponding code lines) of calls to <i>log4j2</i> logging methods.
         </td>
     </tr>
      <tr>
@@ -185,6 +185,14 @@ After a plugin is included in this Registry, it becomes available for installati
         </td>
         <td>
             This plugin allows developers to run JFrog Pipelines Tasks locally in their own machines. It helps with the development process by considerably reducing the feedback loop.
+        </td>
+    </tr>
+    <tr>
+        <td width="20%">
+            <a href="https://github.com/jmhardison/jfrog-vulnreport#readme">vulnreport</a>
+        </td>
+        <td>
+            This plugin allows developers to generate a local report of published image vulnerabilities. Additionally provides output formats to simplify insertion to pull-request comments in a delivery pipeline.
         </td>
     </tr>
 </table>
